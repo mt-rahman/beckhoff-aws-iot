@@ -17,6 +17,9 @@
     <LibraryReferences>{2ac849aa-b428-47ea-ae95-b6ed3f4261f5}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DUTs\ST_SelectStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
@@ -39,7 +42,19 @@
     <Compile Include="POUs\Background_Payload.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Buffer_Data.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Buffer_IMU.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\FB_FatigueCam.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Get_Data.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Get_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_Payload.TcPOU">
@@ -55,6 +70,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_GPS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Save_Data.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Save_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Send_MQTT.TcPOU">
@@ -83,6 +104,10 @@
     <PlaceholderReference Include="Tc2_Utilities">
       <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Database">
+      <DefaultResolution>Tc3_Database, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Database</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_IotBase">
       <DefaultResolution>Tc3_IotBase, * (Beckhoff Automation GmbH)</DefaultResolution>

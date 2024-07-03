@@ -19,8 +19,10 @@ VAR
 	
 	(* published message *)
 	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/sdt'; //message topic
-	sPayloadPub : STRING(255);
-	i			: UDINT;
+	sPayloadPub : STRING(10000);
+	str			: STRING(10000);
+	str2		: STRING(10000);
+	i			: INT;
 	fbTimer : TON := (PT:=T#1S);
 	
 	(* topic subscription *)
@@ -37,11 +39,19 @@ VAR
 	fbMessage : FB_IotMqttMessage;
 	
 	hrErrorOccurred : HRESULT; // contains the latest occurred error
+	Published		: BOOL;
+	Publish			: BOOL;
 END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF bSetParameter THEN
+      <ST><![CDATA[IF Main2.New_Data THEN
+	Publish		:= FALSE;
+	Published 	:= FALSE;	
+END_IF
+
+
+IF bSetParameter THEN
 	bSetParameter := FALSE;
 	
 	(* TLS settings for AWS IoT connection *)
@@ -80,65 +90,116 @@ IF fbMqttClient.bConnected THEN
 			hrErrorOccurred := fbMqttClient.hrErrorCode;
 		END_IF
 	END_IF
+	
+	(* build message payload *)
+	i := 1;
+	sPayloadPub := '[';
+	WHILE i <= Main2.Data_Length DO
+		str	:= CONCAT('{"primemover_id":"', Main2.Truck_ID);
+		str	:= CONCAT(str, '","trailer_id":"');
+		str	:= CONCAT(str, Main2.Trailer_ID[i]);
+		str	:= CONCAT(str, '","datetime":"');
+		str	:= CONCAT(str, Main2.TimeStr[i]);
+		str	:= CONCAT(str, '","latitude":"');
+		str	:= CONCAT(str, Main2.Lat[i]);
+		str	:= CONCAT(str, '","longitude":"');
+		str	:= CONCAT(str, Main2.Lon[i]);
+		str	:= CONCAT(str, '","speed":"');
+		str	:= CONCAT(str, Main2.Speed[i]);
+		str	:= CONCAT(str, '","overspeed":"');
+		str	:= CONCAT(str, Main2.Overspeed[i]);
+		str	:= CONCAT(str, '","payload_raw":"');
+		str	:= CONCAT(str, Main2.Payload_Raw[i]);
+		str	:= CONCAT(str, '","payload_ema":"');
+		str	:= CONCAT(str, Main2.Payload_EMA[i]);
 		
-	(* message payload *)
-	sPayloadPub	:= CONCAT('{"pmid":"', Main2.Truck_ID);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","trid":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Trailer_ID);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","datetime":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.TimeStr);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","lat":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Lat);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","lon":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Lon);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","spd":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Speed);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","ovrspd":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Overspeed);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","ftgevt":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.EventCode);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","pyldema":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Payload_EMA);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","pyldraw":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Payload_Raw);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","pyld":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Payload);
-	sPayloadPub	:= CONCAT(sPayloadPub, '","ovrld":"');
-	sPayloadPub	:= CONCAT(sPayloadPub, Main2.Overload);
-	sPayloadPub	:= CONCAT(sPayloadPub, '"}');	
+		str2	:= CONCAT('","overload":"', Main2.Overload[i]);
+		str2	:= CONCAT(str2, '","pressure_cyl":"');
+		str2	:= CONCAT(str2, Main2.Pressure_Cyl[i]);
+		str2	:= CONCAT(str2, '","pressure_val":"');
+		str2	:= CONCAT(str2, Main2.Pressure_Val[i]);
+		str2	:= CONCAT(str2, '","strain_left":"');
+		str2	:= CONCAT(str2, Main2.Strain_Left[i]);
+		str2	:= CONCAT(str2, '","strain_right":"');
+		str2	:= CONCAT(str2, Main2.Strain_Right[i]);
+		str2	:= CONCAT(str2, '","fatigue_event":"');
+		str2	:= CONCAT(str2, Main2.EventCode[i]);
+		str2	:= CONCAT(str2, '","cycle_duration":"');
+		str2	:= CONCAT(str2, Main2.Cycle_Duration[i]);
+		str2	:= CONCAT(str2, '","hyd_efficiency":"');
+		str2	:= CONCAT(str2, Main2.Hyd_Efficiency[i]);
+		str2	:= CONCAT(str2, '"}');
 		
+		IF i <> Main2.Data_Length THEN
+			str2	:= CONCAT(str2, ',');
+		ELSE
+			str2	:= CONCAT(str2, ']');
+		END_IF
+		
+		CONCAT2(ADR(str), ADR(str2), ADR(str), SIZEOF(str));
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		i := i+1;
+	END_WHILE
+	
 	(* publish message to subscribed topic *)
-	fbMqttClient.Publish(	
-		sTopic:= sTopicPub, 
-		pPayload:= ADR(sPayloadPub), 
-		nPayloadSize:= LEN2(ADR(sPayloadPub)), 
-		eQoS:= TcIotMqttQos.AtMostOnceDelivery, 
-		bRetain:= FALSE, 
-		bQueue:= FALSE 
-	);
-	IF fbMqttClient.bError THEN
-		// add your error logging here			
-		hrErrorOccurred := fbMqttClient.hrErrorCode;
+	IF Publish := fbMqttClient.Publish(sTopic:= sTopicPub, pPayload:= ADR(sPayloadPub), nPayloadSize:= LEN2(ADR(sPayloadPub)), eQoS:= TcIotMqttQos.AtMostOnceDelivery, bRetain:= FALSE, bQueue:= FALSE) THEN
+		IF fbMqttClient.bError THEN
+			// add your error logging here			
+			hrErrorOccurred := fbMqttClient.hrErrorCode;
+		ELSE
+			Published 	:= TRUE;
+		END_IF
 	END_IF
+	
 	//END_IF
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Send_MQTT">
+      <LineId Id="914" Count="1" />
+      <LineId Id="917" Count="0" />
+      <LineId Id="916" Count="0" />
+      <LineId Id="868" Count="0" />
+      <LineId Id="867" Count="0" />
       <LineId Id="508" Count="15" />
       <LineId Id="525" Count="13" />
       <LineId Id="540" Count="1" />
       <LineId Id="543" Count="6" />
-      <LineId Id="554" Count="2" />
+      <LineId Id="866" Count="0" />
+      <LineId Id="555" Count="0" />
+      <LineId Id="736" Count="0" />
+      <LineId Id="765" Count="0" />
+      <LineId Id="732" Count="0" />
+      <LineId Id="556" Count="0" />
       <LineId Id="643" Count="1" />
       <LineId Id="613" Count="0" />
       <LineId Id="642" Count="0" />
       <LineId Id="645" Count="0" />
       <LineId Id="560" Count="4" />
       <LineId Id="686" Count="1" />
-      <LineId Id="611" Count="1" />
+      <LineId Id="748" Count="1" />
       <LineId Id="646" Count="1" />
-      <LineId Id="688" Count="5" />
-      <LineId Id="565" Count="15" />
+      <LineId Id="764" Count="0" />
+      <LineId Id="742" Count="0" />
+      <LineId Id="750" Count="7" />
+      <LineId Id="741" Count="0" />
+      <LineId Id="739" Count="0" />
+      <LineId Id="758" Count="3" />
+      <LineId Id="565" Count="0" />
+      <LineId Id="766" Count="0" />
+      <LineId Id="744" Count="1" />
+      <LineId Id="861" Count="1" />
+      <LineId Id="746" Count="1" />
+      <LineId Id="767" Count="0" />
+      <LineId Id="769" Count="0" />
+      <LineId Id="737" Count="0" />
+      <LineId Id="566" Count="0" />
+      <LineId Id="735" Count="0" />
+      <LineId Id="567" Count="0" />
+      <LineId Id="810" Count="0" />
+      <LineId Id="813" Count="2" />
+      <LineId Id="912" Count="1" />
+      <LineId Id="811" Count="1" />
+      <LineId Id="579" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

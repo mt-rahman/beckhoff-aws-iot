@@ -2,7 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
   <Task Name="PlcTask" Id="{b70a5aed-bc88-4e04-88a3-08354d034ef1}">
     <!--CycleTime in micro seconds.-->
-    <CycleTime>1000000</CycleTime>
+    <CycleTime>50000</CycleTime>
     <Priority>20</Priority>
     <PouCall>
       <Name>Main1</Name>

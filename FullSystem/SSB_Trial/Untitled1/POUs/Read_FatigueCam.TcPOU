@@ -43,9 +43,15 @@ END_VAR
     <Implementation>
       <ST><![CDATA[(* sync time every 1 minute *)
 IF i = 60 THEN 
+	(*
 	WHILE bValid = FALSE DO //wait until time sync
 		fbTime(bValid => bValid);
 	END_WHILE
+	*)
+	
+	IF bValid = FALSE THEN //wait until time sync
+		fbTime(bValid => bValid);
+	END_IF
 	
 	TimeStr		:= SYSTEMTIME_TO_STRING(fbTime.systemTime); //get datetime
 	//TimeStr		:= '2013-12-19-17:23:30.000';
@@ -109,9 +115,10 @@ fbEL6001(
 	Response	=> Response,
 );
 	
-IF EventCode = '0' OR EventID = prevEventID THEN
-	EventCode 	:= '';
-	EventID		:= '';
+//IF EventCode = '0' OR EventID = prevEventID THEN
+IF EventCode = '' OR EventID = prevEventID THEN
+	EventCode 	:= '0';
+	//EventID	:= '';
 ELSE
 	prevEventID	:= EventID;
 END_IF
@@ -122,9 +129,14 @@ i := i+1;
     <LineIds Name="Read_FatigueCam">
       <LineId Id="100" Count="0" />
       <LineId Id="104" Count="0" />
+      <LineId Id="420" Count="0" />
       <LineId Id="170" Count="0" />
       <LineId Id="174" Count="0" />
       <LineId Id="172" Count="1" />
+      <LineId Id="421" Count="0" />
+      <LineId Id="424" Count="1" />
+      <LineId Id="423" Count="0" />
+      <LineId Id="422" Count="0" />
       <LineId Id="175" Count="0" />
       <LineId Id="203" Count="0" />
       <LineId Id="176" Count="0" />
@@ -169,7 +181,9 @@ i := i+1;
       <LineId Id="238" Count="0" />
       <LineId Id="89" Count="0" />
       <LineId Id="249" Count="0" />
-      <LineId Id="259" Count="4" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="381" Count="0" />
+      <LineId Id="260" Count="3" />
       <LineId Id="258" Count="0" />
       <LineId Id="248" Count="0" />
       <LineId Id="16" Count="0" />

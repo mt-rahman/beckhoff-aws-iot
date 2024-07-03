@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Buffer_Data" Id="{cc02954f-a949-4289-a7a3-7d2c4eb6e01e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Buffer_Data
+VAR
+	pTime		: WORD;
+	diff		: BOOL;
+	
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
+	sCmd			: STRING(10000);
+	sCmd2			: STRING(10000);
+	nState			: INT;
+	
+	Done			: BOOL;
+	 
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* save data to buffer every second *)
+IF diff:= Main1.cTime <> pTime THEN
+
+	IF Done THEN
+		nState 	:= 0;
+		Done	:= FALSE;	
+	END_IF
+	
+	
+	(* connect to localdb *)
+	IF NOT fbSqlDatabase.bConnected THEN
+		fbSqlDatabase.Connect(1);
+	ELSE
+	
+		CASE nState OF
+				
+			0:
+				IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+					IF fbSqlDatabase.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1; 
+					END_IF
+				END_IF
+				
+			1:	
+				(* build query *)	
+				sCmd:= 'INSERT INTO buffer_data (datetime,id_trailer,lat,lon,speed,overspeed,payload_raw,payload_ema,overload,pressure_cyl,pressure_valve,strain_left,strain_right,event_code,cycle_duration,hyd_efficiency) VALUES ($'';
+				sCmd2:= Main1.TimeStr;
+				sCmd2:= CONCAT(sCmd2, '$',');
+				sCmd2:= CONCAT(sCmd2, Main1.Trailer_ID);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Lat);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Lon);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Speed);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Overspeed);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Payload_Raw);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Payload_EMA);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Overload);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Pressure_Cyl); //pressure cylinder
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Pressure_Val); //pressure valve
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Strain_Left); //strain left
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Strain_Right); //strain right
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.EventCode);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Cycle_Duration); //cycle duration
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Main1.Hyd_Efficiency); //hyd sys efficiency
+				sCmd2:= CONCAT(sCmd2, ')');
+				CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
+				
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1; 
+						pTime := Main1.cTime;
+						
+					END_IF
+				END_IF
+				
+			2: 
+				Done	:= TRUE;
+					
+			255:
+				nState := 0;
+	
+		END_CASE
+	
+	END_IF
+
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="Buffer_Data">
+      <LineId Id="555" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="552" Count="0" />
+      <LineId Id="540" Count="0" />
+      <LineId Id="535" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="536" Count="0" />
+      <LineId Id="528" Count="1" />
+      <LineId Id="278" Count="2" />
+      <LineId Id="282" Count="1" />
+      <LineId Id="438" Count="0" />
+      <LineId Id="445" Count="0" />
+      <LineId Id="447" Count="7" />
+      <LineId Id="557" Count="0" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="489" Count="32" />
+      <LineId Id="464" Count="6" />
+      <LineId Id="527" Count="0" />
+      <LineId Id="541" Count="0" />
+      <LineId Id="471" Count="1" />
+      <LineId Id="558" Count="0" />
+      <LineId Id="526" Count="0" />
+      <LineId Id="531" Count="0" />
+      <LineId Id="551" Count="0" />
+      <LineId Id="538" Count="1" />
+      <LineId Id="534" Count="0" />
+      <LineId Id="437" Count="0" />
+      <LineId Id="525" Count="0" />
+      <LineId Id="524" Count="0" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="140" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

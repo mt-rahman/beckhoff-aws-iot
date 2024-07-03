@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Get_Data" Id="{356e4097-52ca-4291-ab97-d55f16e736e8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Get_Data
+VAR
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
+    
+	nState			: INT;
+	sCmd			: STRING(1000);
+	
+	aReadStruct		: ARRAY[1..10] OF ST_SelectStruct;
+
+	count			: LINT;
+	lim				: USINT;
+	
+	exec			: BOOL;
+	read			: BOOL;
+	rel				: BOOL;
+	exec2			: BOOL;
+	read2			: BOOL;
+	rel2			: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF Main2.done THEN
+	nState := 0;
+END_IF
+
+(* connect to localdb *)
+IF NOT fbSqlDatabase.bConnected THEN
+	fbSqlDatabase.Connect(1);
+END_IF
+
+IF fbSqlDatabase.bConnected THEN
+	
+	(* count records *)
+	IF nState=0 THEN
+		
+		fbSqlDatabase.CreateCmd(ADR(fbSqlCommand));
+		sCmd := 'SELECT COUNT(*) FROM `buffer_data` ORDER BY datetime ASC';
+			
+		(* execute query *)
+		IF exec:=fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
+			IF fbSQLCommand.bError THEN
+				(* execute query error handling *) 
+			END_IF
+			
+			(* read & release cache *)
+			read:=fbSqlResult.Read(0, 1, ADR(count), SIZEOF(count), TRUE, TRUE);
+			IF rel:=fbSqlResult.Release() THEN
+				
+				(* determine no of records to select *)
+				IF count < 10 THEN
+					lim := 1;
+				ELSE
+					lim := 10;
+				END_IF
+				
+				nState:=1;
+			END_IF
+		END_IF
+		
+		
+	
+	END_IF
+	
+	(* select records *)
+	IF nState = 1 THEN
+		
+		(* query *)
+		sCmd := 'SELECT * FROM `buffer_data` ORDER BY datetime ASC LIMIT ';
+		sCmd := CONCAT(sCmd, USINT_TO_STRING(lim));
+		
+		(* execute query *)
+		IF exec2:=fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
+			IF fbSQLCommand.bError THEN
+				(* execute query error handling *) 
+			END_IF
+		END_IF
+		
+		(* read & release cache *)
+		read2:=fbSqlResult.Read(0, lim, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE);
+		IF rel2:=fbSqlResult.Release() THEN
+			nState:=2;
+		END_IF
+	END_IF
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="Get_Data">
+      <LineId Id="244" Count="0" />
+      <LineId Id="246" Count="1" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="249" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="201" Count="0" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="255" Count="10" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="326" Count="11" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="266" Count="1" />
+      <LineId Id="280" Count="22" />
+      <LineId Id="253" Count="1" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

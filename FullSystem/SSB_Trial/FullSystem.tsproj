@@ -1445,7 +1445,7 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000003}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..2] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000003}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..2] OF BIT</Name>
 			<BitSize>3</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -1454,7 +1454,7 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000006}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..5] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000006}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..5] OF BIT</Name>
 			<BitSize>6</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -1463,7 +1463,7 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000002}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000002}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BIT</Name>
 			<BitSize>2</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -1472,7 +1472,7 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-00200000000D}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..12] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-00200000000D}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..12] OF BIT</Name>
 			<BitSize>13</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -1500,23 +1500,28 @@ External Setpoint Generation:
 			<Settings MaxCpus="2" NonWinCpus="1">
 				<Cpu/>
 				<Cpu CpuId="1"/>
-				<IoIdleTask Affinity="#x00000002"/>
+				<IoIdleTask Affinity="#x00000001"/>
 			</Settings>
+			<Licenses>
+				<Target>
+					<ManualSelect>{92583661-35AE-45CE-BD4F-C35BFE16F07E}</ManualSelect>
+				</Target>
+			</Licenses>
 			<Tasks>
-				<Task Id="3" Priority="20" CycleTime="10000000" AmsPort="351" Affinity="#x00000001" AdtTasks="true">
+				<Task Id="3" Priority="20" CycleTime="500000" AmsPort="351" Affinity="#x00000002" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
-				<Task Id="4" Priority="19" CycleTime="20000" AmsPort="350" Affinity="#x00000002" AdtTasks="true">
+				<Task Id="4" Priority="19" CycleTime="20000" AmsPort="350" Affinity="#x00000001" AdtTasks="true">
 					<Name>PlcTask_Fast</Name>
 				</Task>
-				<Task Id="7" Priority="21" CycleTime="10000000" AmsPort="352" Affinity="#x00000001" AdtTasks="true">
+				<Task Id="7" Priority="21" CycleTime="2000000" AmsPort="352" Affinity="#x00000001" AdtTasks="true">
 					<Name>PlcTask2</Name>
 				</Task>
 			</Tasks>
 		</System>
 		<Motion>
 			<NC>
-				<SafTask Priority="4" CycleTime="20000" AmsPort="501" IoAtBegin="true">
+				<SafTask Priority="4" CycleTime="20000" AmsPort="501" Affinity="#x00000001" IoAtBegin="true">
 					<Name>NC-Task 1 SAF</Name>
 					<Vars VarGrpType="1" InsertType="1">
 						<Name>Inputs</Name>
@@ -1528,7 +1533,7 @@ External Setpoint Generation:
 						<Name>Image</Name>
 					</Image>
 				</SafTask>
-				<SvbTask Priority="8" CycleTime="100000" AmsPort="511">
+				<SvbTask Priority="8" CycleTime="100000" AmsPort="511" Affinity="#x00000001">
 					<Name>NC-Task 1 SVB</Name>
 				</SvbTask>
 				<Axis Id="1" CreateSymbols="true" AxisType="1">
@@ -1847,13 +1852,13 @@ External Setpoint Generation:
 					<Vars VarGrpType="1">
 						<Name>PlcTask_Fast Inputs</Name>
 						<Var>
-							<Name>Background_Payload.nBit</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>Background_FatigueCam.stIn_EL6001</Name>
 							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
 							<Type GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom">EL6inData22B</Type>
+						</Var>
+						<Var>
+							<Name>Background_Payload.nBit</Name>
+							<Type>INT</Type>
 						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -1864,10 +1869,10 @@ External Setpoint Generation:
 							<Type GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom">EL6outData22B</Type>
 						</Var>
 					</Vars>
-					<Vars VarGrpType="1" ContextId="2" AreaNo="32">
-						<Name>PlcTask2 Inputs</Name>
+					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
+						<Name>PlcTask Inputs</Name>
 						<Var>
-							<Name>Main1.Trailer_ID</Name>
+							<Name>Main1.iTrailer_ID</Name>
 							<Type>UINT</Type>
 						</Var>
 					</Vars>
@@ -1934,6 +1939,13 @@ External Setpoint Generation:
 							</OwnerB>
 						</OwnerA>
 					</UnrestoredVarLinks>
+					<UnrestoredVarLinks ImportTime="2021-04-28T13:46:56">
+						<OwnerA Name="InputDst" Prefix="TIPC^Untitled1^Untitled1 Instance" Type="1">
+							<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)">
+								<Link VarA="Main1.Trailer_ID" TypeA="UINT" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000005}" VarB="ID^ID" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
 					<Contexts>
 						<Context>
 							<Id NeedCalleeCall="true">0</Id>
@@ -1951,7 +1963,7 @@ External Setpoint Generation:
 								<OTCID>#x02010030</OTCID>
 							</ManualConfig>
 							<Priority>20</Priority>
-							<CycleTime>1000000000</CycleTime>
+							<CycleTime>50000000</CycleTime>
 						</Context>
 						<Context>
 							<Id NeedCalleeCall="true">2</Id>
@@ -1960,7 +1972,7 @@ External Setpoint Generation:
 								<OTCID>#x02010070</OTCID>
 							</ManualConfig>
 							<Priority>21</Priority>
-							<CycleTime>1000000000</CycleTime>
+							<CycleTime>200000000</CycleTime>
 						</Context>
 					</Contexts>
 					<TaskPouOids>
@@ -1970,7 +1982,7 @@ External Setpoint Generation:
 					</TaskPouOids>
 				</Instance>
 			</Project>
-			<PlcAuxTask Affinity="#x00000002"/>
+			<PlcAuxTask Affinity="#x00000001"/>
 		</Plc>
 		<Io>
 			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="5.68.192.79.2.1" RemoteName="Device 1 (EtherCAT)">
@@ -5113,7 +5125,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 	</Project>
 	<Mappings>
 		<MappingInfo Identifier="{00000000-2001-0850-0020-500841000403}" Id="#x02030020"/>
-		<MappingInfo Identifier="{00000000-2003-0850-0220-500852000403}" Id="#x02030030"/>
+		<MappingInfo Identifier="{00000000-2002-0850-0120-500852000403}" Id="#x02030030"/>
 		<MappingInfo Identifier="{00000000-0010-0304-3000-040310000403}" Id="#x02030010"/>
 		<MappingInfo Identifier="{00000000-0020-0304-3000-040323000403}" Id="#x02030040"/>
 		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^Axis 1">
@@ -5173,7 +5185,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="PlcTask_Fast Inputs^Background_Payload.nBit" VarB="AI Standard Channel 1^Value"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)">
-				<Link VarA="PlcTask2 Inputs^Main1.Trailer_ID" VarB="ID^ID"/>
+				<Link VarA="PlcTask Inputs^Main1.iTrailer_ID" VarB="ID^ID"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)^Term 20 (EL6001)">
 				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[0]" VarB="COM Inputs^Data In 0"/>

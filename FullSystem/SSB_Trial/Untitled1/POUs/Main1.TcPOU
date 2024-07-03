@@ -5,15 +5,28 @@
 VAR
 	fbTime 		: FB_LocalSystemTime := ( bEnable := TRUE, dwCycle := 1 );
 	bValid		: BOOL := FALSE;
-	TimeStr		: STRING;
+	pTime		: WORD;
+	cTime		: WORD;
 	
-	Truck_ID			: UINT := 1;
-	Trailer_ID AT %I*	: UINT;
+	iTrailer_ID AT %I*	: UINT;
+	
+	TimeStr				: STRING;
+	Trailer_ID			: STRING;
 	Lat					: STRING;
 	Lon					: STRING;
 	Speed				: STRING;
+	Overspeed			: STRING;
+	Payload_EMA			: STRING;
+	Payload_Raw			: STRING;
+	Overload			: STRING;
+	Pressure_Cyl		: STRING;
+	Pressure_Val		: STRING;
+	Strain_Left			: STRING;
+	Strain_Right		: STRING;
 	EventCode			: STRING;
-	Payload				: STRING;
+	Cycle_Duration		: STRING;
+	Hyd_Efficiency		: STRING;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -22,29 +35,65 @@ WHILE bValid = FALSE DO
 	fbTime(bValid => bValid);	
 END_WHILE
 
+
 fbTime();
 TimeStr	:= SYSTEMTIME_TO_STRING(fbTime.systemTime);
+cTime	:= fbTime.systemTime.wSecond;
 
 (* read sensors *)
 Read_FatigueCam();
 Read_GPS();
 Read_Payload();
 
-(* save data to database *)]]></ST>
+(* convert to strings *)
+Trailer_ID		:= UINT_TO_STRING(iTrailer_ID);
+Lat				:= REAL_TO_STRING(Read_GPS.Lat);
+Lon				:= REAL_TO_STRING(Read_GPS.Lon);
+Speed			:= REAL_TO_STRING(Read_GPS.Speed);
+Overspeed		:= BOOL_TO_STRING(Read_GPS.Overspeed);
+Payload_EMA		:= REAL_TO_STRING(Read_Payload.Payload_EMA);
+Payload_Raw		:= REAL_TO_STRING(Read_Payload.Payload_Raw);
+Overload		:= BOOL_TO_STRING(Read_Payload.Overload);
+Pressure_Cyl	:= '0';
+Pressure_Val	:= '0';
+Strain_Left		:= '0';
+Strain_Right	:= '0';
+EventCode		:= Read_FatigueCam.EventCode;
+Cycle_Duration	:= '0';
+Hyd_Efficiency	:= '0';
+
+(* save data to database *)
+Buffer_Data();	
+]]></ST>
     </Implementation>
     <LineIds Name="Main1">
       <LineId Id="23" Count="0" />
-      <LineId Id="16" Count="2" />
+      <LineId Id="170" Count="2" />
       <LineId Id="46" Count="0" />
+      <LineId Id="168" Count="0" />
       <LineId Id="20" Count="0" />
       <LineId Id="13" Count="0" />
+      <LineId Id="76" Count="0" />
       <LineId Id="24" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="9" Count="0" />
       <LineId Id="28" Count="0" />
+      <LineId Id="101" Count="0" />
       <LineId Id="36" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="106" Count="2" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="113" Count="1" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="129" Count="3" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="134" Count="0" />
       <LineId Id="27" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="61" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

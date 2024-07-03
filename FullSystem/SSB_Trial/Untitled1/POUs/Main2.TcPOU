@@ -3,57 +3,145 @@
   <POU Name="Main2" Id="{f159ed40-cca9-4e3d-ac6a-ec5e9cf1af8e}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Main2
 VAR
-	Truck_ID	: STRING;
-	Trailer_ID	: STRING;
-	TimeStr		: STRING;
-	Lat			: STRING;
-	Lon			: STRING;
-	Speed		: STRING;
-	Overspeed	: STRING;
-	EventCode	: STRING;
-	Payload_EMA : STRING;
-	Payload_Raw	: STRING;
-	Payload		: STRING;
-	Overload	: STRING;
+	i 			: INT;
+	Data_Length : INT;
+
+	Truck_ID		: STRING := '1';
+	TimeStr			: ARRAY[1..10] OF STRING;	
+	Trailer_ID		: ARRAY[1..10] OF STRING;
+	Lat				: ARRAY[1..10] OF STRING;
+	Lon				: ARRAY[1..10] OF STRING;
+	Speed			: ARRAY[1..10] OF STRING;
+	Overspeed		: ARRAY[1..10] OF STRING;
+	Payload_EMA		: ARRAY[1..10] OF STRING;
+	Payload_Raw		: ARRAY[1..10] OF STRING;
+	Overload		: ARRAY[1..10] OF STRING;
+	Pressure_Cyl	: ARRAY[1..10] OF STRING;
+	Pressure_Val	: ARRAY[1..10] OF STRING;
+	Strain_Left		: ARRAY[1..10] OF STRING;
+	Strain_Right	: ARRAY[1..10] OF STRING;
+	EventCode		: ARRAY[1..10] OF STRING;
+	Cycle_Duration	: ARRAY[1..10] OF STRING;
+	Hyd_Efficiency	: ARRAY[1..10] OF STRING;
+	
+	Done		: BOOL;
+	Sent		: BOOL;
+	New_Data	: BOOL;
+	Saved		: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* get data from database *)
-
-(* parse query result *)
-Truck_ID	:= UINT_TO_STRING(Main1.Truck_ID);
-Trailer_ID	:= UINT_TO_STRING(Main1.Trailer_ID);
-TimeStr		:= Main1.TimeStr;
-Lat			:= REAL_TO_STRING(Read_GPS.Lat);
-Lon			:= REAL_TO_STRING(Read_GPS.Lon);
-Speed		:= REAL_TO_STRING(Read_GPS.Speed);
-Overspeed	:= BOOL_TO_STRING(Read_GPS.Overspeed);
-EventCode	:= Read_FatigueCam.EventCode;
-Payload_EMA	:= REAL_TO_STRING(Read_Payload.Payload_EMA);
-Payload_Raw	:= REAL_TO_STRING(Read_Payload.Payload_Raw);
-Payload		:= REAL_TO_STRING(Read_Payload.Payload);
-Overload	:= BOOL_TO_STRING(Read_Payload.Overload);
-
-(* time formatting *)
-TimeStr		:= Replace(TimeStr, 'T', 1, 11);
-TimeStr		:= Insert(TimeStr, 'Z', 23);
-
-(* send data to aws iot core *)
-Send_MQTT();]]></ST>
+Get_Data();
+ 
+IF New_Data := Get_Data.Done THEN
+	
+	(* parse query result *)
+	i := 1;
+	Data_Length	:= Get_Data.lim;
+	WHILE (i <= Data_Length) DO
+		TimeStr[i]			:= DT_TO_STRING(Get_Data.aReadStruct[i].TimeStr);
+		TimeStr[i]			:= Delete(TimeStr[i], 3, 1);
+		TimeStr[i]			:= Replace(TimeStr[i], 'T', 1, 11);
+		TimeStr[i]			:= Insert(TimeStr[i], 'Z', 19);
+		Trailer_ID[i]		:= UINT_TO_STRING(Get_Data.aReadStruct[i].Trailer_ID);
+		Lat[i]				:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Lat);
+		Lon[i]				:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Lon);
+		Speed[i]			:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Speed);
+		Overspeed[i]		:= BOOL_TO_STRING(Get_Data.aReadStruct[i].Overspeed);
+		Payload_EMA[i]		:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Payload_EMA);
+		Payload_Raw[i]		:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Payload_Raw);
+		Overload[i]			:= BOOL_TO_STRING(Get_Data.aReadStruct[i].Overload);
+		Pressure_Cyl[i]		:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Pressure_Cyl);
+		Pressure_Val[i]		:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Pressure_Val);
+		Strain_Left[i]		:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Strain_Left);
+		Strain_Right[i]		:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Strain_Right);
+		EventCode[i]		:= UINT_TO_STRING(Get_Data.aReadStruct[i].EventCode);
+		Cycle_Duration[i]	:= UDINT_TO_STRING(Get_Data.aReadStruct[i].Cycle_Duration);
+		Hyd_Efficiency[i]	:= LREAL_TO_STRING(Get_Data.aReadStruct[i].Hyd_Efficiency);
+		
+		i := i+1;
+	END_WHILE
+	
+	(* send data to aws iot core *)
+	IF NOT Sent THEN
+		Send_MQTT();
+		
+		IF Send_MQTT.published THEN
+			Sent	:= TRUE;
+		END_IF	
+		
+	END_IF
+	
+	(* save data to localdb *)
+	IF Sent THEN
+		Save_Data();
+		
+		IF Save_Data.Done THEN
+			Saved := TRUE;
+		END_IF	
+		
+	END_IF
+	
+	
+	
+ELSE
+	
+	Sent	:= FALSE;
+	Saved 	:= FALSE;
+	
+END_IF
+]]></ST>
     </Implementation>
     <LineIds Name="Main2">
-      <LineId Id="42" Count="8" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="154" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="49" Count="1" />
       <LineId Id="62" Count="0" />
-      <LineId Id="51" Count="0" />
       <LineId Id="59" Count="0" />
       <LineId Id="52" Count="0" />
-      <LineId Id="60" Count="0" />
       <LineId Id="56" Count="0" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="63" Count="0" />
-      <LineId Id="65" Count="1" />
-      <LineId Id="53" Count="1" />
-      <LineId Id="9" Count="0" />
+      <LineId Id="148" Count="5" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="196" Count="1" />
+      <LineId Id="257" Count="1" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="261" Count="1" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="198" Count="1" />
+      <LineId Id="201" Count="0" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="254" Count="1" />
+      <LineId Id="253" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="249" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="210" Count="0" />
+      <LineId Id="209" Count="0" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="158" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

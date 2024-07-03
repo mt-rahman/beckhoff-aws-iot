@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Buffer_Data" Id="{cc02954f-a949-4289-a7a3-7d2c4eb6e01e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Buffer_Data
+VAR
+	pTime		: WORD;
+	exec		: BOOL;
+	diff		: BOOL;
+	
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
+	sCmd			: STRING(10000);
+	sCmd2			: STRING(10000);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF diff:= Main1.cTime <> pTime THEN
+	
+	(* connect to localdb *)
+	IF NOT fbSqlDatabase.bConnected THEN
+		fbSqlDatabase.Connect(1);
+	END_IF
+	
+	IF fbSqlDatabase.bConnected THEN
+
+		(* build query *)	
+		fbSqlDatabase.CreateCmd(ADR(fbSqlCommand));
+		sCmd:= 'INSERT INTO buffer_data (datetime,id_trailer,lat,lon,speed,overspeed,payload_raw,payload_ema,overload,pressure_cyl,pressure_valve,strain_left,strain_right,event_code,cycle_duration,hyd_efficiency) VALUES ($'';
+		sCmd2:= Main1.TimeStr;
+		sCmd2:= CONCAT(sCmd2, '$',');
+		sCmd2:= CONCAT(sCmd2, Main1.Trailer_ID);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Lat);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Lon);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Speed);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Overspeed);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Payload_Raw);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Payload_EMA);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Overload);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Pressure_Cyl); //pressure cylinder
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Pressure_Val); //pressure valve
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Strain_Left); //strain left
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Strain_Right); //strain right
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.EventCode);
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Cycle_Duration); //cycle duration
+		sCmd2:= CONCAT(sCmd2, ',');
+		sCmd2:= CONCAT(sCmd2, Main1.Hyd_Efficiency); //hyd sys efficiency
+		sCmd2:= CONCAT(sCmd2, ')');
+		CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
+			
+		(* execute query *)		
+		IF exec:=fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+			IF fbSQLCommand.bError THEN
+				(* execute query error handling *)
+			END_IF
+			
+			pTime := Main1.cTime;
+		END_IF
+		
+	END_IF
+	
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Buffer_Data">
+      <LineId Id="274" Count="0" />
+      <LineId Id="277" Count="3" />
+      <LineId Id="282" Count="1" />
+      <LineId Id="417" Count="1" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="404" Count="0" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="372" Count="30" />
+      <LineId Id="371" Count="0" />
+      <LineId Id="289" Count="6" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="296" Count="1" />
+      <LineId Id="420" Count="0" />
+      <LineId Id="298" Count="0" />
+      <LineId Id="421" Count="0" />
+      <LineId Id="140" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
