@@ -23,16 +23,29 @@ VAR
 	Overpressure_Rear	: STRING;
 	EventCode			: STRING;
 	
-	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
-	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
-	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#1000S); 
 	sCmd			: STRING(10000);
 	sCmd2			: STRING(10000);
 	nState			: INT;
+	nState_Switch	: INT;
 	
 	Buffer_Done		: BOOL;
 	Done			: BOOL;
 	Vacuumed		: BOOL := FALSE;
+	
+	Initialized 	: BOOL := FALSE;
+	i				: INT;
+	Pragma_Done		: BOOL;
+	Counter			: ULINT;
+	Dbid			: UDINT;
+	bDisconnect		: BOOL;
+	
+	aReadStruct		: ST_SelectStructData;
+	aReadStruct_2	: ST_SelectStructData;
+	Timestamp		: DT;
+	Timestamp_2		: DT; 
 	
 END_VAR
 ]]></Declaration>
@@ -79,6 +92,359 @@ END_IF
 
 EventCode	:= Read_FatigueCam.EventCode;
 
+IF NOT Initialized THEN
+	
+	//initialization (choose which database for buffer)
+	CASE nState OF
+		
+		0:
+			(* connect to buffer_data *)	
+			IF Vacuum_Buffer_Data.Vacuumed THEN
+				
+				Dbid := 1;		
+				IF fbSqlDatabase.Connect(Dbid) THEN
+					IF fbSqlDatabase.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1;
+					END_IF
+				END_IF
+				
+			END_IF
+			
+			
+		1:
+			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		2:	(* execute pragmas *)
+			sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		3:
+			(* select oldest data from buffer_data *)
+			sCmd	:= 'SELECT * FROM `buffer_data` ORDER BY datetime ASC LIMIT 1';
+			
+			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		4:
+			IF fbSqlResult.Read(0, 1, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
+				IF fbSqlResult.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		5:
+			IF fbSqlResult.Release() THEN
+				IF fbSqlResult.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		6:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		7:
+			(* disconnect from buffer_data *)
+			IF fbSqlDatabase.Disconnect() THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		8:	
+			(* connect to buffer_data_2 *)
+			IF Vacuum_Buffer_Data_2.Vacuumed THEN
+				
+				Dbid := 6;	
+				IF fbSqlDatabase.Connect(Dbid) THEN
+					IF fbSqlDatabase.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1;
+					END_IF
+				END_IF
+				
+			END_IF	
+			
+		9:
+			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		10:	(* execute pragmas *)
+			sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		11:
+			(* select oldest data from buffer_data *)
+			sCmd	:= 'SELECT * FROM `buffer_data` ORDER BY datetime ASC LIMIT 1';
+			
+			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		12:
+			IF fbSqlResult.Read(0, 1, ADR(aReadStruct_2), SIZEOF(aReadStruct_2), TRUE, TRUE) THEN
+				IF fbSqlResult.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		13:
+			IF fbSqlResult.Release() THEN
+				IF fbSqlResult.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		14:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		15:
+			(* disconnect from buffer_data_2 *)
+			IF bDisconnect := fbSqlDatabase.Disconnect() THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		16:
+			// compare oldest data datetime
+			aReadStruct.datetime 	:= REPLACE(aReadStruct.datetime, '-', 1, 11);
+			aReadStruct_2.datetime 	:= REPLACE(aReadStruct_2.datetime, '-', 1, 11);
+			
+			Timestamp	:= SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct.datetime));
+			Timestamp_2	:= SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct_2.datetime));
+
+			IF Timestamp = DT#1970-1-1-00:00:00 THEN
+				Dbid := 1;
+			ELSIF Timestamp_2 = DT#1970-1-1-00:00:00 THEN
+				Dbid := 6;
+			ELSIF Timestamp > Timestamp_2 THEN
+				Dbid := 1;
+			ELSE
+				Dbid := 6;
+			END_IF
+			
+			Initialized := TRUE;
+			nState		:= 0;
+			
+		255:
+			nState := 0;
+		
+	END_CASE
+	
+ELSE
+	
+	(* save data to buffer every second *)
+	IF diff:= Background_Time.cSec <> pSec THEN
+		
+		//database switching
+		IF Get_Data.Switch AND Counter >= 5 THEN
+			
+			CASE nState_Switch OF
+				
+				0:	(* execute pragma optimize *)
+					sCmd	:= 'PRAGMA optimize;';
+					
+					IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+						IF fbSQLCommand.bError THEN
+							nState_Switch := 255; 
+						ELSE
+							nState_Switch := nState_Switch+1; 
+						END_IF
+					END_IF
+				
+				1:
+					IF fbSqlDatabase.bConnected THEN
+						fbSqlDatabase.Disconnect();
+					ELSE
+						IF Dbid = 1 THEN
+							Dbid := 6;
+						ELSE
+							Dbid := 1;
+						END_IF
+						Counter			:= 0;
+						nState_Switch 	:= 0;
+						Pragma_Done		:= FALSE;
+					END_IF
+					
+				255:
+					nState_Switch := 0;
+					
+			END_CASE
+		
+		ELSE
+			
+			IF Done THEN
+				Done	:= FALSE;
+				IF fbSqlDatabase.bConnected THEN
+					nState 	:= 1;
+				ELSE
+					nState 	:= 0;
+				END_IF	
+			END_IF
+			
+			CASE nState OF	
+				0:	
+					IF fbSqlDatabase.Connect(Dbid) THEN
+						IF fbSqlDatabase.bError THEN
+							nState := 255;
+						ELSE
+							nState := nState + 1; 
+						END_IF
+					END_IF
+				
+				1:
+					IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+						IF fbSqlDatabase.bError THEN
+							nState := 255; 
+						ELSE
+							nState := nState+1; 
+						END_IF
+					END_IF
+					
+				2:	(* execute pragmas *)
+					IF NOT Pragma_Done THEN
+						sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+					
+						IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+							IF fbSQLCommand.bError THEN
+								nState := 255; 
+							ELSE
+								nState 		:= nState+1; 
+								Pragma_Done := TRUE;
+							END_IF
+						END_IF
+					
+					ELSE
+						nState 		:= nState+1;
+ 
+					END_IF
+					
+				3:	
+					(* build query *)	
+					sCmd:= 'INSERT INTO buffer_data (datetime,trailer_id_lead,trailer_id_rear,latitude,longitude,speed,overspeed,payload_lead,payload_rear,overload_lead,overload_rear,pressure_lead,pressure_rear,overpressure_lead,overpressure_rear,event_code) VALUES ($'';
+					sCmd2:= TimeStr;
+					sCmd2:= CONCAT(sCmd2, '$',');
+					sCmd2:= CONCAT(sCmd2, Trailer_ID_Lead);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Trailer_ID_Rear);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Lat);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Lon);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Speed);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Overspeed);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Payload_Lead);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Payload_Rear);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Overload_Lead);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Overload_Rear);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Pressure_Lead); 
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Pressure_Rear); 
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Overpressure_Lead); 
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Overpressure_Rear); 
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, EventCode);
+					sCmd2:= CONCAT(sCmd2, ')');
+					CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
+					
+					IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+						IF fbSQLCommand.bError THEN
+							nState := 255; 
+						ELSE
+							nState := nState+1; 
+							pSec := Background_Time.cSec;
+							
+						END_IF
+					END_IF
+					
+				4: 
+					Counter := Counter + 1;
+					Done	:= TRUE;
+						
+				255:
+					nState := 0;
+					
+			END_CASE
+			
+		END_IF
+	END_IF
+END_IF
+
+(*
 (* save data to buffer every second *)
 IF diff:= Background_Time.cSec <> pSec THEN
 
@@ -160,6 +526,7 @@ IF diff:= Background_Time.cSec <> pSec THEN
 		END_CASE
 	END_IF
 END_IF
+*)
 ]]></ST>
     </Implementation>
     <LineIds Name="Buffer_Data">
@@ -188,6 +555,24 @@ END_IF
       <LineId Id="1020" Count="1" />
       <LineId Id="1059" Count="0" />
       <LineId Id="1022" Count="0" />
+      <LineId Id="1095" Count="0" />
+      <LineId Id="1094" Count="0" />
+      <LineId Id="1107" Count="0" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1109" Count="0" />
+      <LineId Id="1113" Count="0" />
+      <LineId Id="1115" Count="194" />
+      <LineId Id="1114" Count="0" />
+      <LineId Id="1110" Count="1" />
+      <LineId Id="1316" Count="1" />
+      <LineId Id="1319" Count="0" />
+      <LineId Id="1406" Count="87" />
+      <LineId Id="1555" Count="42" />
+      <LineId Id="1541" Count="8" />
+      <LineId Id="1405" Count="0" />
+      <LineId Id="1551" Count="2" />
+      <LineId Id="1108" Count="0" />
+      <LineId Id="1311" Count="0" />
       <LineId Id="739" Count="32" />
       <LineId Id="859" Count="1" />
       <LineId Id="772" Count="13" />
@@ -201,6 +586,7 @@ END_IF
       <LineId Id="815" Count="3" />
       <LineId Id="820" Count="0" />
       <LineId Id="822" Count="0" />
+      <LineId Id="1315" Count="0" />
       <LineId Id="140" Count="0" />
     </LineIds>
   </POU>

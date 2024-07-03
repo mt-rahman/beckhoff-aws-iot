@@ -123,6 +123,9 @@
     <Compile Include="POUs\Vacuum_Buffer_Data.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Vacuum_Buffer_Data_2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Vacuum_Buffer_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>

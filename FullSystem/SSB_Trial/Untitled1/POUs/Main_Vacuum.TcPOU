@@ -10,6 +10,10 @@ END_VAR
 	Vacuum_Buffer_Data();
 END_IF
 
+IF NOT Vacuum_Buffer_Data_2.Vacuumed THEN
+	Vacuum_Buffer_Data_2();
+END_IF
+
 IF NOT Vacuum_Buffer_IMU.Vacuumed THEN
 	Vacuum_Buffer_IMU();
 END_IF
@@ -28,6 +32,8 @@ END_IF]]></ST>
     </Implementation>
     <LineIds Name="Main_Vacuum">
       <LineId Id="10" Count="2" />
+      <LineId Id="34" Count="2" />
+      <LineId Id="33" Count="0" />
       <LineId Id="15" Count="2" />
       <LineId Id="13" Count="0" />
       <LineId Id="19" Count="2" />

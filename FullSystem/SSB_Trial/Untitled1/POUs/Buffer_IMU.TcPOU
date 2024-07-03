@@ -277,7 +277,7 @@ ELSE
 	IF diff:= Background_Time.cSec <> pSec THEN
 		
 		//database switching
-		IF Get_IMU.Switch AND Counter > 1000 THEN
+		IF Get_IMU.Switch AND Counter >= 750 THEN
 			
 			CASE nState_Switch OF
 				

@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Vacuum_Buffer_Data_2" Id="{dd976035-a506-4ca0-bfab-8c1e28cb4ba1}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Vacuum_Buffer_Data_2
+VAR
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID :='', tTimeout   := T#1000S); 
+	nState			: INT;
+	sCmd			: STRING(500000);
+	Vacuumed		: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE nState OF
+				
+		0:
+			(* connect to buffer_imu *)		
+			IF fbSqlDatabase.Connect(6) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					IF fbSqlDatabase.bConnected THEN
+						nState := nState+1;
+					END_IF 
+				END_IF
+			END_IF
+			
+		1:
+			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		2:	(* execute pragmas *)
+			sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+		
+		3:	
+			IF NOT Vacuumed THEN
+				(* build query *)	
+				sCmd	:= 'VACUUM';
+				
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState 		:= nState+1; 
+					END_IF
+				END_IF
+				
+			ELSE 
+				nState := nState+1;
+			END_IF
+			
+		4:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+		
+		5:
+			IF fbSqlDatabase.Disconnect() THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255;
+				ELSE
+					nState 		:= nState+1;
+					Vacuumed 	:= TRUE;
+				END_IF
+			END_IF
+			
+		255:
+			nState := 0;
+			
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Vacuum_Buffer_Data_2">
+      <LineId Id="10" Count="3" />
+      <LineId Id="15" Count="17" />
+      <LineId Id="92" Count="2" />
+      <LineId Id="81" Count="7" />
+      <LineId Id="33" Count="10" />
+      <LineId Id="45" Count="4" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="101" Count="8" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="57" Count="1" />
+      <LineId Id="60" Count="4" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="2" />
+      <LineId Id="51" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
