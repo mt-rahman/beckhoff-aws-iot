@@ -10,6 +10,8 @@ END_VAR
 
 VAR_INPUT
 	Command		: ULINT;
+	Prefix		: WORD;
+	LenPrefix	: BYTE;
 END_VAR
 
 VAR_OUTPUT
@@ -30,8 +32,6 @@ VAR
 	eReceiveErrorID	: ComError_t;
 	bReceiveTimeout	: BOOL;
 	nReceiveCounter	: UDINT;
-	Prefix			: BYTE := 170;
-	Suffix			: BYTE := 100;
 	receive			: ULINT;
 	bDataReceived	: BOOL;
 	bSend			: BOOL;
@@ -64,7 +64,7 @@ END_IF
 fbReceive( 
 	RxBuffer := RxBuffer,
 	pPrefix := ADR(Prefix),
-	LenPrefix := 1,
+	LenPrefix := LenPrefix,
 	pReceiveData := ADR(receive),
 	SizeReceiveData	:= 6,
 	Timeout:= T#1S,

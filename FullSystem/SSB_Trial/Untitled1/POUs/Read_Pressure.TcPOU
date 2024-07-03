@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Read_Pressure" Id="{4da627ee-194f-436f-bf88-e2e5c518b461}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Read_Pressure
+VAR
+	Pressure_Val	: REAL := 0;
+	Pressure_Cyl	: REAL := 0;
+	
+	//nBit_Val AT %I*	: INT;
+	//nBit_Cyl AT %I*	: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;]]></ST>
+    </Implementation>
+    <LineIds Name="Read_Pressure">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

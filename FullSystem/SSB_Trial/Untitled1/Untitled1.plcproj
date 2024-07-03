@@ -57,6 +57,9 @@
     <Compile Include="POUs\Get_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Read_Pressure.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Read_Payload.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -70,6 +73,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_GPS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Read_Strain.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Save_Data.TcPOU">

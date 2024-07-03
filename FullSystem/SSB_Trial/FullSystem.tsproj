@@ -1500,7 +1500,7 @@ External Setpoint Generation:
 			<Settings MaxCpus="2" NonWinCpus="1">
 				<Cpu/>
 				<Cpu CpuId="1"/>
-				<IoIdleTask Affinity="#x00000001"/>
+				<IoIdleTask Affinity="#x00000002"/>
 			</Settings>
 			<Licenses>
 				<Target>
@@ -1511,17 +1511,17 @@ External Setpoint Generation:
 				<Task Id="3" Priority="20" CycleTime="500000" AmsPort="351" Affinity="#x00000002" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
-				<Task Id="4" Priority="19" CycleTime="20000" AmsPort="350" Affinity="#x00000001" AdtTasks="true">
+				<Task Id="4" Priority="19" CycleTime="20000" AmsPort="350" Affinity="#x00000002" AdtTasks="true">
 					<Name>PlcTask_Fast</Name>
 				</Task>
-				<Task Id="7" Priority="21" CycleTime="2000000" AmsPort="352" Affinity="#x00000001" AdtTasks="true">
+				<Task Id="7" Priority="21" CycleTime="2000000" AmsPort="352" Affinity="#x00000002" AdtTasks="true">
 					<Name>PlcTask2</Name>
 				</Task>
 			</Tasks>
 		</System>
 		<Motion>
 			<NC>
-				<SafTask Priority="4" CycleTime="20000" AmsPort="501" Affinity="#x00000001" IoAtBegin="true">
+				<SafTask Priority="4" CycleTime="20000" AmsPort="501" Affinity="#x00000002" IoAtBegin="true">
 					<Name>NC-Task 1 SAF</Name>
 					<Vars VarGrpType="1" InsertType="1">
 						<Name>Inputs</Name>
@@ -1533,7 +1533,7 @@ External Setpoint Generation:
 						<Name>Image</Name>
 					</Image>
 				</SafTask>
-				<SvbTask Priority="8" CycleTime="100000" AmsPort="511" Affinity="#x00000001">
+				<SvbTask Priority="8" CycleTime="100000" AmsPort="511" Affinity="#x00000002">
 					<Name>NC-Task 1 SVB</Name>
 				</SvbTask>
 				<Axis Id="1" CreateSymbols="true" AxisType="1">
@@ -1982,7 +1982,7 @@ External Setpoint Generation:
 					</TaskPouOids>
 				</Instance>
 			</Project>
-			<PlcAuxTask Affinity="#x00000001"/>
+			<PlcAuxTask Affinity="#x00000002"/>
 		</Plc>
 		<Io>
 			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="5.68.192.79.2.1" RemoteName="Device 1 (EtherCAT)">

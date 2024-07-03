@@ -37,96 +37,104 @@ VAR
 	Speed		: REAL;
 	Threshold	: REAL := 60;
 	Overspeed	: BOOL := FALSE;
+	
+	pTime	: WORD;
 END_VAR
 
 VAR CONSTANT
     cMax         : UDINT := 11; //no. of substrings
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(* get gps data string *)
-fbReceiveString(
-	RxBuffer := BACKGROUND_GPS.RxBuffer, 
-	Prefix := Pref, 
-	Suffix := Suff, 
-	Timeout := T#1S, 
-	ReceivedString := DataString
-);
+      <ST><![CDATA[IF Main1.cTime <> pTime THEN
 
-(* gps data parsing *)
-aSplit[1] := DataString;
-FOR i:=1 TO cMax-1 DO
-    bResultSplit := FindAndSplit( 
-						pSeparator     := ADR(sSeparator),  
-						pSrcString := ADR(aSplit[i]), 
-           				pLeftString    := ADR(aSplit[i]),   
-						nLeftSize  := SIZEOF(aSplit[i]), 
-                     	pRightString   := ADR(aSplit[i+1]), 
-						nRightSize := SIZEOF(aSplit[i+1]),
-                      	bSearchFromRight := FALSE 
-					);
-    IF NOT bResultSplit THEN
-        EXIT;
-    END_IF
-END_FOR
-
-IF aSplit[3] = 'A' THEN
-	(* latitude & longitude conversion *)
-	FindAndSplit( 
-		pSeparator     		:= ADR(sSeparator2),  
-		pSrcString 			:= ADR(aSplit[4]), 
-		pLeftString    		:= ADR(LatLeftStr),   
-		nLeftSize  			:= SIZEOF(LatLeftStr), 
-		pRightString   		:= ADR(LatRightStr), 
-		nRightSize 			:= SIZEOF(LatRightStr),
-		bSearchFromRight 	:= FALSE 
+	(* get gps data string *)
+	fbReceiveString(
+		RxBuffer := BACKGROUND_GPS.RxBuffer, 
+		Prefix := Pref, 
+		Suffix := Suff, 
+		Timeout := T#1S, 
+		ReceivedString := DataString
 	);
 	
-	FindAndSplit( 
-		pSeparator     		:= ADR(sSeparator2),  
-		pSrcString 			:= ADR(aSplit[6]), 
-		pLeftString    		:= ADR(LonLeftStr),   
-		nLeftSize  			:= SIZEOF(LonLeftStr), 
-		pRightString   		:= ADR(LonRightStr), 
-		nRightSize 			:= SIZEOF(LonRightStr),
-		bSearchFromRight 	:= FALSE 
-	);
+	(* gps data parsing *)
+	aSplit[1] := DataString;
+	FOR i:=1 TO cMax-1 DO
+		bResultSplit := FindAndSplit( 
+							pSeparator     := ADR(sSeparator),  
+							pSrcString := ADR(aSplit[i]), 
+							pLeftString    := ADR(aSplit[i]),   
+							nLeftSize  := SIZEOF(aSplit[i]), 
+							pRightString   := ADR(aSplit[i+1]), 
+							nRightSize := SIZEOF(aSplit[i+1]),
+							bSearchFromRight := FALSE 
+						);
+		IF NOT bResultSplit THEN
+			EXIT;
+		END_IF
+	END_FOR
 	
-	LatLeft 	:= STRING_TO_INT(LatLeftStr);
-	LatRight 	:= STRING_TO_INT(LatRightStr);
-	LonLeft 	:= STRING_TO_INT(LonLeftStr);
-	LonRight 	:= STRING_TO_INT(LonRightStr);
-	Lat			:= INT_TO_REAL(LatLeft) + (INT_TO_REAL(LatRight)/EXPT(10,LEN(LatRightStr)));
-	Lon 		:= INT_TO_REAL(LonLeft) + (INT_TO_REAL(LonRight)/EXPT(10,LEN(LonRightStr)));;
-	LatDeg 		:= TRUNC(Lat/100);
-	LonDeg 		:= TRUNC(Lon/100);
-	LatMin 		:= Lat - (LatDeg*100);
-	LonMin 		:= Lon - (LonDeg*100);
-	Lat 		:= LatDeg + (LatMin/60);
-	Lon			:= LonDeg + (LonMin/60);
-	
-	IF aSplit[5] = 'S' THEN
-		Lat := Lat*(-1);
-	END_IF
-	
-	IF aSplit[7] = 'W' THEN
-		Lon := Lon*(-1); 
-	END_IF
-	
-	(* speed conversion *)
-	Speed	:= STRING_TO_REAL(aSplit[8]) * 1.852;
-	
-	(* check for overspeed *)
-	IF Speed > Threshold THEN
-		Overspeed := TRUE;
+	IF aSplit[3] = 'A' THEN
+		(* latitude & longitude conversion *)
+		FindAndSplit( 
+			pSeparator     		:= ADR(sSeparator2),  
+			pSrcString 			:= ADR(aSplit[4]), 
+			pLeftString    		:= ADR(LatLeftStr),   
+			nLeftSize  			:= SIZEOF(LatLeftStr), 
+			pRightString   		:= ADR(LatRightStr), 
+			nRightSize 			:= SIZEOF(LatRightStr),
+			bSearchFromRight 	:= FALSE 
+		);
+		
+		FindAndSplit( 
+			pSeparator     		:= ADR(sSeparator2),  
+			pSrcString 			:= ADR(aSplit[6]), 
+			pLeftString    		:= ADR(LonLeftStr),   
+			nLeftSize  			:= SIZEOF(LonLeftStr), 
+			pRightString   		:= ADR(LonRightStr), 
+			nRightSize 			:= SIZEOF(LonRightStr),
+			bSearchFromRight 	:= FALSE 
+		);
+		
+		LatLeft 	:= STRING_TO_INT(LatLeftStr);
+		LatRight 	:= STRING_TO_INT(LatRightStr);
+		LonLeft 	:= STRING_TO_INT(LonLeftStr);
+		LonRight 	:= STRING_TO_INT(LonRightStr);
+		Lat			:= INT_TO_REAL(LatLeft) + (INT_TO_REAL(LatRight)/EXPT(10,LEN(LatRightStr)));
+		Lon 		:= INT_TO_REAL(LonLeft) + (INT_TO_REAL(LonRight)/EXPT(10,LEN(LonRightStr)));;
+		LatDeg 		:= TRUNC(Lat/100);
+		LonDeg 		:= TRUNC(Lon/100);
+		LatMin 		:= Lat - (LatDeg*100);
+		LonMin 		:= Lon - (LonDeg*100);
+		Lat 		:= LatDeg + (LatMin/60);
+		Lon			:= LonDeg + (LonMin/60);
+		
+		IF aSplit[5] = 'S' THEN
+			Lat := Lat*(-1);
+		END_IF
+		
+		IF aSplit[7] = 'W' THEN
+			Lon := Lon*(-1); 
+		END_IF
+		
+		(* speed conversion *)
+		Speed	:= STRING_TO_REAL(aSplit[8]) * 1.852;
+		
+		(* check for overspeed *)
+		IF Speed > Threshold THEN
+			Overspeed := TRUE;
+		ELSE
+			Overspeed := FALSE;
+		END_IF
 	ELSE
-		Overspeed := FALSE;
+		(* gps no signal error handling *)
 	END_IF
-ELSE
-	(* gps no signal error handling *)
-END_IF
-]]></ST>
+	
+	pTime := Main1.cTime;
+	
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="Read_GPS">
+      <LineId Id="298" Count="1" />
       <LineId Id="248" Count="0" />
       <LineId Id="26" Count="6" />
       <LineId Id="60" Count="0" />
@@ -174,6 +182,7 @@ END_IF
       <LineId Id="254" Count="0" />
       <LineId Id="246" Count="1" />
       <LineId Id="86" Count="0" />
+      <LineId Id="304" Count="2" />
       <LineId Id="85" Count="0" />
     </LineIds>
   </POU>

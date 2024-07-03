@@ -7,22 +7,22 @@ VAR
 	Data_Length : INT;
 
 	Truck_ID		: STRING := '1';
-	TimeStr			: ARRAY[1..10] OF STRING;	
-	Trailer_ID		: ARRAY[1..10] OF STRING;
-	Lat				: ARRAY[1..10] OF STRING;
-	Lon				: ARRAY[1..10] OF STRING;
-	Speed			: ARRAY[1..10] OF STRING;
-	Overspeed		: ARRAY[1..10] OF STRING;
-	Payload_EMA		: ARRAY[1..10] OF STRING;
-	Payload_Raw		: ARRAY[1..10] OF STRING;
-	Overload		: ARRAY[1..10] OF STRING;
-	Pressure_Cyl	: ARRAY[1..10] OF STRING;
-	Pressure_Val	: ARRAY[1..10] OF STRING;
-	Strain_Left		: ARRAY[1..10] OF STRING;
-	Strain_Right	: ARRAY[1..10] OF STRING;
-	EventCode		: ARRAY[1..10] OF STRING;
-	Cycle_Duration	: ARRAY[1..10] OF STRING;
-	Hyd_Efficiency	: ARRAY[1..10] OF STRING;
+	TimeStr			: ARRAY[1..20] OF STRING;	
+	Trailer_ID		: ARRAY[1..20] OF STRING;
+	Lat				: ARRAY[1..20] OF STRING;
+	Lon				: ARRAY[1..20] OF STRING;
+	Speed			: ARRAY[1..20] OF STRING;
+	Overspeed		: ARRAY[1..20] OF STRING;
+	Payload_EMA		: ARRAY[1..20] OF STRING;
+	Payload_Raw		: ARRAY[1..20] OF STRING;
+	Overload		: ARRAY[1..20] OF STRING;
+	Pressure_Cyl	: ARRAY[1..20] OF STRING;
+	Pressure_Val	: ARRAY[1..20] OF STRING;
+	Strain_Left		: ARRAY[1..20] OF STRING;
+	Strain_Right	: ARRAY[1..20] OF STRING;
+	EventCode		: ARRAY[1..20] OF STRING;
+	Cycle_Duration	: ARRAY[1..20] OF STRING;
+	Hyd_Efficiency	: ARRAY[1..20] OF STRING;
 	
 	Done		: BOOL;
 	Sent		: BOOL;

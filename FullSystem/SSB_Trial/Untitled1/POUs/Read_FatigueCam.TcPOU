@@ -7,13 +7,9 @@ VAR
 	RxBufferPcCom	: ComBuffer;	
 	TxBufferPcCom	: ComBuffer;
 	
-	Timer	: TON;
-	i		: INT := 60;
+	pTime	: WORD := 0;
 	
-	fbTime 		: FB_LocalSystemTime := ( bEnable := TRUE, dwCycle := 1 );
-	bValid		: BOOL := FALSE;
 	TimeStr		: STRING;
-	
 	Year		: USINT;
 	Month		: USINT;
 	bDate		: USINT;
@@ -31,112 +27,111 @@ VAR
 	BinStr		: ARRAY [1..4] OF STRING;
 	TimeBin		: STRING;
 	
-	//Command		: LINT := 16#DE1527378DAA;
-	//Command		: LINT := 16#000000008CAA;
 	Command			: ULINT := 16#00;
 	Response		: STRING := 'ABC';
 	EventID			: STRING := '00';
 	prevEventID		: STRING;
 	EventCode		: STRING;
+	
+	Prefix		: WORD;
+	LenPrefix	: BYTE;
+	
+	test : STRING;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(* sync time every 1 minute *)
-IF i = 60 THEN 
-	(*
-	WHILE bValid = FALSE DO //wait until time sync
-		fbTime(bValid => bValid);
-	END_WHILE
-	*)
+      <ST><![CDATA[IF Main1.cTime <> pTime THEN
 	
-	IF bValid = FALSE THEN //wait until time sync
-		fbTime(bValid => bValid);
-	END_IF
+	(* sync time every 1 minute *)
+	IF pTime = 0 THEN 
+		
+		TimeStr		:= SYSTEMTIME_TO_STRING(Main1.fbTime.systemTime); //get datetime
 	
-	TimeStr		:= SYSTEMTIME_TO_STRING(fbTime.systemTime); //get datetime
-	//TimeStr		:= '2013-12-19-17:23:30.000';
-	Year		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 3));
-	Month		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 6));
-	bDate		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 9));
-	Hour		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 12));
-	Minute		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 15));
-	Second		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 18));
+		Year		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 3));
+		Month		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 6));
+		bDate		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 9));
+		Hour		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 12));
+		Minute		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 15));
+		Second		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 18));
+		
+		(* convert datetime to binary *)
+		YearBin		:= BYTE_TO_BINSTR(in := Year, iPrecision := 6);
+		MonthBin	:= BYTE_TO_BINSTR(in := Month, iPrecision := 4);
+		bDateBin	:= BYTE_TO_BINSTR(in := bDate, iPrecision := 5);
+		HourBin		:= BYTE_TO_BINSTR(in := Hour, iPrecision := 5);
+		MinuteBin	:= BYTE_TO_BINSTR(in := Minute, iPrecision := 6);
+		SecondBin	:= BYTE_TO_BINSTR(in := Second, iPrecision := 6);
+		BinStr[4]	:= CONCAT(YearBin, MonthBin); 
+		BinStr[4]	:= CONCAT(BinStr[4], bDateBin);
+		BinStr[4]	:= CONCAT(BinStr[4], HourBin); 
+		BinStr[4]	:= CONCAT(BinStr[4], MinuteBin);
+		BinStr[4]	:= CONCAT(BinStr[4], SecondBin);
+		
+		(* separate bytes *)
+		BinStr[1]	:= LEFT(STR := BinStr[4], SIZE := 8);
+		BinStr[2]	:= MID(STR := BinStr[4], LEN := 8, POS := 9);
+		BinStr[3]	:= MID(STR := BinStr[4], LEN := 8, POS := 17);
+		BinStr[4]	:= RIGHT(STR := BinStr[4], SIZE := 8);
+		
+		(* build sync command *)
+		TimeBin		:= CONCAT('2#', BinStr[4]);
+		TimeBin		:= CONCAT(TimeBin, BinStr[3]);
+		TimeBin		:= CONCAT(TimeBin, BinStr[2]);
+		TimeBin		:= CONCAT(TimeBin, BinStr[1]);
+		TimeBin		:= CONCAT(TimeBin, '10001101'); //8D
+		TimeBin		:= CONCAT(TimeBin, '10101010'); //AA
+		Command		:= STRING_TO_ULINT(TimeBin);
+		
+		(* send sync command *)
+		IF Response <> LWORD_TO_HEXSTR(in := command, iPrecision := 1, bLoCase := FALSE) THEN
+			Prefix := 16#8DAA;
+			LenPrefix := 2;
+			fbEL6001(
+				TxBuffer	:= GVL.TxBufferEL, 
+				RxBuffer	:= GVL.RxBufferEL,
+				Command		:= Command,
+				Prefix		:= Prefix,
+				LenPrefix	:= LenPrefix,
+				Response	=> Response
+			);
+		ELSE
+			pTime := Main1.cTime;
+		END_IF
 	
-	(* convert datetime to binary *)
-	YearBin		:= BYTE_TO_BINSTR(in := Year, iPrecision := 6);
-	MonthBin	:= BYTE_TO_BINSTR(in := Month, iPrecision := 4);
-	bDateBin	:= BYTE_TO_BINSTR(in := bDate, iPrecision := 5);
-	HourBin		:= BYTE_TO_BINSTR(in := Hour, iPrecision := 5);
-	MinuteBin	:= BYTE_TO_BINSTR(in := Minute, iPrecision := 6);
-	SecondBin	:= BYTE_TO_BINSTR(in := Second, iPrecision := 6);
-	BinStr[4]	:= CONCAT(YearBin, MonthBin); 
-	BinStr[4]	:= CONCAT(BinStr[4], bDateBin);
-	BinStr[4]	:= CONCAT(BinStr[4], HourBin); 
-	BinStr[4]	:= CONCAT(BinStr[4], MinuteBin);
-	BinStr[4]	:= CONCAT(BinStr[4], SecondBin);
-	
-	(* separate bytes *)
-	BinStr[1]	:= LEFT(STR := BinStr[4], SIZE := 8);
-	BinStr[2]	:= MID(STR := BinStr[4], LEN := 8, POS := 9);
-	BinStr[3]	:= MID(STR := BinStr[4], LEN := 8, POS := 17);
-	BinStr[4]	:= RIGHT(STR := BinStr[4], SIZE := 8);
-	
-	(* build sync command *)
-	TimeBin		:= CONCAT('2#', BinStr[4]);
-	TimeBin		:= CONCAT(TimeBin, BinStr[3]);
-	TimeBin		:= CONCAT(TimeBin, BinStr[2]);
-	TimeBin		:= CONCAT(TimeBin, BinStr[1]);
-	TimeBin		:= CONCAT(TimeBin, '10001101'); //8D
-	TimeBin		:= CONCAT(TimeBin, '10101010'); //AA
-	Command		:= STRING_TO_ULINT(TimeBin);
-	//Command		:= 16#DE1527378DAA;
-	
-	(* send sync command *)
-	WHILE Response <> LWORD_TO_HEXSTR(in := command, iPrecision := 1, bLoCase := FALSE) DO
+	ELSE
+		(* fatigue cam request event *)
+		Command		:= 16#000000008CAA;
+		Prefix		:= 16#AA;
+		LenPrefix	:= 1;	
 		fbEL6001(
 			TxBuffer	:= GVL.TxBufferEL, 
 			RxBuffer	:= GVL.RxBufferEL,
 			Command		:= Command,
-			Response	=> Response
+			Prefix		:= Prefix,
+			LenPrefix	:= LenPrefix,
+			EventID		=> EventID,
+			EventCode	=> EventCode,
+			Response	=> Response,
 		);
-	END_WHILE
-	i := 0;
-END_IF
-
-(* fatigue cam request event *)
-Command	:= 16#000000008CAA;
-Timer(IN := FALSE);
-fbEL6001(
-	TxBuffer	:= GVL.TxBufferEL, 
-	RxBuffer	:= GVL.RxBufferEL,
-	Command		:= Command,
-	EventID		=> EventID,
-	EventCode	=> EventCode,
-	Response	=> Response,
-);
 	
-//IF EventCode = '0' OR EventID = prevEventID THEN
-IF EventCode = '' OR EventID = prevEventID THEN
-	EventCode 	:= '0';
-	//EventID	:= '';
-ELSE
-	prevEventID	:= EventID;
-END_IF
-i := i+1;
+		pTime := Main1.cTime;
+	
+	END_IF
+	
+	IF EventCode = '' OR EventID = prevEventID THEN
+		EventCode 	:= '0';
+	ELSE
+		prevEventID	:= EventID;
+	END_IF
 
-]]></ST>
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="Read_FatigueCam">
+      <LineId Id="451" Count="0" />
+      <LineId Id="453" Count="0" />
       <LineId Id="100" Count="0" />
       <LineId Id="104" Count="0" />
-      <LineId Id="420" Count="0" />
-      <LineId Id="170" Count="0" />
-      <LineId Id="174" Count="0" />
-      <LineId Id="172" Count="1" />
-      <LineId Id="421" Count="0" />
-      <LineId Id="424" Count="1" />
-      <LineId Id="423" Count="0" />
-      <LineId Id="422" Count="0" />
+      <LineId Id="173" Count="0" />
       <LineId Id="175" Count="0" />
       <LineId Id="203" Count="0" />
       <LineId Id="176" Count="0" />
@@ -158,36 +153,41 @@ i := i+1;
       <LineId Id="224" Count="0" />
       <LineId Id="223" Count="0" />
       <LineId Id="226" Count="3" />
-      <LineId Id="159" Count="0" />
-      <LineId Id="230" Count="0" />
-      <LineId Id="160" Count="0" />
+      <LineId Id="159" Count="1" />
       <LineId Id="342" Count="0" />
       <LineId Id="108" Count="0" />
       <LineId Id="120" Count="0" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="438" Count="0" />
       <LineId Id="109" Count="2" />
+      <LineId Id="440" Count="0" />
+      <LineId Id="443" Count="0" />
       <LineId Id="153" Count="0" />
       <LineId Id="105" Count="0" />
+      <LineId Id="423" Count="1" />
       <LineId Id="119" Count="0" />
-      <LineId Id="107" Count="0" />
+      <LineId Id="425" Count="0" />
       <LineId Id="106" Count="0" />
-      <LineId Id="240" Count="0" />
       <LineId Id="93" Count="0" />
       <LineId Id="303" Count="0" />
-      <LineId Id="65" Count="0" />
+      <LineId Id="444" Count="1" />
       <LineId Id="11" Count="0" />
       <LineId Id="86" Count="1" />
-      <LineId Id="90" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="446" Count="1" />
+      <LineId Id="91" Count="0" />
       <LineId Id="95" Count="0" />
       <LineId Id="238" Count="0" />
       <LineId Id="89" Count="0" />
       <LineId Id="249" Count="0" />
-      <LineId Id="259" Count="0" />
-      <LineId Id="381" Count="0" />
-      <LineId Id="260" Count="3" />
-      <LineId Id="258" Count="0" />
       <LineId Id="248" Count="0" />
       <LineId Id="16" Count="0" />
       <LineId Id="2" Count="0" />
+      <LineId Id="429" Count="2" />
+      <LineId Id="433" Count="1" />
+      <LineId Id="427" Count="0" />
+      <LineId Id="456" Count="0" />
+      <LineId Id="455" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

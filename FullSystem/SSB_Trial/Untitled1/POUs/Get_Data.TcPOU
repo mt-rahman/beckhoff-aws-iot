@@ -7,7 +7,7 @@ VAR
 	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlCommand2	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
-    aReadStruct		: ARRAY[1..10] OF ST_SelectStruct;
+    aReadStruct		: ARRAY[1..20] OF ST_SelectStruct;
 	nState			: INT;
 	nState2			: INT;
 	sCmd			: STRING(20000);
@@ -83,8 +83,10 @@ ELSE
 					(* determine no of records to select *)
 					IF count < 10 THEN
 						lim := 1;
-					ELSE
+					ELSIF count < 20 THEN
 						lim := 10;
+					ELSE
+						lim := 20;
 					END_IF
 					
 				END_IF
@@ -119,8 +121,12 @@ ELSE
 					nState2 := nState2+1;
 				END_IF
 			END_IF
+		
 		7:
 			Done	:= TRUE;
+		
+		255:
+			nState	:= 0;	
 END_CASE
 
 END_IF
@@ -148,6 +154,7 @@ END_IF
       <LineId Id="46" Count="5" />
       <LineId Id="137" Count="0" />
       <LineId Id="131" Count="4" />
+      <LineId Id="279" Count="1" />
       <LineId Id="130" Count="0" />
       <LineId Id="136" Count="0" />
       <LineId Id="52" Count="1" />
@@ -166,7 +173,10 @@ END_IF
       <LineId Id="176" Count="0" />
       <LineId Id="161" Count="0" />
       <LineId Id="140" Count="0" />
+      <LineId Id="277" Count="0" />
       <LineId Id="235" Count="0" />
+      <LineId Id="275" Count="1" />
+      <LineId Id="278" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="180" Count="0" />
       <LineId Id="179" Count="0" />
