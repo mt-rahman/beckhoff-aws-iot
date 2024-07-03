@@ -3,8 +3,9 @@
   <POU Name="Read_ID" Id="{e1372c7c-abe8-4077-94d5-6aa297d659bb}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Read_ID
 VAR
-	PrimeMover_ID		: STRING := '1';
-	Trailer_ID AT %I*	: UINT;
+	PrimeMover_ID			: STRING := '1';
+	Trailer_ID_Lead AT %I*	: UINT;
+	Trailer_ID_Rear AT %I*	: UINT;
 END_VAR
 ]]></Declaration>
     <Implementation>

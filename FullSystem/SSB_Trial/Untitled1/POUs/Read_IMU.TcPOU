@@ -9,20 +9,26 @@ VAR
 	i			: INT := 1;
 	j			: INT;
 	
-	TimeStr		: ARRAY [1..50] OF STRING;
-	Trailer_ID	: ARRAY [1..50] OF UINT;
-	RoadSec		: ARRAY [1..50] OF UINT;
-	Pitch		: ARRAY [1..50] OF REAL;
-	Roll		: ARRAY [1..50] OF REAL;
-	AccX		: ARRAY [1..50] OF REAL;
-	AccY		: ARRAY [1..50] OF REAL;
-	AccZ		: ARRAY [1..50] OF REAL;
+	TimeStr				: ARRAY [1..50] OF STRING;
+	Trailer_ID_Lead		: ARRAY [1..50] OF STRING;
+	//RoadSec			: ARRAY [1..50] OF UINT;
+	Pitch_Lead			: ARRAY [1..50] OF STRING;
+	Roll_Lead			: ARRAY [1..50] OF STRING;
+	AccX_Lead			: ARRAY [1..50] OF STRING;
+	AccY_Lead			: ARRAY [1..50] OF STRING;
+	AccZ_Lead			: ARRAY [1..50] OF STRING;
+	
+	Trailer_ID_Rear	: ARRAY [1..50] OF STRING;
+	//RoadSec		: ARRAY [1..50] OF UINT;
+	Pitch_Rear		: ARRAY [1..50] OF STRING;
+	Roll_Rear		: ARRAY [1..50] OF STRING;
+	AccX_Rear		: ARRAY [1..50] OF STRING;
+	AccY_Rear		: ARRAY [1..50] OF STRING;
+	AccZ_Rear		: ARRAY [1..50] OF STRING;
 	
 	cDiv	: UINT;
 	pDiv	: UINT;
 
-	
-	
 END_VAR
 
 ]]></Declaration>
@@ -36,14 +42,22 @@ IF pSec <> Background_Time.cSec THEN
 END_IF
 	
 IF pDiv <> cDiv THEN
-	TimeStr[i]		:= Background_Time.TimeStr;
-	Trailer_ID[i]	:= Read_ID.Trailer_ID;
-	RoadSec[i]		:= Background_IMU.RoadSec;
-	Pitch[i]		:= Background_IMU.Pitch;
-	Roll[i]			:= Background_IMU.Roll;
-	AccX[i]			:= Background_IMU.AccX;
-	AccY[i]			:= Background_IMU.AccY;
-	AccZ[i]			:= Background_IMU.AccZ;
+	TimeStr[i]				:= REPLACE(Background_Time.TimeStr, ' ', 1, 11);
+	Trailer_ID_Lead[i]		:= UINT_TO_STRING(Read_ID.Trailer_ID_Lead);
+	//RoadSec[i]			:= Background_IMU.RoadSec;
+	Pitch_Lead[i]			:= REAL_TO_STRING(Background_IMU.Pitch_Lead);
+	Roll_Lead[i]			:= REAL_TO_STRING(Background_IMU.Roll_Lead);
+	AccX_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccX_Lead);
+	AccY_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccY_Lead);
+	AccZ_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccZ_Lead);
+	
+	Trailer_ID_Rear[i]		:= UINT_TO_STRING(Read_ID.Trailer_ID_Rear);
+	//RoadSec[i]			:= Background_IMU.RoadSec;
+	Pitch_Rear[i]			:= REAL_TO_STRING(Background_IMU.Pitch_Rear);
+	Roll_Rear[i]			:= REAL_TO_STRING(Background_IMU.Roll_Rear);
+	AccX_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccX_Rear);
+	AccY_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccY_Rear);
+	AccZ_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccZ_Rear);
 	
 	pDiv := cDiv;
 	i := i+1;
@@ -54,7 +68,11 @@ END_IF;]]></ST>
       <LineId Id="1022" Count="9" />
       <LineId Id="1066" Count="0" />
       <LineId Id="1064" Count="0" />
-      <LineId Id="1032" Count="8" />
+      <LineId Id="1032" Count="4" />
+      <LineId Id="1098" Count="0" />
+      <LineId Id="1100" Count="5" />
+      <LineId Id="1099" Count="0" />
+      <LineId Id="1037" Count="3" />
       <LineId Id="998" Count="0" />
     </LineIds>
   </POU>

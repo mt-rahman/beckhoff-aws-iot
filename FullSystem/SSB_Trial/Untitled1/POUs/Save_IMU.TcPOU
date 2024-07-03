@@ -33,11 +33,11 @@ ELSE
 			
 		1:	
 			(* build query *)	
-			sCmd	:= 'INSERT INTO sent_imu SELECT * FROM buffer_imu ORDER BY datetime ASC LIMIT ';
+			sCmd	:= 'INSERT INTO imu SELECT * FROM buffer_imu ORDER BY datetime ASC LIMIT ';
 			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_IMU.Data_Length));
-			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_imu ORDER BY datetime ASC LIMIT ');
+			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_imu WHERE datetime IN (SELECT datetime FROM buffer_imu ORDER BY datetime ASC LIMIT ');
 			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_IMU.Data_Length));
-			sCmd	:= CONCAT(sCmd, ';');
+			sCmd	:= CONCAT(sCmd, ');');
 			
 			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
 				IF fbSQLCommand.bError THEN
@@ -60,10 +60,7 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_IMU">
-      <LineId Id="17" Count="29" />
-      <LineId Id="49" Count="0" />
-      <LineId Id="61" Count="0" />
-      <LineId Id="50" Count="10" />
+      <LineId Id="73" Count="42" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

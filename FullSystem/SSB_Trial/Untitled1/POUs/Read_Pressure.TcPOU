@@ -3,27 +3,47 @@
   <POU Name="Read_Pressure" Id="{4da627ee-194f-436f-bf88-e2e5c518b461}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Read_Pressure
 VAR
-	Pressure_Val	: REAL := 0;
-	Pressure_Cyl	: REAL := 0;
+	EL3052_Lead_Bit AT %I* : INT;
+	EL3052_Rear_Bit AT %I* : INT;
 	
-	Hyd_Efficiency	: REAL := 0;
-	nBit_Val AT %I*	: UINT;
-	nBit_Cyl AT %I*	: UINT;
+	Pressure_Lead		: REAL;
+	Pressure_Rear		: REAL;
+	Threshold			: REAL := 180;
+	
+	Overpressure_Lead	: BOOL;
+	Overpressure_Rear	: BOOL;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(* convert to pressure *)
-Pressure_Val := (nBit_Val/32767)*160;
-Pressure_Cyl := (nBit_Cyl/32767)*160;
+      <ST><![CDATA[(* read pressure *)
+Pressure_Lead 	:= (INT_TO_REAL(EL3052_Lead_Bit)/32767) * 160;
+Pressure_Rear 	:= (INT_TO_REAL(EL3052_Rear_Bit)/32767) * 160;
 
-(* calculate hyd efficiency *)
-//rHyd_Efficiency := Read_Pressure.Pressure_Cyl / Read_Pressure.Pressure_Val;]]></ST>
+(* check for overpressure *)
+IF Pressure_Lead > Threshold THEN
+	Overpressure_Lead := TRUE;
+ELSE
+	Overpressure_Lead := FALSE;
+END_IF
+
+IF Pressure_Rear > Threshold THEN
+	Overpressure_Rear := TRUE;
+ELSE
+	Overpressure_Rear := FALSE;
+END_IF
+
+(* only read over pressure event once during dump cycle *)]]></ST>
     </Implementation>
     <LineIds Name="Read_Pressure">
-      <LineId Id="27" Count="0" />
-      <LineId Id="29" Count="1" />
-      <LineId Id="28" Count="0" />
-      <LineId Id="16" Count="1" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="52" Count="6" />
+      <LineId Id="83" Count="4" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="64" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

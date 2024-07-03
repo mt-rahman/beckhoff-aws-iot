@@ -1,10 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
-  <POU Name="FB_FatigueCam" Id="{181e7c70-138b-446a-a6f5-34e588388885}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_FatigueCam
+  <POU Name="FB_FatigueCam_Receive" Id="{181e7c70-138b-446a-a6f5-34e588388885}" SpecialFunc="None">
+    <Declaration><![CDATA[	FUNCTION_BLOCK FB_FatigueCam_Receive
 
 VAR_IN_OUT
-	TxBuffer	: ComBuffer;
 	RxBuffer	: ComBuffer;
 END_VAR
 
@@ -22,10 +21,6 @@ VAR_OUTPUT
 END_VAR
 
 VAR
-	fbSend			: SendData;
-	bSendBusy		: BOOL;
-	eSendErrorID	: ComError_t;
-
 	fbReceive		: ReceiveData;
 	bReceiveBusy	: BOOL;
 	bReceiveError	: BOOL;
@@ -48,19 +43,7 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(* send command *)
-fbSend( 
-	pSendData	:= ADR(Command),
-	TXbuffer 	:= TxBuffer,
-	Length 		:= SIZEOF(Command),
-	Busy		=> bSendBusy,
-	Error		=> 
-);
-IF fbSend.Error <> COMERROR_NOERROR THEN
-	eSendErrorID := fbSend.Error;
-END_IF
-
-(* receive data *)
+      <ST><![CDATA[(* receive data *)
 fbReceive( 
 	RxBuffer := RxBuffer,
 	pPrefix := ADR(Prefix),
@@ -71,7 +54,9 @@ fbReceive(
 	Busy => bReceiveBusy,
 	Error => ,
 	DataReceived => bDataReceived,
-	RxTimeout=> bReceiveTimeout );
+	RxTimeout=> bReceiveTimeout 
+);
+
 IF fbReceive.Error <> COMERROR_NOERROR THEN
 	eReceiveErrorID := fbReceive.Error;
 END_IF
@@ -83,12 +68,12 @@ END_IF
 Response 		:= LWORD_TO_HEXSTR(in := receive, iPrecision := 16, bLoCase := FALSE);
 InstructionID	:= RIGHT(STR := Response, SIZE := 4);
 IF InstructionID = '8BAA' THEN
-	EventID		:= MID(STR := Response, LEN := 2, POS := 3);
+	EventID		:= MID(STR := Response, LEN := 2, POS := 7);
 	HEXSTR_TO_DATA(EventID, ADR(bEventID), SIZEOF(bEventID)); 
 	EventID		:= BYTE_TO_DECSTR(in := bEventID, iPrecision := 1);
 	
-	AbnormCode	:= MID(STR := Response, LEN := 2, POS := 5);
-	FatigueCode	:= MID(STR := Response, LEN := 2, POS := 7);
+	AbnormCode	:= MID(STR := Response, LEN := 2, POS := 9);
+	FatigueCode	:= MID(STR := Response, LEN := 2, POS := 11);
 	
 	(* event classification *)
 	IF EventID <> prevEventID THEN
@@ -126,56 +111,8 @@ END_IF
 fbClearCom(Buffer := RxBuffer); //clear rx buffer
 ]]></ST>
     </Implementation>
-    <LineIds Name="FB_FatigueCam">
-      <LineId Id="305" Count="0" />
-      <LineId Id="192" Count="1" />
-      <LineId Id="94" Count="0" />
-      <LineId Id="87" Count="2" />
-      <LineId Id="194" Count="0" />
-      <LineId Id="90" Count="0" />
-      <LineId Id="196" Count="0" />
-      <LineId Id="92" Count="0" />
-      <LineId Id="198" Count="0" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="96" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="100" Count="0" />
-      <LineId Id="104" Count="0" />
-      <LineId Id="108" Count="0" />
-      <LineId Id="439" Count="0" />
-      <LineId Id="102" Count="0" />
-      <LineId Id="111" Count="1" />
-      <LineId Id="119" Count="0" />
-      <LineId Id="101" Count="0" />
-      <LineId Id="113" Count="4" />
-      <LineId Id="98" Count="0" />
-      <LineId Id="336" Count="0" />
-      <LineId Id="322" Count="0" />
-      <LineId Id="442" Count="0" />
-      <LineId Id="441" Count="0" />
-      <LineId Id="321" Count="0" />
-      <LineId Id="323" Count="0" />
-      <LineId Id="381" Count="1" />
-      <LineId Id="385" Count="0" />
-      <LineId Id="325" Count="0" />
-      <LineId Id="327" Count="0" />
-      <LineId Id="348" Count="0" />
-      <LineId Id="443" Count="0" />
-      <LineId Id="387" Count="0" />
-      <LineId Id="351" Count="0" />
-      <LineId Id="354" Count="0" />
-      <LineId Id="356" Count="1" />
-      <LineId Id="359" Count="12" />
-      <LineId Id="373" Count="0" />
-      <LineId Id="376" Count="3" />
-      <LineId Id="355" Count="0" />
-      <LineId Id="393" Count="0" />
-      <LineId Id="391" Count="0" />
-      <LineId Id="324" Count="0" />
-      <LineId Id="338" Count="2" />
-      <LineId Id="337" Count="0" />
-      <LineId Id="285" Count="0" />
-      <LineId Id="288" Count="0" />
+    <LineIds Name="FB_FatigueCam_Receive">
+      <LineId Id="529" Count="65" />
       <LineId Id="287" Count="0" />
     </LineIds>
   </POU>

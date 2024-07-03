@@ -23,10 +23,6 @@
     <Compile Include="DUTs\ST_SelectStructIMU.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GVLs\GVL.TcGVL">
-      <SubType>Code</SubType>
-      <LinkAlways>true</LinkAlways>
-    </Compile>
     <Compile Include="PlcTask_Background.TcTTO">
       <SubType>Code</SubType>
     </Compile>
@@ -48,9 +44,6 @@
     <Compile Include="POUs\Background_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Background_Payload.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\Background_Time.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -60,7 +53,7 @@
     <Compile Include="POUs\Buffer_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_FatigueCam.TcPOU">
+    <Compile Include="POUs\FB_FatigueCam_Receive.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Get_Data.TcPOU">
@@ -97,9 +90,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_GPS.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Read_Strain.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_ID.TcPOU">

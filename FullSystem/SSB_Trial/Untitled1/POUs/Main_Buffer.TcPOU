@@ -8,8 +8,8 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* save data to database *)
-//Buffer_Data();
-//Buffer_IMU();
+Buffer_Data();
+Buffer_IMU();
 ]]></ST>
     </Implementation>
     <LineIds Name="Main_Buffer">

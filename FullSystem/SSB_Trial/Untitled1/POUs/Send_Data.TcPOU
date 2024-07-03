@@ -18,17 +18,19 @@ VAR
 	clientID	: STRING := 'sdt1';
 	
 	(* published message *)
-	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/sdt/data'; //message topic
+	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/doublesdt/data'; //message topic
 	sPayloadPub 	: STRING(200000);
 	str				: STRING(100000);
 	valSeparator	: STRING := '","';
+	comma			: STRING := ',';
 	arrayEnd		: STRING := '"]';
+	arrayEnd2		: STRING := ']';
 	msgEnd			: STRING := '}';
-	i				: UINT;
+	i				: UDINT;
 	
 	(* topic subscription *)
 	bSubscribed : BOOL;
-	sTopicSub 	: STRING(255) := 'iot/smartproduct/mifa/sdt/data';
+	sTopicSub 	: STRING(255) := 'iot/smartproduct/mifa/doublesdt/data';
 	
 	(* received message *)	
 	{attribute 'TcEncoding':='UTF-8'}
@@ -76,14 +78,6 @@ IF fbMqttClient.bError THEN
 	hrErrorOccurred := fbMqttClient.hrErrorCode;
 END_IF
 
-(* get message from subscribed topic *)
-IF fbMessageQueue.nQueuedMessages > 0 THEN
-	IF fbMessageQueue.Dequeue(fbMessage:=fbMessage) THEN
-		fbMessage.GetTopic(pTopic:=ADR(sTopicRcv), nTopicSize:=SIZEOF(sTopicRcv) );
-		fbMessage.GetPayload(pPayload:=ADR(sPayloadRcv), nPayloadSize:=SIZEOF(sPayloadRcv), bSetNullTermination:=FALSE);
-	END_IF
-END_IF
-
 IF fbMqttClient.bConnected THEN	
 	IF NOT bSubscribed THEN
 		bSubscribed := fbMqttClient.Subscribe(sTopic:=sTopicSub, eQoS:=TcIotMqttQos.AtMostOnceDelivery); //subscribe to topic
@@ -94,31 +88,41 @@ IF fbMqttClient.bConnected THEN
 	END_IF
 	
 	(* build message payload *)
-	sPayloadPub := CONCAT('{"primemover_id":"', Read_ID.PrimeMover_ID);
-	sPayloadPub := CONCAT(sPayloadPub, '"');
+	sPayloadPub := CONCAT('{"primemover_id":', Read_ID.PrimeMover_ID);
 	
-	(* trailer id string *)
-	str	:= ',"trailer_id":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Trailer_ID[i]), ADR(str), SIZEOF(str)); 
+	(* lead trailer id string *)
+	str	:= ',"trailer_id_lead":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Trailer_ID_Lead[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
+	END_FOR
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* rear trailer id string *)
+	str	:= ',"trailer_id_rear":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Trailer_ID_Rear[i]), ADR(str), SIZEOF(str)); 
 		
-	END_WHILE
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+		END_IF
+		
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
 	(* date time string *)
 	str	:= ',"datetime":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
 		CONCAT2(ADR(str), ADR(Get_Data.TimeStr[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
@@ -127,261 +131,202 @@ IF fbMqttClient.bConnected THEN
 			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
 	(* latitude string *)
-	str	:= ',"latitude":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
+	str	:= ',"latitude":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
 		CONCAT2(ADR(str), ADR(Get_Data.Lat[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
 	(* longitude string *)
-	str	:= ',"longitude":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
+	str	:= ',"longitude":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
 		CONCAT2(ADR(str), ADR(Get_Data.Lon[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
 	(* speed string *)
-	str	:= ',"speed":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
+	str	:= ',"speed":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
 		CONCAT2(ADR(str), ADR(Get_Data.Speed[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
 	(* overspeed string *)
-	str	:= ',"overspeed":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
+	str	:= ',"overspeed":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
 		CONCAT2(ADR(str), ADR(Get_Data.Overspeed[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* payload raw string *)
-	str	:= ',"payload_raw":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Payload_Raw[i]), ADR(str), SIZEOF(str)); 
+	(* payload lead string *)
+	str	:= ',"payload_lead":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Payload_Lead[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* payload ema string *)
-	str	:= ',"payload_ema":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Payload_EMA[i]), ADR(str), SIZEOF(str)); 
+	(* payload rear string *)
+	str	:= ',"payload_rear":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Payload_Rear[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* overload string *)
-	str	:= ',"overload":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Overload[i]), ADR(str), SIZEOF(str)); 
+	(* overload lead string *)
+	str	:= ',"overload_lead":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Overload_Lead[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* pressure cylinder string *)
-	str	:= ',"pressure_cyl":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Pressure_Cyl[i]), ADR(str), SIZEOF(str)); 
+	(* overload rear string *)
+	str	:= ',"overload_rear":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Overload_Rear[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* pressure valve string *)
-	str	:= ',"pressure_val":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Pressure_Val[i]), ADR(str), SIZEOF(str)); 
+	(* pressure lead string *)
+	str	:= ',"pressure_lead":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Pressure_Lead[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
-	
-	(* strain left string *)
-	str	:= ',"strain_left":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Strain_Left[i]), ADR(str), SIZEOF(str)); 
+
+	(* pressure rear string *)
+	str	:= ',"pressure_rear":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Pressure_Rear[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* strain right string *)
-	str	:= ',"strain_right":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Strain_Right[i]), ADR(str), SIZEOF(str)); 
+	(* overpressure lead string *)
+	str	:= ',"overpressure_lead":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Overpressure_Lead[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
-	(* fatigue event string *)
-	str	:= ',"fatigue_event":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
+	(* overpressure rear string *)
+	str	:= ',"overpressure_rear":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+		CONCAT2(ADR(str), ADR(Get_Data.Overpressure_Rear[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+		END_IF
+		
+	END_FOR
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* event code string *)
+	str	:= ',"event_code":[';
+	FOR i:=1 TO Get_Data.Data_Length BY 1 DO
 		CONCAT2(ADR(str), ADR(Get_Data.EventCode[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
 		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
 		END_IF
 		
-		i := i+1;
-		
-	END_WHILE
-	
-	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
-	
-	(* cycle duration string *)
-	str	:= ',"cycle_duration":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Cycle_Duration[i]), ADR(str), SIZEOF(str)); 
-		
-		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
-		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
-		END_IF
-		
-		i := i+1;
-		
-	END_WHILE
-	
-	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
-	
-	(* hydraulic efficiency string *)
-	str	:= ',"hyd_efficiency":["';
-	i := 1;
-	WHILE i <= Get_Data.Data_Length DO
-		CONCAT2(ADR(str), ADR(Get_Data.Hyd_Efficiency[i]), ADR(str), SIZEOF(str)); 
-		
-		IF i <> Get_Data.Data_Length THEN
-			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
-		ELSE
-			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
-		END_IF
-		
-		i := i+1;
-		
-	END_WHILE
+	END_FOR
 	
 	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 	
@@ -401,66 +346,19 @@ IF fbMqttClient.bConnected THEN
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Send_Data">
-      <LineId Id="914" Count="1" />
-      <LineId Id="917" Count="0" />
-      <LineId Id="916" Count="0" />
-      <LineId Id="868" Count="0" />
-      <LineId Id="867" Count="0" />
-      <LineId Id="508" Count="15" />
-      <LineId Id="960" Count="0" />
-      <LineId Id="525" Count="13" />
-      <LineId Id="540" Count="1" />
-      <LineId Id="543" Count="6" />
-      <LineId Id="866" Count="0" />
-      <LineId Id="1007" Count="57" />
-      <LineId Id="1163" Count="15" />
-      <LineId Id="1162" Count="0" />
-      <LineId Id="1154" Count="0" />
-      <LineId Id="1181" Count="15" />
-      <LineId Id="1179" Count="1" />
-      <LineId Id="1199" Count="15" />
-      <LineId Id="1197" Count="0" />
-      <LineId Id="1215" Count="0" />
-      <LineId Id="1217" Count="15" />
-      <LineId Id="1216" Count="0" />
-      <LineId Id="1233" Count="0" />
-      <LineId Id="1235" Count="15" />
-      <LineId Id="1234" Count="0" />
-      <LineId Id="1251" Count="0" />
-      <LineId Id="1253" Count="15" />
-      <LineId Id="1252" Count="0" />
-      <LineId Id="1269" Count="0" />
-      <LineId Id="1271" Count="15" />
-      <LineId Id="1270" Count="0" />
-      <LineId Id="1287" Count="0" />
-      <LineId Id="1289" Count="15" />
-      <LineId Id="1288" Count="0" />
-      <LineId Id="1305" Count="0" />
-      <LineId Id="1307" Count="15" />
-      <LineId Id="1306" Count="0" />
-      <LineId Id="1323" Count="0" />
-      <LineId Id="1325" Count="15" />
-      <LineId Id="1324" Count="0" />
-      <LineId Id="1341" Count="0" />
-      <LineId Id="1343" Count="15" />
-      <LineId Id="1342" Count="0" />
-      <LineId Id="1359" Count="0" />
-      <LineId Id="1361" Count="15" />
-      <LineId Id="1360" Count="0" />
-      <LineId Id="1377" Count="0" />
-      <LineId Id="1379" Count="15" />
-      <LineId Id="1378" Count="0" />
-      <LineId Id="1198" Count="0" />
-      <LineId Id="1005" Count="0" />
-      <LineId Id="1161" Count="0" />
-      <LineId Id="567" Count="0" />
-      <LineId Id="810" Count="0" />
-      <LineId Id="813" Count="2" />
-      <LineId Id="912" Count="1" />
-      <LineId Id="811" Count="0" />
-      <LineId Id="961" Count="0" />
-      <LineId Id="812" Count="0" />
-      <LineId Id="579" Count="0" />
+      <LineId Id="1442" Count="55" />
+      <LineId Id="1812" Count="0" />
+      <LineId Id="1814" Count="12" />
+      <LineId Id="1813" Count="0" />
+      <LineId Id="1498" Count="119" />
+      <LineId Id="1827" Count="0" />
+      <LineId Id="1829" Count="12" />
+      <LineId Id="1828" Count="0" />
+      <LineId Id="1618" Count="29" />
+      <LineId Id="1663" Count="30" />
+      <LineId Id="1843" Count="12" />
+      <LineId Id="1842" Count="0" />
+      <LineId Id="1798" Count="13" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

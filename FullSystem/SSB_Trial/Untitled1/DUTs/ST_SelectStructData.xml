@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Beckhoff Automation GmbH" productName="TF6420 Database Server Query Analyser" productVersion="1.0.0.0" creationDateTime="2022-01-14T14:12:53" />
+  <contentHeader name="Untitled1" modificationDateTime="2022-01-14T14:12:53">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes>
+      <dataType name="ST_SelectStructData">
+        <baseType>
+          <struct>
+            <variable name="datetime">
+              <type>
+                <string length="255" />
+              </type>
+            </variable>
+            <variable name="trailer_id_lead">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="trailer_id_rear">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="latitude">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="longitude">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="speed">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="overspeed">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="payload_lead">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="payload_rear">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="overload_lead">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="overload_rear">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="pressure_lead">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="pressure_rear">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="overpressure_lead">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="overpressure_rear">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+            <variable name="event_code">
+              <type>
+                <LINT />
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData />
+      </dataType>
+    </dataTypes>
+    <pous />
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Object Name="ST_SelectStructData" />
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

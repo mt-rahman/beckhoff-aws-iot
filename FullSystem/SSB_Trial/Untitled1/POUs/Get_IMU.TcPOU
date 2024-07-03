@@ -30,13 +30,18 @@ VAR
 	i 				: UDINT;
 	
 	TimeStr			: ARRAY[1..1000] OF STRING;	
-	Trailer_ID		: ARRAY[1..1000] OF STRING;
-	RoadSec			: ARRAY[1..1000] OF STRING;
-	AccX			: ARRAY[1..1000] OF STRING;
-	AccY			: ARRAY[1..1000] OF STRING;
-	AccZ			: ARRAY[1..1000] OF STRING;
-	Pitch			: ARRAY[1..1000] OF STRING;
-	Roll			: ARRAY[1..1000] OF STRING;
+	Trailer_ID_Lead	: ARRAY[1..1000] OF STRING;
+	Trailer_ID_Rear	: ARRAY[1..1000] OF STRING;
+	Pitch_Lead		: ARRAY[1..1000] OF STRING;
+	Roll_Lead		: ARRAY[1..1000] OF STRING;
+	AccX_Lead		: ARRAY[1..1000] OF STRING;
+	AccY_Lead		: ARRAY[1..1000] OF STRING;
+	AccZ_Lead		: ARRAY[1..1000] OF STRING;
+	Pitch_Rear		: ARRAY[1..1000] OF STRING;
+	Roll_Rear		: ARRAY[1..1000] OF STRING;
+	AccX_Rear		: ARRAY[1..1000] OF STRING;
+	AccY_Rear		: ARRAY[1..1000] OF STRING;
+	AccZ_Rear		: ARRAY[1..1000] OF STRING;
 	
 END_VAR
 
@@ -89,16 +94,24 @@ ELSE
 				IF fbSqlResult.bError THEN
 					nState := 255;
 				ELSE
-					
+						
 					(* determine no of records to select *)
-					IF count >= 1000 THEN
+					IF count = 0 THEN
+						Data_Length := 0;
+						nState := 1;
+						
+					ELSIF count < 500 THEN
+						Data_Length := 50;
+						nState := nState+1;
+						
+					ELSIF count < 1000 THEN
 						Data_Length := 500;
 						nState := nState+1;
 						
 					ELSE
-						Data_Length := 0;
-						nState := 1;
-						
+						Data_Length := 1000;
+						nState := nState+1;
+	
 					END_IF
 					
 				END_IF
@@ -137,37 +150,24 @@ ELSE
 		
 		7:
 			(* parse query result *)
-			i := 1;
-			WHILE (i <= Data_Length) DO
-				TimeStr[i]			:= DT_TO_STRING(aReadStruct[i].TimeStr);
-				TimeStr[i]			:= Delete(TimeStr[i], 3, 1);
-				TimeStr[i]			:= Replace(TimeStr[i], 'T', 1, 11);
+			FOR i:=1 TO Data_Length BY 1 DO
+				TimeStr[i]			:= aReadStruct[i].datetime;
 				
-				IF aReadStruct[i].Millis >= 100 THEN
-					TimeStr[i]	:= Insert(TimeStr[i], '.Z', 19);
-					TimeStr[i]	:= Insert(TimeStr[i], UINT_TO_STRING(aReadStruct[i].Millis), 20);
-					
-				ELSIF aReadStruct[i].Millis < 10 THEN
-					TimeStr[i]	:= Insert(TimeStr[i], '.00Z', 19);
-					TimeStr[i]	:= Insert(TimeStr[i], UINT_TO_STRING(aReadStruct[i].Millis), 22);
+				Trailer_ID_Lead[i]			:= LINT_TO_STRING(aReadStruct[i].trailer_id_lead);
+				Trailer_ID_Rear[i]			:= LINT_TO_STRING(aReadStruct[i].trailer_id_rear);
+				//RoadSec[i]				:= UINT_TO_STRING(aReadStruct[i].RoadSec);
+				Pitch_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].pitch_lead);
+				Roll_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].roll_lead);
+				AccX_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].ax_lead);
+				AccY_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].ay_lead);
+				AccZ_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].az_lead);
+				Pitch_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].pitch_rear);
+				Roll_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].roll_rear);
+				AccX_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].ax_rear);
+				AccY_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].ay_rear);
+				AccZ_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].az_rear);
 				
-				ELSE
-					TimeStr[i]	:= Insert(TimeStr[i], '.0Z', 19);
-					TimeStr[i]	:= Insert(TimeStr[i], UINT_TO_STRING(aReadStruct[i].Millis), 21);
-					
-				END_IF
-				
-				Trailer_ID[i]		:= UINT_TO_STRING(aReadStruct[i].Trailer_ID);
-				RoadSec[i]			:= UINT_TO_STRING(aReadStruct[i].RoadSec);
-				AccX[i]				:= LREAL_TO_STRING(aReadStruct[i].AccX);
-				AccY[i]				:= LREAL_TO_STRING(aReadStruct[i].AccY);
-				AccZ[i]				:= LREAL_TO_STRING(aReadStruct[i].AccZ);
-				Pitch[i]			:= LREAL_TO_STRING(aReadStruct[i].Pitch);
-				Roll[i]				:= LREAL_TO_STRING(aReadStruct[i].Roll);
-				
-				i := i+1;
-				
-			END_WHILE
+			END_FOR
 			
 			nState	:= nState + 1;
 			
@@ -184,32 +184,18 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Get_IMU">
-      <LineId Id="185" Count="46" />
-      <LineId Id="233" Count="2" />
-      <LineId Id="242" Count="0" />
-      <LineId Id="468" Count="0" />
-      <LineId Id="243" Count="2" />
-      <LineId Id="469" Count="0" />
-      <LineId Id="246" Count="3" />
-      <LineId Id="322" Count="0" />
-      <LineId Id="250" Count="38" />
-      <LineId Id="428" Count="0" />
-      <LineId Id="375" Count="1" />
-      <LineId Id="378" Count="0" />
-      <LineId Id="382" Count="0" />
-      <LineId Id="379" Count="0" />
-      <LineId Id="385" Count="0" />
-      <LineId Id="388" Count="0" />
-      <LineId Id="387" Count="0" />
-      <LineId Id="386" Count="0" />
-      <LineId Id="380" Count="1" />
-      <LineId Id="383" Count="0" />
-      <LineId Id="377" Count="0" />
-      <LineId Id="384" Count="0" />
-      <LineId Id="290" Count="2" />
-      <LineId Id="369" Count="3" />
-      <LineId Id="304" Count="0" />
-      <LineId Id="306" Count="15" />
+      <LineId Id="509" Count="103" />
+      <LineId Id="614" Count="0" />
+      <LineId Id="631" Count="1" />
+      <LineId Id="664" Count="0" />
+      <LineId Id="633" Count="0" />
+      <LineId Id="665" Count="1" />
+      <LineId Id="634" Count="2" />
+      <LineId Id="668" Count="3" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="639" Count="0" />
+      <LineId Id="642" Count="11" />
+      <LineId Id="320" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

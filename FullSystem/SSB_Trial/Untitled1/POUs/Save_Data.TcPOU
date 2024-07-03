@@ -33,11 +33,11 @@ ELSE
 			
 		1:	
 			(* build query *)	
-			sCmd	:= 'INSERT INTO sent_data SELECT * FROM buffer_data ORDER BY datetime ASC LIMIT ';
+			sCmd	:= 'INSERT INTO data SELECT * FROM buffer_data ORDER BY datetime ASC LIMIT ';
 			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_Data.Data_Length));
-			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_data ORDER BY datetime ASC LIMIT ');
+			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_data WHERE datetime IN (SELECT datetime FROM buffer_data ORDER BY datetime ASC LIMIT ');
 			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_Data.Data_Length));
-			sCmd	:= CONCAT(sCmd, ';');
+			sCmd	:= CONCAT(sCmd, ');');
 			
 			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
 				IF fbSQLCommand.bError THEN
@@ -61,16 +61,7 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_Data">
-      <LineId Id="23" Count="7" />
-      <LineId Id="103" Count="0" />
-      <LineId Id="31" Count="9" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="95" Count="0" />
-      <LineId Id="98" Count="0" />
-      <LineId Id="100" Count="1" />
-      <LineId Id="76" Count="12" />
-      <LineId Id="102" Count="0" />
-      <LineId Id="89" Count="5" />
+      <LineId Id="115" Count="43" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

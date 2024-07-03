@@ -10,14 +10,12 @@ END_VAR
 Background_Time();
 Background_IMU();
 //Background_FatigueCam();
-//Background_GPS();
-//Background_Payload();]]></ST>
+Background_GPS();]]></ST>
     </Implementation>
     <LineIds Name="Main_Background">
       <LineId Id="9" Count="1" />
       <LineId Id="14" Count="0" />
       <LineId Id="5" Count="1" />
-      <LineId Id="8" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

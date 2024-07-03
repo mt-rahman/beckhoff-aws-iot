@@ -2,7 +2,7 @@
 <Database>
   <ID>1</ID>
   <Name>DB</Name>
-  <ServerName />
+  <ServerName>C:\Program Files\DB Browser for SQLite\localdb.db</ServerName>
   <DatabaseName />
   <TableName />
   <Authentication>False</Authentication>
@@ -19,7 +19,7 @@
   <OLDASCIIFormat>False</OLDASCIIFormat>
   <ASCIISeparator />
   <DBValueType>NONE</DBValueType>
-  <DBType>None</DBType>
+  <DBType>SQLite</DBType>
   <OdbcSubType>Unknown</OdbcSubType>
   <Temporary>False</Temporary>
   <Disabled>False</Disabled>

@@ -3,9 +3,11 @@
   <POU Name="Read_FatigueCam" Id="{aef089b1-c7c5-479f-8336-a7bf9b8b2785}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Read_FatigueCam
 VAR
-	fbEL6001		: FB_FatigueCam;
-	RxBufferPcCom	: ComBuffer;	
-	TxBufferPcCom	: ComBuffer;
+	fb_Receive		: FB_FatigueCam_Receive;
+	fbSend			: SendData;
+	bSendBusy		: BOOL;
+	eSendErrorID	: ComError_t;
+	nSendCounter	: UDINT;
 	
 	pSec	: WORD := 0;
 	
@@ -27,16 +29,20 @@ VAR
 	BinStr		: ARRAY [1..4] OF STRING;
 	TimeBin		: STRING;
 	
+	Synced		: BOOL;
+	
 	Command			: ULINT := 16#00;
+	Sent_Command	: ULINT;
+	Command_Sent	: BOOL;
 	Response		: STRING := 'ABC';
+	Prev_Response	: STRING;
+	Response_Count	: INT;
 	EventID			: STRING := '00';
 	prevEventID		: STRING;
 	EventCode		: STRING := '0';
 	
 	Prefix		: WORD;
 	LenPrefix	: BYTE;
-	
-	test : STRING;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -44,68 +50,119 @@ END_VAR
 	
 	(* sync time every 1 minute *)
 	IF pSec = 0 THEN 
-		
-		TimeStr		:= Background_Time.TimeStr; //get datetime
+		Synced := FALSE;
+	END_IF
 	
-		Year		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 3));
-		Month		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 6));
-		bDate		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 9));
-		Hour		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 12));
-		Minute		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 15));
-		Second		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 18));
+	IF Synced = FALSE THEN
 		
-		(* convert datetime to binary *)
-		YearBin		:= BYTE_TO_BINSTR(in := Year, iPrecision := 6);
-		MonthBin	:= BYTE_TO_BINSTR(in := Month, iPrecision := 4);
-		bDateBin	:= BYTE_TO_BINSTR(in := bDate, iPrecision := 5);
-		HourBin		:= BYTE_TO_BINSTR(in := Hour, iPrecision := 5);
-		MinuteBin	:= BYTE_TO_BINSTR(in := Minute, iPrecision := 6);
-		SecondBin	:= BYTE_TO_BINSTR(in := Second, iPrecision := 6);
-		BinStr[4]	:= CONCAT(YearBin, MonthBin); 
-		BinStr[4]	:= CONCAT(BinStr[4], bDateBin);
-		BinStr[4]	:= CONCAT(BinStr[4], HourBin); 
-		BinStr[4]	:= CONCAT(BinStr[4], MinuteBin);
-		BinStr[4]	:= CONCAT(BinStr[4], SecondBin);
-		
-		(* separate bytes *)
-		BinStr[1]	:= LEFT(STR := BinStr[4], SIZE := 8);
-		BinStr[2]	:= MID(STR := BinStr[4], LEN := 8, POS := 9);
-		BinStr[3]	:= MID(STR := BinStr[4], LEN := 8, POS := 17);
-		BinStr[4]	:= RIGHT(STR := BinStr[4], SIZE := 8);
-		
-		(* build sync command *)
-		TimeBin		:= CONCAT('2#', BinStr[4]);
-		TimeBin		:= CONCAT(TimeBin, BinStr[3]);
-		TimeBin		:= CONCAT(TimeBin, BinStr[2]);
-		TimeBin		:= CONCAT(TimeBin, BinStr[1]);
-		TimeBin		:= CONCAT(TimeBin, '10001101'); //8D
-		TimeBin		:= CONCAT(TimeBin, '10101010'); //AA
-		Command		:= STRING_TO_ULINT(TimeBin);
-		
-		(* send sync command *)
-		IF Response <> LWORD_TO_HEXSTR(in := command, iPrecision := 1, bLoCase := FALSE) THEN
+		IF NOT Command_Sent AND Response <> LWORD_TO_HEXSTR(in := Sent_Command, iPrecision := 1, bLoCase := FALSE) THEN
+			(* send sync command *)
+			TimeStr		:= Background_Time.TimeStr; //get datetime
+	
+			Year		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 3));
+			Month		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 6));
+			bDate		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 9));
+			Hour		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 12));
+			Minute		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 15));
+			Second		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 18));
+			
+			(* convert datetime to binary *)
+			YearBin		:= BYTE_TO_BINSTR(in := Year, iPrecision := 6);
+			MonthBin	:= BYTE_TO_BINSTR(in := Month, iPrecision := 4);
+			bDateBin	:= BYTE_TO_BINSTR(in := bDate, iPrecision := 5);
+			HourBin		:= BYTE_TO_BINSTR(in := Hour, iPrecision := 5);
+			MinuteBin	:= BYTE_TO_BINSTR(in := Minute, iPrecision := 6);
+			SecondBin	:= BYTE_TO_BINSTR(in := Second, iPrecision := 6);
+			BinStr[4]	:= CONCAT(YearBin, MonthBin); 
+			BinStr[4]	:= CONCAT(BinStr[4], bDateBin);
+			BinStr[4]	:= CONCAT(BinStr[4], HourBin); 
+			BinStr[4]	:= CONCAT(BinStr[4], MinuteBin);
+			BinStr[4]	:= CONCAT(BinStr[4], SecondBin);
+			
+			(* separate bytes *)
+			BinStr[1]	:= LEFT(STR := BinStr[4], SIZE := 8);
+			BinStr[2]	:= MID(STR := BinStr[4], LEN := 8, POS := 9);
+			BinStr[3]	:= MID(STR := BinStr[4], LEN := 8, POS := 17);
+			BinStr[4]	:= RIGHT(STR := BinStr[4], SIZE := 8);
+			
+			(* build sync command *)
+			TimeBin		:= CONCAT('2#', BinStr[4]);
+			TimeBin		:= CONCAT(TimeBin, BinStr[3]);
+			TimeBin		:= CONCAT(TimeBin, BinStr[2]);
+			TimeBin		:= CONCAT(TimeBin, BinStr[1]);
+			TimeBin		:= CONCAT(TimeBin, '10001101'); //8D
+			TimeBin		:= CONCAT(TimeBin, '10101010'); //AA
+			Command		:= STRING_TO_ULINT(TimeBin);
+			
 			Prefix := 16#8DAA;
 			LenPrefix := 2;
-			fbEL6001(
-				TxBuffer	:= GVL.TxBufferEL, 
-				RxBuffer	:= GVL.RxBufferEL,
+			
+			(* send command *)
+			fbSend( 
+				pSendData	:= ADR(Command),
+				TXbuffer 	:= Background_FatigueCam.TxBuffer,
+				Length 		:= SIZEOF(Command),
+				Busy		=> bSendBusy,
+				Error		=> 
+			);
+			IF fbSend.Error <> COMERROR_NOERROR THEN
+				eSendErrorID := fbSend.Error;
+			ELSE
+				Command_Sent 	:= TRUE;
+				Sent_Command 	:= Command;
+				Response_Count	:= 0;
+			END_IF
+
+		ELSE
+			Synced	:= TRUE;
+			
+		END_IF
+		
+		IF Command_Sent THEN
+			(* receive response *)
+			fb_Receive(
+				RxBuffer	:= Background_FatigueCam.RxBuffer,
 				Command		:= Command,
 				Prefix		:= Prefix,
 				LenPrefix	:= LenPrefix,
-				Response	=> Response
+				EventID		=> EventID,
+				EventCode	=> EventCode,
+				Response	=> Response,
 			);
-		ELSE
-			pSec := Background_Time.cSec;
+			
+			Response_Count := Response_Count + 1;
+			
+			IF Response <> Prev_Response THEN
+				Prev_Response := Response;
+				Command_Sent := FALSE;
+			ELSIF Response_Count > 10 THEN
+				Command_Sent := FALSE;			
+			END_IF
 		END_IF
-	
+		
+		pSec 	:= Background_Time.cSec;
+		
 	ELSE
 		(* fatigue cam request event *)
 		Command		:= 16#000000008CAA;
 		Prefix		:= 16#AA;
 		LenPrefix	:= 1;	
-		fbEL6001(
-			TxBuffer	:= GVL.TxBufferEL, 
-			RxBuffer	:= GVL.RxBufferEL,
+		
+		(* send command *)
+		fbSend( 
+			pSendData	:= ADR(Command),
+			TXbuffer 	:= Background_FatigueCam.TxBuffer,
+			Length 		:= SIZEOF(Command),
+			Busy		=> bSendBusy,
+			Error		=> 
+		);
+		IF fbSend.Error <> COMERROR_NOERROR THEN
+			eSendErrorID := fbSend.Error;
+		END_IF
+		
+		(* receive response *)
+		fb_Receive(
+			RxBuffer	:= Background_FatigueCam.RxBuffer,
 			Command		:= Command,
 			Prefix		:= Prefix,
 			LenPrefix	:= LenPrefix,
@@ -127,66 +184,7 @@ END_VAR
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Read_FatigueCam">
-      <LineId Id="451" Count="0" />
-      <LineId Id="453" Count="0" />
-      <LineId Id="100" Count="0" />
-      <LineId Id="104" Count="0" />
-      <LineId Id="173" Count="0" />
-      <LineId Id="175" Count="0" />
-      <LineId Id="203" Count="0" />
-      <LineId Id="176" Count="0" />
-      <LineId Id="183" Count="0" />
-      <LineId Id="185" Count="3" />
-      <LineId Id="217" Count="0" />
-      <LineId Id="220" Count="0" />
-      <LineId Id="196" Count="0" />
-      <LineId Id="198" Count="4" />
-      <LineId Id="197" Count="0" />
-      <LineId Id="213" Count="3" />
-      <LineId Id="205" Count="0" />
-      <LineId Id="233" Count="0" />
-      <LineId Id="232" Count="0" />
-      <LineId Id="206" Count="0" />
-      <LineId Id="208" Count="1" />
-      <LineId Id="222" Count="0" />
-      <LineId Id="225" Count="0" />
-      <LineId Id="224" Count="0" />
-      <LineId Id="223" Count="0" />
-      <LineId Id="226" Count="3" />
-      <LineId Id="159" Count="1" />
-      <LineId Id="342" Count="0" />
-      <LineId Id="108" Count="0" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="441" Count="0" />
-      <LineId Id="438" Count="0" />
-      <LineId Id="109" Count="2" />
-      <LineId Id="440" Count="0" />
-      <LineId Id="443" Count="0" />
-      <LineId Id="153" Count="0" />
-      <LineId Id="105" Count="0" />
-      <LineId Id="423" Count="1" />
-      <LineId Id="119" Count="0" />
-      <LineId Id="425" Count="0" />
-      <LineId Id="106" Count="0" />
-      <LineId Id="93" Count="0" />
-      <LineId Id="303" Count="0" />
-      <LineId Id="444" Count="1" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="86" Count="1" />
-      <LineId Id="90" Count="0" />
-      <LineId Id="446" Count="1" />
-      <LineId Id="91" Count="0" />
-      <LineId Id="95" Count="0" />
-      <LineId Id="238" Count="0" />
-      <LineId Id="89" Count="0" />
-      <LineId Id="249" Count="0" />
-      <LineId Id="248" Count="0" />
-      <LineId Id="16" Count="0" />
-      <LineId Id="2" Count="0" />
-      <LineId Id="429" Count="2" />
-      <LineId Id="433" Count="1" />
-      <LineId Id="427" Count="0" />
-      <LineId Id="456" Count="0" />
+      <LineId Id="576" Count="134" />
       <LineId Id="455" Count="0" />
     </LineIds>
   </POU>

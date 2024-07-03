@@ -3,45 +3,88 @@
   <POU Name="Read_Payload" Id="{54a58c0d-9bb6-4287-ad4a-87a5313c1987}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Read_Payload
 VAR
-	Payload_EMA	: REAL;
-	Payload_Raw	: REAL;
-	Payload		: REAL;
+	EL3061_Lead_Bit AT %I* 	: INT;
+	EL3061_Rear_Bit AT %I* 	: INT;
 	
-	Threshold	: REAL := 70;	
-	Overload	: BOOL := FALSE;
+	//axle of lead trailer
+	R3_Bit			: REAL;
+	R3_BitTare		: REAL := 8043;
+	R31_BitPerTon	: REAL := 7.8864; //bit caused by payload on lead trailer
+	R32_BitPerTon	: REAL := 7.8864; //bit caused by payload on rear trailer
+	
+	//axle of rear trailer
+	R4_Bit			: REAL;
+	R4_BitTare		: REAL := 8043;
+	R42_BitPerTon	: REAL := 7.8864;
+	
+	Payload_Lead	: REAL;
+	Payload_Rear	: REAL;
+	Payload_Total	: REAL;	
+	
+	Threshold_Lead	: REAL := 40.5;
+	Threshold_Rear	: REAL := 72;	
+	Overload_Lead	: BOOL := FALSE;
+	Overload_Rear	: BOOL := FALSE;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(* raw & ema payload *)
-Payload_EMA := Background_Payload.Payload_EMA;
-Payload_Raw := Background_Payload.Payload;
+      <ST><![CDATA[R3_Bit := INT_TO_REAL(EL3061_Lead_Bit);
+R4_Bit := INT_TO_REAL(EL3061_Rear_Bit);
 
-(* get payload when stationary *)
-//IF Inclination < 5 AND Tilt < 5 AND Speed < 1 THEN
-	Payload	:= Background_Payload.Payload;
-//END_IF
+Payload_Rear	:= (R4_Bit - R4_BitTare) / R42_BitPerTon;
+Payload_Lead	:= (R3_Bit - (R32_BitPerTon * Payload_Rear)) / R31_BitPerTon;
+Payload_Total	:= Payload_Lead + Payload_Rear;
+
+IF Payload_Lead < 0 THEN
+	Payload_Lead := 0;
+END_IF
+
+IF Payload_Rear < 0 THEN
+	Payload_Rear := 0;
+END_IF
+
+IF Payload_Lead > Threshold_Lead THEN
+	Overload_Lead := TRUE;
+ELSE
+	Overload_Lead := FALSE;	
+END_IF
+
+IF Payload_Rear > Threshold_Rear THEN
+	Overload_Rear := TRUE;
+ELSE
+	Overload_Rear := FALSE;	
+END_IF
+
+(*
+IF Read_GPS.Speed < 1 AND Background_IMU.Pitch < 3 AND Background_IMU.Roll < 3 THEN
+	Payload	:= Payload_Raw;
+END_IF
 
 (* check for overload *)
 IF Payload > Threshold THEN
 	Overload := TRUE;
 ELSE
 	Overload := FALSE;	
-END_IF]]></ST>
+END_IF
+*)]]></ST>
     </Implementation>
     <LineIds Name="Read_Payload">
-      <LineId Id="44" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="26" Count="0" />
-      <LineId Id="31" Count="0" />
-      <LineId Id="28" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="29" Count="1" />
+      <LineId Id="90" Count="12" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="110" Count="4" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="116" Count="4" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="58" Count="2" />
+      <LineId Id="57" Count="0" />
       <LineId Id="34" Count="0" />
       <LineId Id="14" Count="0" />
       <LineId Id="36" Count="0" />
       <LineId Id="40" Count="0" />
       <LineId Id="46" Count="1" />
       <LineId Id="41" Count="0" />
+      <LineId Id="104" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

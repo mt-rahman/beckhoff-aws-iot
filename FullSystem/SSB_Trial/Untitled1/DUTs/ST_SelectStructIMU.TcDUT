@@ -1,17 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
-  <DUT Name="ST_SelectStructIMU" Id="{7efcf5a1-343e-46ac-8d63-a2d9796a98be}">
+  <DUT Name="ST_SelectStructIMU" Id="{149ec058-de9c-4ce0-b4bc-2d11dc181cda}">
     <Declaration><![CDATA[TYPE ST_SelectStructIMU :
 STRUCT
-	TimeStr			: DATE_AND_TIME;
-	Millis			: UINT;	
-	Trailer_ID		: UINT;
-	RoadSec			: UINT;
-	AccX			: LREAL;
-	AccY			: LREAL;
-	AccZ			: LREAL;
-	Pitch			: LREAL;
-	Roll			: LREAL;
+	datetime: STRING(255);
+	trailer_id_lead: LINT;
+	trailer_id_rear: LINT;
+	pitch_lead: REAL;
+	roll_lead: REAL;
+	ax_lead: REAL;
+	ay_lead: REAL;
+	az_lead: REAL;
+	pitch_rear: REAL;
+	roll_rear: REAL;
+	ax_rear: REAL;
+	ay_rear: REAL;
+	az_rear: REAL;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

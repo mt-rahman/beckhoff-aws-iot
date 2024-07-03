@@ -7,21 +7,21 @@ VAR
 	diff		: BOOL;
 	
 	TimeStr				: STRING;
-	Trailer_ID			: STRING;
+	Trailer_ID_Lead		: STRING;
+	Trailer_ID_Rear		: STRING;
 	Lat					: STRING;
 	Lon					: STRING;
 	Speed				: STRING;
 	Overspeed			: STRING;
-	Payload_EMA			: STRING;
-	Payload_Raw			: STRING;
-	Overload			: STRING;
-	Pressure_Cyl		: STRING;
-	Pressure_Val		: STRING;
-	Strain_Left			: STRING;
-	Strain_Right		: STRING;
+	Payload_Lead		: STRING;
+	Payload_Rear		: STRING;
+	Overload_Lead		: STRING;
+	Overload_Rear		: STRING;
+	Pressure_Lead		: STRING;
+	Pressure_Rear		: STRING;
+	Overpressure_Lead	: STRING;
+	Overpressure_Rear	: STRING;
 	EventCode			: STRING;
-	Cycle_Duration		: STRING;
-	Hyd_Efficiency		: STRING;
 	
 	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
@@ -36,22 +36,23 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* convert to strings *)
-TimeStr			:= Main_Read.TimeStr;
-Trailer_ID		:= UINT_TO_STRING(Read_ID.Trailer_ID);
-Lat				:= REAL_TO_STRING(Read_GPS.Lat);
-Lon				:= REAL_TO_STRING(Read_GPS.Lon);
-Speed			:= REAL_TO_STRING(Read_GPS.Speed);
-Overspeed		:= BOOL_TO_STRING(Read_GPS.Overspeed);
-Payload_EMA		:= REAL_TO_STRING(Read_Payload.Payload_EMA);
-Payload_Raw		:= REAL_TO_STRING(Read_Payload.Payload_Raw);
-Overload		:= BOOL_TO_STRING(Read_Payload.Overload);
-Pressure_Cyl	:= REAL_TO_STRING(Read_Pressure.Pressure_Cyl);
-Pressure_Val	:= REAL_TO_STRING(Read_Pressure.Pressure_Val);
-Strain_Left		:= REAL_TO_STRING(Read_Strain.Strain_Left);
-Strain_Right	:= REAL_TO_STRING(Read_Strain.Strain_Right);
-EventCode		:= Read_FatigueCam.EventCode;
-Cycle_Duration	:= Read_GPS.Cycle_Duration;
-Hyd_Efficiency	:= REAL_TO_STRING(Read_Pressure.Hyd_Efficiency);
+TimeStr				:= Main_Read.TimeStr;
+TimeStr				:= REPLACE(TimeStr, ' ', 1, 11);
+Trailer_ID_Lead		:= UINT_TO_STRING(Read_ID.Trailer_ID_Lead);
+Trailer_ID_Rear		:= UINT_TO_STRING(Read_ID.Trailer_ID_Rear);
+Lat					:= REAL_TO_STRING(Read_GPS.Lat);
+Lon					:= REAL_TO_STRING(Read_GPS.Lon);
+Speed				:= REAL_TO_STRING(Read_GPS.Speed);
+Overspeed			:= BOOL_TO_STRING(Read_GPS.Overspeed);
+Payload_Lead		:= REAL_TO_STRING(Read_Payload.Payload_Lead);
+Payload_Rear		:= REAL_TO_STRING(Read_Payload.Payload_Rear);
+Overload_Lead		:= BOOL_TO_STRING(Read_Payload.Overload_Lead);
+Overload_Rear		:= BOOL_TO_STRING(Read_Payload.Overload_Rear);
+Pressure_Lead		:= REAL_TO_STRING(Read_Pressure.Pressure_Lead);
+Pressure_Rear		:= REAL_TO_STRING(Read_Pressure.Pressure_Rear);
+Overpressure_Lead	:= BOOL_TO_STRING(Read_Pressure.Overpressure_Lead);
+Overpressure_Rear	:= BOOL_TO_STRING(Read_Pressure.Overpressure_Rear);
+EventCode			:= Read_FatigueCam.EventCode;
 
 (* save data to buffer every second *)
 IF diff:= Background_Time.cSec <> pSec THEN
@@ -80,10 +81,12 @@ IF diff:= Background_Time.cSec <> pSec THEN
 				
 			1:	
 				(* build query *)	
-				sCmd:= 'INSERT INTO buffer_data (datetime,id_trailer,lat,lon,speed,overspeed,payload_raw,payload_ema,overload,pressure_cyl,pressure_valve,strain_left,strain_right,event_code,cycle_duration,hyd_efficiency) VALUES ($'';
+				sCmd:= 'INSERT INTO buffer_data (datetime,trailer_id_lead,trailer_id_rear,latitude,longitude,speed,overspeed,payload_lead,payload_rear,overload_lead,overload_rear,pressure_lead,pressure_rear,overpressure_lead,overpressure_rear,event_code) VALUES ($'';
 				sCmd2:= TimeStr;
 				sCmd2:= CONCAT(sCmd2, '$',');
-				sCmd2:= CONCAT(sCmd2, Trailer_ID);
+				sCmd2:= CONCAT(sCmd2, Trailer_ID_Lead);
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Trailer_ID_Rear);
 				sCmd2:= CONCAT(sCmd2, ',');
 				sCmd2:= CONCAT(sCmd2, Lat);
 				sCmd2:= CONCAT(sCmd2, ',');
@@ -93,25 +96,23 @@ IF diff:= Background_Time.cSec <> pSec THEN
 				sCmd2:= CONCAT(sCmd2, ',');
 				sCmd2:= CONCAT(sCmd2, Overspeed);
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Payload_Raw);
+				sCmd2:= CONCAT(sCmd2, Payload_Lead);
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Payload_EMA);
+				sCmd2:= CONCAT(sCmd2, Payload_Rear);
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Overload);
+				sCmd2:= CONCAT(sCmd2, Overload_Lead);
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Pressure_Cyl); //pressure cylinder
+				sCmd2:= CONCAT(sCmd2, Overload_Rear);
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Pressure_Val); //pressure valve
+				sCmd2:= CONCAT(sCmd2, Pressure_Lead); 
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Strain_Left); //strain left
+				sCmd2:= CONCAT(sCmd2, Pressure_Rear); 
 				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Strain_Right); //strain right
+				sCmd2:= CONCAT(sCmd2, Overpressure_Lead); 
+				sCmd2:= CONCAT(sCmd2, ',');
+				sCmd2:= CONCAT(sCmd2, Overpressure_Rear); 
 				sCmd2:= CONCAT(sCmd2, ',');
 				sCmd2:= CONCAT(sCmd2, EventCode);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Cycle_Duration); //cycle duration
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Hyd_Efficiency); //hyd sys efficiency
 				sCmd2:= CONCAT(sCmd2, ')');
 				CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
 				
@@ -139,7 +140,25 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Buffer_Data">
-      <LineId Id="722" Count="100" />
+      <LineId Id="722" Count="1" />
+      <LineId Id="893" Count="0" />
+      <LineId Id="724" Count="0" />
+      <LineId Id="858" Count="0" />
+      <LineId Id="725" Count="6" />
+      <LineId Id="857" Count="0" />
+      <LineId Id="732" Count="0" />
+      <LineId Id="735" Count="0" />
+      <LineId Id="901" Count="0" />
+      <LineId Id="900" Count="0" />
+      <LineId Id="738" Count="33" />
+      <LineId Id="859" Count="1" />
+      <LineId Id="772" Count="13" />
+      <LineId Id="861" Count="1" />
+      <LineId Id="786" Count="3" />
+      <LineId Id="895" Count="2" />
+      <LineId Id="894" Count="0" />
+      <LineId Id="794" Count="0" />
+      <LineId Id="799" Count="23" />
       <LineId Id="140" Count="0" />
     </LineIds>
   </POU>

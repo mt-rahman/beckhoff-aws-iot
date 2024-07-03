@@ -5,217 +5,407 @@
 VAR
 	(* background communication with the EL6001 terminal *)
 	fbEL6001Ctrl		: SerialLineControl;
-	bEL6001CtrlError	: BOOL;
-	eEL6001CtrlErrorID	: ComError_t;
+	
+	bEL6001CtrlError_Lead	: BOOL;
+	eEL6001CtrlErrorID_Lead	: ComError_t;
+	bEL6001CtrlError_Rear	: BOOL;
+	eEL6001CtrlErrorID_Rear	: ComError_t;
+	
 	(* 	I/O variables for a EL6001 terminal*)
-	stIn_EL6001 AT %I*	: EL6inData22B;	(* linked to the EL6001 in the TwinCAT System Manager *)
-	stOut_EL6001 AT %Q*	: EL6outData22B;(* linked to the EL6001 in the TwinCAT System Manager *)
+	stIn_EL6001_Lead AT %I*		: EL6inData22B;	(* linked to the EL6001 in the TwinCAT System Manager *)
+	stOut_EL6001_Lead AT %Q*	: EL6outData22B;(* linked to the EL6001 in the TwinCAT System Manager *)
+	RxBuffer_Lead				: ComBuffer;
+	TxBuffer_Lead				: ComBuffer;
+	
+	stIn_EL6001_Rear AT %I*		: EL6inData22B;	(* linked to the EL6001 in the TwinCAT System Manager *)
+	stOut_EL6001_Rear AT %Q*	: EL6outData22B;(* linked to the EL6001 in the TwinCAT System Manager *)
+	RxBuffer_Rear				: ComBuffer;
+	TxBuffer_Rear				: ComBuffer;
 	
 	fbReceive		: ReceiveData;
-	bReceiveBusy	: BOOL;
-	bReceiveError	: BOOL;
-	eReceiveErrorID	: ComError_t;
-	bReceiveTimeout	: BOOL;
-	nReceiveCounter	: UDINT := 1;
-	Prefix			: UINT := 16#2F77;
-	bDataReceived	: BOOL;
 	fbClearCom		: ClearComBuffer;
+	Prefix			: UINT := 16#2F77;
+	nReceiveCounter	: UDINT := 1;
 	
-	Data	: ARRAY [1..6] OF ULINT;
-	DataStr	: ARRAY [1..6] OF STRING;
+	bReceiveBusy_Lead		: BOOL;
+	bReceiveError_Lead		: BOOL;
+	eReceiveErrorID_Lead	: ComError_t;
+	bReceiveTimeout_Lead	: BOOL;
+	bDataReceived_Lead		: BOOL;
 	
-	Counter	: UINT := 0;
-	Total	: UINT;
+	bReceiveBusy_Rear		: BOOL;
+	bReceiveError_Rear		: BOOL;
+	eReceiveErrorID_Rear	: ComError_t;
+	bReceiveTimeout_Rear	: BOOL;
+	bDataReceived_Rear		: BOOL;
 	
-	RoadSec	: UINT := 0;
-	Pitch	: REAL;
-	Roll	: REAL;
-	AccX	: REAL; //along pitch axis, perpendicular to driving direction 
-	AccY	: REAL;	//along roll axis, parallel to driving direction
-	AccZ	: REAL;
+	Data_Lead		: ARRAY [1..6] OF ULINT;
+	DataStr_Lead	: ARRAY [1..6] OF STRING;
+	Data_Rear		: ARRAY [1..6] OF ULINT;
+	DataStr_Rear	: ARRAY [1..6] OF STRING;
+	
+	Counter_Lead	: UINT := 0;
+	Total_Lead		: UINT;
+	
+	Counter_Rear	: UINT := 0;
+	Total_Rear		: UINT;
+	
+	//RoadSec	: UINT := 0;
+	Pitch_Lead	: REAL;
+	Roll_Lead	: REAL;
+	AccX_Lead	: REAL; //along pitch axis, perpendicular to driving direction 
+	AccY_Lead	: REAL;	//along roll axis, parallel to driving direction
+	AccZ_Lead	: REAL;
+	
+	Pitch_Rear	: REAL;
+	Roll_Rear	: REAL;
+	AccX_Rear	: REAL; //along pitch axis, perpendicular to driving direction 
+	AccY_Rear	: REAL;	//along roll axis, parallel to driving direction
+	AccZ_Rear	: REAL;
 	
 	pSec		: WORD;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(*
-The SerialLineControl function block is supposed to be called in every PLC cycle.
-It communicates with the serial line hardware device and transmits or receives data.
-The SerialLineControl can be called in the standard task (e.g.for PcCOM port usage) 
-or in a separate fast task (e.g.for terminal usage) as well.
-A fast separate task will be necessary at high baud rates or with KL6001 terminals 
-which have a small process image (3 or 5 data bytes only)
-*)
-
-(* background communication with the EL6001 terminal *)
+      <ST><![CDATA[(* background communication with the EL6001 terminal *)
 fbEL6001Ctrl(
 	Mode:= SERIALLINEMODE_EL6_22B, 
-	pComIn:= ADR(stIn_EL6001), 
-	pComOut:= ADR(stOut_EL6001), 
-	SizeComIn:= SIZEOF(stIn_EL6001), 
+	pComIn:= ADR(stIn_EL6001_Lead), 
+	pComOut:= ADR(stOut_EL6001_Lead), 
+	SizeComIn:= SIZEOF(stIn_EL6001_Lead), 
 	Error=> , 
 	ErrorID=> , 
-	TxBuffer:= GVL.TxBufferEL, 
-	RxBuffer:= GVL.RxBufferEL );
+	TxBuffer:= TxBuffer_Lead, 
+	RxBuffer:= RxBuffer_Lead );
 IF fbEL6001Ctrl.Error THEN
-	bEL6001CtrlError := TRUE;
-	eEL6001CtrlErrorID := fbEL6001Ctrl.ErrorID;
+	bEL6001CtrlError_Lead := TRUE;
+	eEL6001CtrlErrorID_Lead := fbEL6001Ctrl.ErrorID;
+END_IF
+
+fbEL6001Ctrl(
+	Mode:= SERIALLINEMODE_EL6_22B, 
+	pComIn:= ADR(stIn_EL6001_Rear), 
+	pComOut:= ADR(stOut_EL6001_Rear), 
+	SizeComIn:= SIZEOF(stIn_EL6001_Rear), 
+	Error=> , 
+	ErrorID=> , 
+	TxBuffer:= TxBuffer_Rear, 
+	RxBuffer:= RxBuffer_Rear );
+IF fbEL6001Ctrl.Error THEN
+	bEL6001CtrlError_Rear := TRUE;
+	eEL6001CtrlErrorID_Rear := fbEL6001Ctrl.ErrorID;
 END_IF
 
 (* read data from imu *)
 fbReceive( 
-	RxBuffer := GVL.RxBufferEL,
+	RxBuffer := RxBuffer_Lead,
 	pPrefix := ADR(Prefix),
 	LenPrefix := 2,
-	pReceiveData := ADR(Data),
+	pReceiveData := ADR(Data_Lead),
 	SizeReceiveData	:= 48,
 	Timeout:= T#1S,
-	Busy => bReceiveBusy,
+	Busy => bReceiveBusy_Lead,
 	Error => ,
-	DataReceived => bDataReceived,
-	RxTimeout=> bReceiveTimeout 
+	DataReceived => bDataReceived_Lead,
+	RxTimeout=> bReceiveTimeout_Lead
 );
 
 IF fbReceive.Error <> COMERROR_NOERROR THEN
-	eReceiveErrorID := fbReceive.Error;
+	eReceiveErrorID_Lead := fbReceive.Error;
 	
 END_IF
 
-IF bDataReceived THEN
-	fbClearCom(Buffer := GVL.RxBufferEL); //clear rx buffer
+fbReceive( 
+	RxBuffer := RxBuffer_Rear,
+	pPrefix := ADR(Prefix),
+	LenPrefix := 2,
+	pReceiveData := ADR(Data_Rear),
+	SizeReceiveData	:= 48,
+	Timeout:= T#1S,
+	Busy => bReceiveBusy_Rear,
+	Error => ,
+	DataReceived => bDataReceived_Rear,
+	RxTimeout=> bReceiveTimeout_Rear 
+);
+
+IF fbReceive.Error <> COMERROR_NOERROR THEN
+	eReceiveErrorID_Rear := fbReceive.Error;
+	
+END_IF
+
+IF bDataReceived_Lead THEN
+	fbClearCom(Buffer := RxBuffer_Lead); //clear rx buffer
 	
 	(* parse data *)
-	DataStr[1]	:= LWORD_TO_HEXSTR(in := Data[1], iPrecision := 16, bLoCase := FALSE);
-	DataStr[2]	:= LWORD_TO_HEXSTR(in := Data[2], iPrecision := 16, bLoCase := FALSE);
-	DataStr[3]	:= LWORD_TO_HEXSTR(in := Data[3], iPrecision := 16, bLoCase := FALSE);
-	DataStr[4]	:= LWORD_TO_HEXSTR(in := Data[4], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Lead[1]	:= LWORD_TO_HEXSTR(in := Data_Lead[1], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Lead[2]	:= LWORD_TO_HEXSTR(in := Data_Lead[2], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Lead[3]	:= LWORD_TO_HEXSTR(in := Data_Lead[3], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Lead[4]	:= LWORD_TO_HEXSTR(in := Data_Lead[4], iPrecision := 16, bLoCase := FALSE);
 	
 	(* parse pitch *)
-	Pitch	:= (100 * STRING_TO_REAL(MID(DataStr[1], 1, 8))) + STRING_TO_REAL(MID(DataStr[1], 2, 5)) +  (0.01 * STRING_TO_REAL(MID(DataStr[1], 2, 3)));
-	IF MID(DataStr[1], 1, 7) = '1' THEN
-		Pitch	:= Pitch * (-1);
+	Pitch_Lead	:= (100 * STRING_TO_REAL(MID(DataStr_Lead[1], 1, 8))) + STRING_TO_REAL(MID(DataStr_Lead[1], 2, 5)) +  (0.01 * STRING_TO_REAL(MID(DataStr_Lead[1], 2, 3)));
+	IF MID(DataStr_Lead[1], 1, 7) = '1' THEN
+		Pitch_Lead	:= Pitch_Lead * (-1);
 		
 	END_IF
 		
 	(* parse roll *)
-	Roll	:= (100 * STRING_TO_REAL(MID(DataStr[1], 1, 2))) + STRING_TO_REAL(MID(DataStr[2], 2, 15)) +  (0.01 * STRING_TO_REAL(MID(DataStr[2], 2, 13)));
-	IF MID(DataStr[1], 1, 1) = '1' THEN
-		Roll	:= Roll * (-1);
+	Roll_Lead	:= (100 * STRING_TO_REAL(MID(DataStr_Lead[1], 1, 2))) + STRING_TO_REAL(MID(DataStr_Lead[2], 2, 15)) +  (0.01 * STRING_TO_REAL(MID(DataStr_Lead[2], 2, 13)));
+	IF MID(DataStr_Lead[1], 1, 1) = '1' THEN
+		Roll_Lead	:= Roll_Lead * (-1);
 		
 	END_IF
 		
 	(* parse accx *)
-	IF MID(DataStr[2], 1, 6) = 'A' THEN
-		AccX	:= 10;
+	IF MID(DataStr_Lead[2], 1, 6) = 'A' THEN
+		AccX_Lead	:= 10;
 		
-	ELSIF MID(DataStr[2], 1, 6) = 'B' THEN
-		AccX	:= 11;
+	ELSIF MID(DataStr_Lead[2], 1, 6) = 'B' THEN
+		AccX_Lead	:= 11;
 		
-	ELSIF MID(DataStr[2], 1, 6) = 'C' THEN
-		AccX	:= 12;
+	ELSIF MID(DataStr_Lead[2], 1, 6) = 'C' THEN
+		AccX_Lead	:= 12;
 		
-	ELSIF MID(DataStr[2], 1, 6) = 'D' THEN
-		AccX	:= 13;
+	ELSIF MID(DataStr_Lead[2], 1, 6) = 'D' THEN
+		AccX_Lead	:= 13;
 		
-	ELSIF MID(DataStr[2], 1, 6) = 'E' THEN
-		AccX	:= 14;
+	ELSIF MID(DataStr_Lead[2], 1, 6) = 'E' THEN
+		AccX_Lead	:= 14;
 	
-	ELSIF MID(DataStr[2], 1, 6) = 'F' THEN
-		AccX	:= 15;
+	ELSIF MID(DataStr_Lead[2], 1, 6) = 'F' THEN
+		AccX_Lead	:= 15;
 		
 	ELSE
-		AccX	:= STRING_TO_REAL(MID(DataStr[2], 1, 6));	
+		AccX_Lead	:= STRING_TO_REAL(MID(DataStr_Lead[2], 1, 6));	
 	
 	END_IF
 	
-	AccX	:=  AccX + (0.01 * STRING_TO_REAL(MID(DataStr[2], 2, 3))) +  (0.0001 * STRING_TO_REAL(MID(DataStr[2], 2, 1)));
-	IF MID(DataStr[2], 1, 5) = '1' THEN
-		AccX	:= AccX * (-1);
+	AccX_Lead	:=  AccX_Lead + (0.01 * STRING_TO_REAL(MID(DataStr_Lead[2], 2, 3))) +  (0.0001 * STRING_TO_REAL(MID(DataStr_Lead[2], 2, 1)));
+	IF MID(DataStr_Lead[2], 1, 5) = '1' THEN
+		AccX_Lead	:= AccX_Lead * (-1);
 		
 	END_IF
 	
 	(* parse accy *)
-	IF MID(DataStr[3], 1, 16) = 'A' THEN
-		AccY	:= 10;
+	IF MID(DataStr_Lead[3], 1, 16) = 'A' THEN
+		AccY_Lead	:= 10;
 		
-	ELSIF MID(DataStr[3], 1, 16) = 'B' THEN
-		AccY	:= 11;
+	ELSIF MID(DataStr_Lead[3], 1, 16) = 'B' THEN
+		AccY_Lead	:= 11;
 		
-	ELSIF MID(DataStr[3], 1, 16) = 'C' THEN
-		AccY	:= 12;
+	ELSIF MID(DataStr_Lead[3], 1, 16) = 'C' THEN
+		AccY_Lead	:= 12;
 		
-	ELSIF MID(DataStr[3], 1, 16) = 'D' THEN
-		AccY	:= 13;
+	ELSIF MID(DataStr_Lead[3], 1, 16) = 'D' THEN
+		AccY_Lead	:= 13;
 		
-	ELSIF MID(DataStr[3], 1, 16) = 'E' THEN
-		AccY	:= 14;
+	ELSIF MID(DataStr_Lead[3], 1, 16) = 'E' THEN
+		AccY_Lead	:= 14;
 	
-	ELSIF MID(DataStr[3], 1, 16) = 'F' THEN
-		AccY	:= 15;
+	ELSIF MID(DataStr_Lead[3], 1, 16) = 'F' THEN
+		AccY_Lead	:= 15;
 		
 	ELSE
-		AccY	:= STRING_TO_REAL(MID(DataStr[3], 1, 16));	
+		AccY_Lead	:= STRING_TO_REAL(MID(DataStr_Lead[3], 1, 16));	
 	
 	END_IF
 	
-	AccY	:=  AccY + (0.01 * STRING_TO_REAL(MID(DataStr[3], 2, 13))) +  (0.0001 * STRING_TO_REAL(MID(DataStr[3], 2, 11)));
-	IF MID(DataStr[3], 1, 15) = '1' THEN
-		AccY	:= AccY * (-1);
+	AccY_Lead	:=  AccY_Lead + (0.01 * STRING_TO_REAL(MID(DataStr_Lead[3], 2, 13))) +  (0.0001 * STRING_TO_REAL(MID(DataStr_Lead[3], 2, 11)));
+	IF MID(DataStr_Lead[3], 1, 15) = '1' THEN
+		AccY_Lead	:= AccY_Lead * (-1);
 		
 	END_IF
 	
 	(* parse accz *)
-	IF MID(DataStr[3], 1, 10) = 'A' THEN
-		AccZ	:= 10;
+	IF MID(DataStr_Lead[3], 1, 10) = 'A' THEN
+		AccZ_Lead	:= 10;
 		
-	ELSIF MID(DataStr[3], 1, 10) = 'B' THEN
-		AccZ	:= 11;
+	ELSIF MID(DataStr_Lead[3], 1, 10) = 'B' THEN
+		AccZ_Lead	:= 11;
 		
-	ELSIF MID(DataStr[3], 1, 10) = 'C' THEN
-		AccZ	:= 12;
+	ELSIF MID(DataStr_Lead[3], 1, 10) = 'C' THEN
+		AccZ_Lead	:= 12;
 		
-	ELSIF MID(DataStr[3], 1, 10) = 'D' THEN
-		AccZ	:= 13;
+	ELSIF MID(DataStr_Lead[3], 1, 10) = 'D' THEN
+		AccZ_Lead	:= 13;
 		
-	ELSIF MID(DataStr[3], 1, 10) = 'E' THEN
-		AccZ	:= 14;
+	ELSIF MID(DataStr_Lead[3], 1, 10) = 'E' THEN
+		AccZ_Lead	:= 14;
 	
-	ELSIF MID(DataStr[3], 1, 10) = 'F' THEN
-		AccZ	:= 15;
+	ELSIF MID(DataStr_Lead[3], 1, 10) = 'F' THEN
+		AccZ_Lead	:= 15;
 		
 	ELSE
-		AccZ	:= STRING_TO_REAL(MID(DataStr[3], 1, 10));	
+		AccZ_Lead	:= STRING_TO_REAL(MID(DataStr_Lead[3], 1, 10));	
 	
 	END_IF
 	
-	AccZ	:=  AccZ + (0.01 * STRING_TO_REAL(MID(DataStr[3], 2, 7))) +  (0.0001 * STRING_TO_REAL(MID(DataStr[3], 2, 5)));
-	IF MID(DataStr[3], 1, 9) = '1' THEN
-		AccZ	:= AccZ * (-1);
+	AccZ_Lead	:=  AccZ_Lead + (0.01 * STRING_TO_REAL(MID(DataStr_Lead[3], 2, 7))) +  (0.0001 * STRING_TO_REAL(MID(DataStr_Lead[3], 2, 5)));
+	IF MID(DataStr_Lead[3], 1, 9) = '1' THEN
+		AccZ_Lead	:= AccZ_Lead * (-1);
 		
 	END_IF
 	
 	(* detect road section *)
 	//algorithm for road section detection
 	
-	Counter			:= Counter + 1;	
+	Counter_Lead			:= Counter_Lead + 1;	
+	
+END_IF
+
+IF bDataReceived_Rear THEN
+	fbClearCom(Buffer := RxBuffer_Rear); //clear rx buffer
+	
+	(* parse data *)
+	DataStr_Rear[1]	:= LWORD_TO_HEXSTR(in := Data_Rear[1], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Rear[2]	:= LWORD_TO_HEXSTR(in := Data_Rear[2], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Rear[3]	:= LWORD_TO_HEXSTR(in := Data_Rear[3], iPrecision := 16, bLoCase := FALSE);
+	DataStr_Rear[4]	:= LWORD_TO_HEXSTR(in := Data_Rear[4], iPrecision := 16, bLoCase := FALSE);
+	
+	(* parse pitch *)
+	Pitch_Rear	:= (100 * STRING_TO_REAL(MID(DataStr_Rear[1], 1, 8))) + STRING_TO_REAL(MID(DataStr_Rear[1], 2, 5)) +  (0.01 * STRING_TO_REAL(MID(DataStr_Rear[1], 2, 3)));
+	IF MID(DataStr_Rear[1], 1, 7) = '1' THEN
+		Pitch_Rear	:= Pitch_Rear * (-1);
+		
+	END_IF
+		
+	(* parse roll *)
+	Roll_Rear	:= (100 * STRING_TO_REAL(MID(DataStr_Rear[1], 1, 2))) + STRING_TO_REAL(MID(DataStr_Rear[2], 2, 15)) +  (0.01 * STRING_TO_REAL(MID(DataStr_Rear[2], 2, 13)));
+	IF MID(DataStr_Rear[1], 1, 1) = '1' THEN
+		Roll_Rear	:= Roll_Rear * (-1);
+		
+	END_IF
+		
+	(* parse accx *)
+	IF MID(DataStr_Rear[2], 1, 6) = 'A' THEN
+		AccX_Rear	:= 10;
+		
+	ELSIF MID(DataStr_Rear[2], 1, 6) = 'B' THEN
+		AccX_Rear	:= 11;
+		
+	ELSIF MID(DataStr_Rear[2], 1, 6) = 'C' THEN
+		AccX_Rear	:= 12;
+		
+	ELSIF MID(DataStr_Rear[2], 1, 6) = 'D' THEN
+		AccX_Rear	:= 13;
+		
+	ELSIF MID(DataStr_Rear[2], 1, 6) = 'E' THEN
+		AccX_Rear	:= 14;
+	
+	ELSIF MID(DataStr_Rear[2], 1, 6) = 'F' THEN
+		AccX_Rear	:= 15;
+		
+	ELSE
+		AccX_Rear	:= STRING_TO_REAL(MID(DataStr_Rear[2], 1, 6));	
+	
+	END_IF
+	
+	AccX_Rear	:=  AccX_Rear + (0.01 * STRING_TO_REAL(MID(DataStr_Rear[2], 2, 3))) +  (0.0001 * STRING_TO_REAL(MID(DataStr_Rear[2], 2, 1)));
+	IF MID(DataStr_Rear[2], 1, 5) = '1' THEN
+		AccX_Rear	:= AccX_Rear * (-1);
+		
+	END_IF
+	
+	(* parse accy *)
+	IF MID(DataStr_Rear[3], 1, 16) = 'A' THEN
+		AccY_Rear	:= 10;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 16) = 'B' THEN
+		AccY_Rear	:= 11;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 16) = 'C' THEN
+		AccY_Rear	:= 12;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 16) = 'D' THEN
+		AccY_Rear	:= 13;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 16) = 'E' THEN
+		AccY_Rear	:= 14;
+	
+	ELSIF MID(DataStr_Rear[3], 1, 16) = 'F' THEN
+		AccY_Rear	:= 15;
+		
+	ELSE
+		AccY_Rear	:= STRING_TO_REAL(MID(DataStr_Rear[3], 1, 16));	
+	
+	END_IF
+	
+	AccY_Rear	:=  AccY_Rear + (0.01 * STRING_TO_REAL(MID(DataStr_Rear[3], 2, 13))) +  (0.0001 * STRING_TO_REAL(MID(DataStr_Rear[3], 2, 11)));
+	IF MID(DataStr_Rear[3], 1, 15) = '1' THEN
+		AccY_Rear	:= AccY_Rear * (-1);
+		
+	END_IF
+	
+	(* parse accz *)
+	IF MID(DataStr_Rear[3], 1, 10) = 'A' THEN
+		AccZ_Rear	:= 10;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 10) = 'B' THEN
+		AccZ_Rear	:= 11;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 10) = 'C' THEN
+		AccZ_Rear	:= 12;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 10) = 'D' THEN
+		AccZ_Rear	:= 13;
+		
+	ELSIF MID(DataStr_Rear[3], 1, 10) = 'E' THEN
+		AccZ_Rear	:= 14;
+	
+	ELSIF MID(DataStr_Rear[3], 1, 10) = 'F' THEN
+		AccZ_Rear	:= 15;
+		
+	ELSE
+		AccZ_Rear	:= STRING_TO_REAL(MID(DataStr_Rear[3], 1, 10));	
+	
+	END_IF
+	
+	AccZ_Rear	:=  AccZ_Rear + (0.01 * STRING_TO_REAL(MID(DataStr_Rear[3], 2, 7))) +  (0.0001 * STRING_TO_REAL(MID(DataStr_Rear[3], 2, 5)));
+	IF MID(DataStr_Rear[3], 1, 9) = '1' THEN
+		AccZ_Rear	:= AccZ_Rear * (-1);
+		
+	END_IF
+	
+	(* detect road section *)
+	//algorithm for road section detection
+	
+	Counter_Rear			:= Counter_Rear + 1;	
 	
 END_IF
 
 (* count total received data per second *)
 IF pSec <> Background_Time.cSec THEN 
-		Total 	:= Counter;
-		Counter := 0;
+		Total_Lead 	:= Counter_Lead;
+		Counter_Lead := 0;
+		
+		Total_Rear 	:= Counter_Rear;
+		Counter_Rear := 0;
+		
 		pSec	:= Background_Time.cSec;
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Background_IMU">
-      <LineId Id="3" Count="21" />
+      <LineId Id="12" Count="12" />
       <LineId Id="2" Count="0" />
+      <LineId Id="329" Count="12" />
+      <LineId Id="328" Count="0" />
       <LineId Id="206" Count="0" />
-      <LineId Id="64" Count="130" />
+      <LineId Id="64" Count="12" />
+      <LineId Id="355" Count="3" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="344" Count="10" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="77" Count="117" />
       <LineId Id="260" Count="1" />
       <LineId Id="264" Count="0" />
       <LineId Id="195" Count="3" />
-      <LineId Id="254" Count="5" />
+      <LineId Id="380" Count="118" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="254" Count="4" />
+      <LineId Id="377" Count="0" />
+      <LineId Id="374" Count="1" />
+      <LineId Id="378" Count="0" />
+      <LineId Id="259" Count="0" />
       <LineId Id="63" Count="0" />
     </LineIds>
   </POU>
