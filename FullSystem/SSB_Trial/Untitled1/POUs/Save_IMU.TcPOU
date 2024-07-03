@@ -33,7 +33,7 @@ ELSE
 			
 		1:	
 			(* build query *)	
-			sCmd	:= 'INSERT INTO imu SELECT * FROM buffer_imu ORDER BY datetime ASC LIMIT ';
+			sCmd	:= 'DELETE FROM imu WHERE datetime < datetime($'now$', $'-3 month$'); INSERT INTO imu SELECT * FROM buffer_imu ORDER BY datetime ASC LIMIT ';
 			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_IMU.Data_Length));
 			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_imu WHERE datetime IN (SELECT datetime FROM buffer_imu ORDER BY datetime ASC LIMIT ');
 			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_IMU.Data_Length));

@@ -9,15 +9,17 @@ VAR
 	
 	(* aws certificates *)
 	
-	(* ------------------ actual ----------------
+	(*------------------ actual ----------------*)
 	rootCA		: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
-	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\6c62b288c2-certificate.pem.crt';
-	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\6c62b288c2-private.pem.key';
-	*)
+	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-private.pem.key';
 	
+	(* ------------------ test ------------------ *)
+	(*
 	rootCA		: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\AmazonRootCA1.pem';
 	thingCert	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-certificate.pem.crt';
 	privateKey	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-private.pem.key';
+	*)
 	
 	(* broker settings *)
 	endpoint	: STRING := 'a2o01t3xth0mr1-ats.iot.ap-southeast-1.amazonaws.com';

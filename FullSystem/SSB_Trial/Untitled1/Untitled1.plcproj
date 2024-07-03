@@ -23,6 +23,10 @@
     <Compile Include="DUTs\ST_SelectStructIMU.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="GVLs\GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
     <Compile Include="PlcTask_Background.TcTTO">
       <SubType>Code</SubType>
     </Compile>

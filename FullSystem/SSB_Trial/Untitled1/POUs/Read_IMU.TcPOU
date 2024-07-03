@@ -42,22 +42,44 @@ IF pSec <> Background_Time.cSec THEN
 END_IF
 	
 IF pDiv <> cDiv THEN
-	TimeStr[i]				:= REPLACE(Background_Time.TimeStr, ' ', 1, 11);
-	Trailer_ID_Lead[i]		:= UINT_TO_STRING(Read_ID.Trailer_ID_Lead);
-	//RoadSec[i]			:= Background_IMU.RoadSec;
-	Pitch_Lead[i]			:= REAL_TO_STRING(Background_IMU.Pitch_Lead);
-	Roll_Lead[i]			:= REAL_TO_STRING(Background_IMU.Roll_Lead);
-	AccX_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccX_Lead);
-	AccY_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccY_Lead);
-	AccZ_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccZ_Lead);
 	
-	Trailer_ID_Rear[i]		:= UINT_TO_STRING(Read_ID.Trailer_ID_Rear);
-	//RoadSec[i]			:= Background_IMU.RoadSec;
-	Pitch_Rear[i]			:= REAL_TO_STRING(Background_IMU.Pitch_Rear);
-	Roll_Rear[i]			:= REAL_TO_STRING(Background_IMU.Roll_Rear);
-	AccX_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccX_Rear);
-	AccY_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccY_Rear);
-	AccZ_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccZ_Rear);
+	TimeStr[i]				:= REPLACE(Background_Time.TimeStr, ' ', 1, 11);
+	
+	IF GVL.Lead_Trailer_State = 8 OR GVL.Lead_Trailer_State = 17416 THEN
+		Trailer_ID_Lead[i]		:= UINT_TO_STRING(Read_ID.Trailer_ID_Lead);
+		//RoadSec[i]			:= Background_IMU.RoadSec;
+		Pitch_Lead[i]			:= REAL_TO_STRING(Background_IMU.Pitch_Lead);
+		Roll_Lead[i]			:= REAL_TO_STRING(Background_IMU.Roll_Lead);
+		AccX_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccX_Lead);
+		AccY_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccY_Lead);
+		AccZ_Lead[i]			:= REAL_TO_STRING(Background_IMU.AccZ_Lead);
+	ELSE
+		Trailer_ID_Lead[i]		:= '99';
+		//RoadSec[i]			:= Background_IMU.RoadSec;
+		Pitch_Lead[i]			:= '0';
+		Roll_Lead[i]			:= '0';
+		AccX_Lead[i]			:= '0';
+		AccY_Lead[i]			:= '0';
+		AccZ_Lead[i]			:= '0';
+	END_IF
+	
+	IF GVL.Rear_Trailer_State = 8 THEN
+		Trailer_ID_Rear[i]		:= UINT_TO_STRING(Read_ID.Trailer_ID_Rear);
+		//RoadSec[i]			:= Background_IMU.RoadSec;
+		Pitch_Rear[i]			:= REAL_TO_STRING(Background_IMU.Pitch_Rear);
+		Roll_Rear[i]			:= REAL_TO_STRING(Background_IMU.Roll_Rear);
+		AccX_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccX_Rear);
+		AccY_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccY_Rear);
+		AccZ_Rear[i]			:= REAL_TO_STRING(Background_IMU.AccZ_Rear);
+	ELSE
+		Trailer_ID_Rear[i]		:= '99';
+		//RoadSec[i]			:= Background_IMU.RoadSec;
+		Pitch_Rear[i]			:= '0';
+		Roll_Rear[i]			:= '0';
+		AccX_Rear[i]			:= '0';
+		AccY_Rear[i]			:= '0';
+		AccZ_Rear[i]			:= '0';
+	END_IF
 	
 	pDiv := cDiv;
 	i := i+1;
@@ -65,13 +87,24 @@ IF pDiv <> cDiv THEN
 END_IF;]]></ST>
     </Implementation>
     <LineIds Name="Read_IMU">
-      <LineId Id="1022" Count="9" />
-      <LineId Id="1066" Count="0" />
-      <LineId Id="1064" Count="0" />
-      <LineId Id="1032" Count="4" />
+      <LineId Id="1022" Count="8" />
+      <LineId Id="1136" Count="0" />
+      <LineId Id="1031" Count="0" />
+      <LineId Id="1141" Count="1" />
+      <LineId Id="1145" Count="5" />
+      <LineId Id="1143" Count="0" />
+      <LineId Id="1151" Count="0" />
+      <LineId Id="1153" Count="5" />
+      <LineId Id="1152" Count="0" />
+      <LineId Id="1144" Count="0" />
       <LineId Id="1098" Count="0" />
-      <LineId Id="1100" Count="5" />
-      <LineId Id="1099" Count="0" />
+      <LineId Id="1159" Count="0" />
+      <LineId Id="1163" Count="5" />
+      <LineId Id="1160" Count="0" />
+      <LineId Id="1169" Count="0" />
+      <LineId Id="1171" Count="5" />
+      <LineId Id="1170" Count="0" />
+      <LineId Id="1161" Count="0" />
       <LineId Id="1037" Count="3" />
       <LineId Id="998" Count="0" />
     </LineIds>

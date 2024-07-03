@@ -12,10 +12,10 @@ TimeStr	:= Background_Time.TimeStr;
 
 (* read sensors *)
 Read_IMU();
-//Read_FatigueCam();
-//Read_GPS();
-//Read_Payload();
-//Read_Pressure();]]></ST>
+Read_FatigueCam();
+Read_GPS();
+Read_Payload();
+Read_Pressure();]]></ST>
     </Implementation>
     <LineIds Name="Main_Read">
       <LineId Id="15" Count="0" />

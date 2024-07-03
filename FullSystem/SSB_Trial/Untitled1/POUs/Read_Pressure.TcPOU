@@ -17,8 +17,17 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* read pressure *)
-Pressure_Lead 	:= (INT_TO_REAL(EL3052_Lead_Bit)/32767) * 160;
-Pressure_Rear 	:= (INT_TO_REAL(EL3052_Rear_Bit)/32767) * 160;
+IF GVL.Lead_Trailer_State = 8 OR GVL.Lead_Trailer_State = 17416 THEN
+	Pressure_Lead 	:= (INT_TO_REAL(EL3052_Lead_Bit)/32767) * 160;
+ELSE
+	Pressure_Lead 	:= 0;	
+END_IF
+
+IF GVL.Rear_Trailer_State = 8 THEN
+	Pressure_Rear 	:= (INT_TO_REAL(EL3052_Rear_Bit)/32767) * 160;
+ELSE
+	Pressure_Rear 	:= 0;
+END_IF
 
 (* check for overpressure *)
 IF Pressure_Lead > Threshold THEN
@@ -37,8 +46,14 @@ END_IF
     </Implementation>
     <LineIds Name="Read_Pressure">
       <LineId Id="50" Count="0" />
+      <LineId Id="101" Count="1" />
+      <LineId Id="104" Count="1" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="106" Count="0" />
       <LineId Id="17" Count="0" />
-      <LineId Id="77" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="109" Count="1" />
+      <LineId Id="108" Count="0" />
       <LineId Id="52" Count="6" />
       <LineId Id="83" Count="4" />
       <LineId Id="81" Count="0" />

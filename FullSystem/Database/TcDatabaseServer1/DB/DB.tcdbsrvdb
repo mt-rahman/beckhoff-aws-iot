@@ -10,7 +10,7 @@
   <Password />
   <Driver />
   <Provider />
-  <Port>0</Port>
+  <Port>5432</Port>
   <Protocol />
   <Scheme />
   <Sequence />

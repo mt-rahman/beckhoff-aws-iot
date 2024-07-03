@@ -36,22 +36,40 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* convert to strings *)
+IF GVL.Lead_Trailer_State = 8 OR GVL.Lead_Trailer_State = 17416 THEN
+	Trailer_ID_Lead		:= UINT_TO_STRING(Read_ID.Trailer_ID_Lead);
+	Payload_Lead		:= REAL_TO_STRING(Read_Payload.Payload_Lead);
+	Overload_Lead		:= BOOL_TO_STRING(Read_Payload.Overload_Lead);
+	Pressure_Lead		:= REAL_TO_STRING(Read_Pressure.Pressure_Lead);
+	Overpressure_Lead	:= BOOL_TO_STRING(Read_Pressure.Overpressure_Lead);
+ELSE
+	Trailer_ID_Lead		:= '99';
+	Payload_Lead		:= '0';
+	Overload_Lead		:= 'FALSE';
+	Pressure_Lead		:= '0';
+	Overpressure_Lead	:= 'FALSE';	
+END_IF
+
+IF GVL.Rear_Trailer_State = 8 THEN
+	Trailer_ID_Rear		:= UINT_TO_STRING(Read_ID.Trailer_ID_Rear);
+	Payload_Rear		:= REAL_TO_STRING(Read_Payload.Payload_Rear);
+	Overload_Rear		:= BOOL_TO_STRING(Read_Payload.Overload_Rear);
+	Pressure_Rear		:= REAL_TO_STRING(Read_Pressure.Pressure_Rear);
+	Overpressure_Rear	:= BOOL_TO_STRING(Read_Pressure.Overpressure_Rear);
+ELSE
+	Trailer_ID_Rear		:= '99';
+	Payload_Rear		:= '0';
+	Overload_Rear		:= 'FALSE';
+	Pressure_Rear		:= '0';
+	Overpressure_Rear	:= 'FALSE';
+END_IF
+
 TimeStr				:= Main_Read.TimeStr;
 TimeStr				:= REPLACE(TimeStr, ' ', 1, 11);
-Trailer_ID_Lead		:= UINT_TO_STRING(Read_ID.Trailer_ID_Lead);
-Trailer_ID_Rear		:= UINT_TO_STRING(Read_ID.Trailer_ID_Rear);
 Lat					:= REAL_TO_STRING(Read_GPS.Lat);
 Lon					:= REAL_TO_STRING(Read_GPS.Lon);
 Speed				:= REAL_TO_STRING(Read_GPS.Speed);
 Overspeed			:= BOOL_TO_STRING(Read_GPS.Overspeed);
-Payload_Lead		:= REAL_TO_STRING(Read_Payload.Payload_Lead);
-Payload_Rear		:= REAL_TO_STRING(Read_Payload.Payload_Rear);
-Overload_Lead		:= BOOL_TO_STRING(Read_Payload.Overload_Lead);
-Overload_Rear		:= BOOL_TO_STRING(Read_Payload.Overload_Rear);
-Pressure_Lead		:= REAL_TO_STRING(Read_Pressure.Pressure_Lead);
-Pressure_Rear		:= REAL_TO_STRING(Read_Pressure.Pressure_Rear);
-Overpressure_Lead	:= BOOL_TO_STRING(Read_Pressure.Overpressure_Lead);
-Overpressure_Rear	:= BOOL_TO_STRING(Read_Pressure.Overpressure_Rear);
 EventCode			:= Read_FatigueCam.EventCode;
 
 (* save data to buffer every second *)
@@ -140,16 +158,26 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Buffer_Data">
-      <LineId Id="722" Count="1" />
+      <LineId Id="722" Count="0" />
+      <LineId Id="935" Count="1" />
+      <LineId Id="938" Count="4" />
+      <LineId Id="945" Count="3" />
+      <LineId Id="944" Count="0" />
+      <LineId Id="943" Count="0" />
+      <LineId Id="950" Count="0" />
+      <LineId Id="949" Count="0" />
+      <LineId Id="951" Count="0" />
+      <LineId Id="954" Count="2" />
+      <LineId Id="953" Count="0" />
+      <LineId Id="957" Count="0" />
+      <LineId Id="962" Count="0" />
+      <LineId Id="959" Count="2" />
+      <LineId Id="958" Count="0" />
+      <LineId Id="952" Count="0" />
+      <LineId Id="934" Count="0" />
+      <LineId Id="723" Count="0" />
       <LineId Id="893" Count="0" />
-      <LineId Id="724" Count="0" />
-      <LineId Id="858" Count="0" />
-      <LineId Id="725" Count="6" />
-      <LineId Id="857" Count="0" />
-      <LineId Id="732" Count="0" />
-      <LineId Id="735" Count="0" />
-      <LineId Id="901" Count="0" />
-      <LineId Id="900" Count="0" />
+      <LineId Id="725" Count="3" />
       <LineId Id="738" Count="33" />
       <LineId Id="859" Count="1" />
       <LineId Id="772" Count="13" />
