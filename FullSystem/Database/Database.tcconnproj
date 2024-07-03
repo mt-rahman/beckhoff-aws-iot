@@ -18,6 +18,9 @@
     <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_Data\Buffer_Data.tcdbsrvdb">
       <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
     </tcdbsrvdbCompile>
+    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_IMU_2\Buffer_IMU_2.tcdbsrvdb">
+      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
+    </tcdbsrvdbCompile>
     <tcdbsrvdbCompile Include="TcDatabaseServer1\IMU\IMU.tcdbsrvdb">
       <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
     </tcdbsrvdbCompile>

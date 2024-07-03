@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main_Vacuum" Id="{08fdd8cd-369e-485f-a484-135431d0cebb}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main_Vacuum
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT Vacuum_Buffer_Data.Vacuumed THEN
+	Vacuum_Buffer_Data();
+END_IF
+
+IF NOT Vacuum_Buffer_IMU.Vacuumed THEN
+	Vacuum_Buffer_IMU();
+END_IF
+
+IF NOT Vacuum_Buffer_IMU_2.Vacuumed THEN
+	Vacuum_Buffer_IMU_2();
+END_IF
+
+IF NOT Vacuum_Data.Vacuumed THEN
+	Vacuum_Data();
+END_IF
+
+IF NOT Vacuum_IMU.Vacuumed THEN
+	Vacuum_IMU();
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Main_Vacuum">
+      <LineId Id="10" Count="2" />
+      <LineId Id="15" Count="2" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="27" Count="2" />
+      <LineId Id="26" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

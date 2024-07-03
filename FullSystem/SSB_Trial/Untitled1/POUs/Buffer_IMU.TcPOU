@@ -24,17 +24,30 @@ VAR
 	AccY_Rear		: ARRAY [1..50] OF STRING;
 	AccZ_Rear		: ARRAY [1..50] OF STRING;
 	
-	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
-	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
-	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#1000S); 
 	sCmd			: STRING(500000);
 	sCmd2			: STRING(500000);
 	nState			: INT;
 	
-	Vacuumed		: BOOL := FALSE;
+	aReadStruct		: ST_SelectStructIMU;
+	aReadStruct_2	: ST_SelectStructIMU;
+	Timestamp		: DT;
+	Timestamp_2		: DT; 
+	
+	Initialized		: BOOL := FALSE;
+	Vacuumed_1		: BOOL := FALSE;
+	Vacuumed_2		: BOOL := FALSE;
 	Done			: BOOL;
 	i				: INT;
-	 
+	Switch			: BOOL;
+	Switched		: BOOL;
+	Counter			: ULINT;
+	
+	Dbid			: UDINT;
+	
+	bDisconnect		: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -56,112 +69,277 @@ AccX_Rear			:= Read_IMU.AccX_Rear;
 AccY_Rear			:= Read_IMU.AccY_Rear;
 AccZ_Rear			:= Read_IMU.AccZ_Rear;
 
-(* save data to buffer every second *)
-IF diff:= Background_Time.cSec <> pSec THEN
-
-	IF Done THEN
-		nState 	:= 0;
-		Done	:= FALSE;	
-	END_IF
+IF NOT Initialized THEN
 	
-	
-	(* connect to localdb *)
-	IF NOT fbSqlDatabase.bConnected THEN
-		fbSqlDatabase.Connect(2);
-	ELSE
-	
-		CASE nState OF
+	//initialization (choose which database for buffer)
+	CASE nState OF
 				
-			0:
-				IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+		0:
+			(* connect to buffer_imu *)	
+			IF Vacuum_Buffer_IMU.Vacuumed THEN
+				
+				Dbid := 2;		
+				IF fbSqlDatabase.Connect(Dbid) THEN
 					IF fbSqlDatabase.bError THEN
 						nState := 255; 
 					ELSE
-						nState := nState+1; 
+						nState := nState+1;
 					END_IF
 				END_IF
+				
+			END_IF
 			
-			1:	
-				IF NOT Vacuumed THEN
+			
+		1:
+			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		2:
+			(* select oldest data from buffer_imu *)
+			sCmd	:= 'SELECT * FROM `buffer_imu` ORDER BY datetime ASC LIMIT 1';
+			
+			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		3:
+			IF fbSqlResult.Read(0, 1, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
+				IF fbSqlResult.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		4:
+			IF fbSqlResult.Release() THEN
+				IF fbSqlResult.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		5:
+			(* disconnect from buffer_imu *)
+			IF fbSqlDatabase.Disconnect() THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		6:	
+			(* connect to buffer_imu_2 *)
+			IF Vacuum_Buffer_IMU_2.Vacuumed THEN
+				
+				Dbid := 5;	
+				IF fbSqlDatabase.Connect(Dbid) THEN
+					IF fbSqlDatabase.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1;
+					END_IF
+				END_IF
+				
+			END_IF	
+			
+		7:
+			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		8:
+			(* select oldest data from buffer_imu *)
+			sCmd	:= 'SELECT * FROM `buffer_imu` ORDER BY datetime ASC LIMIT 1';
+			
+			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		9:
+			IF fbSqlResult.Read(0, 1, ADR(aReadStruct_2), SIZEOF(aReadStruct_2), TRUE, TRUE) THEN
+				IF fbSqlResult.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		10:
+			IF fbSqlResult.Release() THEN
+				IF fbSqlResult.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		11:
+			(* disconnect from buffer_imu_2 *)
+			IF bDisconnect := fbSqlDatabase.Disconnect() THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		12:
+			// compare oldest data
+			aReadStruct.datetime 	:= REPLACE(aReadStruct.datetime, '-', 1, 11);
+			aReadStruct_2.datetime 	:= REPLACE(aReadStruct_2.datetime, '-', 1, 11);
+			
+			Timestamp	:= SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct.datetime));
+			Timestamp_2	:= SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct_2.datetime));
+
+			IF Timestamp > Timestamp_2 THEN
+				Dbid := 2;
+			ELSE
+				Dbid := 5;
+			END_IF
+			
+			Initialized := TRUE;
+			nState		:= 0;
+			
+		255:
+			nState := 0;
+			
+	END_CASE
+
+ELSE	
+	
+	(* save data to buffer every second *)
+	IF diff:= Background_Time.cSec <> pSec THEN
+		
+		//database switching
+		IF Get_IMU.Switch AND Counter > 3000 THEN
+			
+			IF fbSqlDatabase.bConnected THEN
+				fbSqlDatabase.Disconnect();
+			ELSE
+				IF Dbid = 2 THEN
+					Dbid := 5;
+				ELSE
+					Dbid := 2;
+				END_IF
+				Counter := 0;	
+			END_IF
+		
+		ELSE
+			
+			IF Done THEN
+				Done	:= FALSE;
+				IF fbSqlDatabase.bConnected THEN
+					nState 	:= 1;
+				ELSE
+					nState 	:= 0;
+				END_IF	
+			END_IF
+			
+			CASE nState OF	
+				0:	
+					IF fbSqlDatabase.Connect(Dbid) THEN
+						IF fbSqlDatabase.bError THEN
+							nState := 255;
+						ELSE
+							nState := nState + 1; 
+						END_IF
+					END_IF
+				
+				1:
+					IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+						IF fbSqlDatabase.bError THEN
+							nState := 255; 
+						ELSE
+							nState := nState+1; 
+						END_IF
+					END_IF
+					
+				2:	
 					(* build query *)	
-					sCmd	:= 'VACUUM';
+					sCmd:= 'INSERT INTO buffer_imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
+					
+					FOR i := 1 TO 50 BY 1 DO
+						sCmd2:= CONCAT('($'', TimeStr[i]);
+						sCmd2:= CONCAT(sCmd2, '$',');
+						sCmd2:= CONCAT(sCmd2, Trailer_ID_Lead[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, Trailer_ID_Rear[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, Pitch_Lead[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, Roll_Lead[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, AccX_Lead[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, AccY_Lead[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, AccZ_Lead[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, Pitch_Rear[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, Roll_Rear[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, AccX_Rear[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, AccY_Rear[i]);
+						sCmd2:= CONCAT(sCmd2, ',');
+						sCmd2:= CONCAT(sCmd2, AccZ_Rear[i]);
+						
+						IF i = 50 THEN
+							sCmd2:= CONCAT(sCmd2, ')');
+						ELSE	
+							sCmd2:= CONCAT(sCmd2, '),');
+						END_IF
+						
+						CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
+					END_FOR
+					
 					
 					IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
 						IF fbSQLCommand.bError THEN
 							nState := 255; 
 						ELSE
-							nState 		:= nState+1; 
-							Vacuumed 	:= TRUE;
+							nState := nState+1; 
+							pSec := Background_Time.cSec;
+							
 						END_IF
 					END_IF
 					
-				ELSE 
-					nState := nState+1;
-				END_IF
-				
-				
-			2:	
-				(* build query *)	
-				sCmd:= 'INSERT INTO buffer_imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
-				
-				FOR i := 1 TO 50 BY 1 DO
-					sCmd2:= CONCAT('($'', TimeStr[i]);
-					sCmd2:= CONCAT(sCmd2, '$',');
-					sCmd2:= CONCAT(sCmd2, Trailer_ID_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Trailer_ID_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Pitch_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Roll_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, AccX_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, AccY_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, AccZ_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Pitch_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Roll_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, AccX_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, AccY_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, AccZ_Rear[i]);
-					
-					IF i = 50 THEN
-						sCmd2:= CONCAT(sCmd2, ')');
-					ELSE	
-						sCmd2:= CONCAT(sCmd2, '),');
-					END_IF
-					
-					CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
-				END_FOR
-				
-				
-				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
-					IF fbSQLCommand.bError THEN
-						nState := 255; 
-					ELSE
-						nState := nState+1; 
-						pSec := Background_Time.cSec;
+				3: 
+					Counter := Counter + 50;
+					Done	:= TRUE;
 						
-					END_IF
-				END_IF
-				
-			3: 
-				Done	:= TRUE;
+				255:
+					nState := 0;
 					
-			255:
-				nState := 0;
-	
-		END_CASE
-	
+			END_CASE	
+			
+		END_IF
 	END_IF
+END_IF
+	
 
-END_IF]]></ST>
+	]]></ST>
     </Implementation>
     <LineIds Name="Buffer_IMU">
       <LineId Id="38" Count="0" />
@@ -171,23 +349,73 @@ END_IF]]></ST>
       <LineId Id="289" Count="0" />
       <LineId Id="276" Count="4" />
       <LineId Id="148" Count="0" />
-      <LineId Id="55" Count="24" />
-      <LineId Id="381" Count="0" />
-      <LineId Id="394" Count="0" />
-      <LineId Id="396" Count="0" />
-      <LineId Id="399" Count="8" />
-      <LineId Id="409" Count="0" />
-      <LineId Id="397" Count="0" />
-      <LineId Id="410" Count="2" />
-      <LineId Id="398" Count="0" />
-      <LineId Id="382" Count="0" />
-      <LineId Id="80" Count="4" />
-      <LineId Id="191" Count="0" />
-      <LineId Id="315" Count="31" />
-      <LineId Id="313" Count="0" />
-      <LineId Id="162" Count="0" />
-      <LineId Id="209" Count="1" />
-      <LineId Id="118" Count="19" />
+      <LineId Id="864" Count="0" />
+      <LineId Id="696" Count="0" />
+      <LineId Id="1035" Count="0" />
+      <LineId Id="1561" Count="0" />
+      <LineId Id="868" Count="3" />
+      <LineId Id="1363" Count="0" />
+      <LineId Id="1375" Count="0" />
+      <LineId Id="1366" Count="4" />
+      <LineId Id="1372" Count="0" />
+      <LineId Id="1374" Count="0" />
+      <LineId Id="1364" Count="0" />
+      <LineId Id="1376" Count="0" />
+      <LineId Id="1365" Count="0" />
+      <LineId Id="879" Count="9" />
+      <LineId Id="907" Count="4" />
+      <LineId Id="1258" Count="5" />
+      <LineId Id="918" Count="31" />
+      <LineId Id="1380" Count="0" />
+      <LineId Id="1395" Count="0" />
+      <LineId Id="1383" Count="4" />
+      <LineId Id="1389" Count="0" />
+      <LineId Id="1391" Count="0" />
+      <LineId Id="1381" Count="0" />
+      <LineId Id="1392" Count="0" />
+      <LineId Id="1382" Count="0" />
+      <LineId Id="958" Count="8" />
+      <LineId Id="985" Count="4" />
+      <LineId Id="1264" Count="5" />
+      <LineId Id="996" Count="31" />
+      <LineId Id="1246" Count="3" />
+      <LineId Id="1251" Count="0" />
+      <LineId Id="1250" Count="0" />
+      <LineId Id="1028" Count="4" />
+      <LineId Id="1040" Count="0" />
+      <LineId Id="1039" Count="0" />
+      <LineId Id="1245" Count="0" />
+      <LineId Id="1252" Count="2" />
+      <LineId Id="1033" Count="0" />
+      <LineId Id="866" Count="0" />
+      <LineId Id="1037" Count="0" />
+      <LineId Id="1034" Count="0" />
+      <LineId Id="1177" Count="2" />
+      <LineId Id="1281" Count="0" />
+      <LineId Id="1448" Count="1" />
+      <LineId Id="1550" Count="0" />
+      <LineId Id="1452" Count="7" />
+      <LineId Id="1628" Count="0" />
+      <LineId Id="1460" Count="0" />
+      <LineId Id="1470" Count="1" />
+      <LineId Id="1549" Count="0" />
+      <LineId Id="1620" Count="6" />
+      <LineId Id="1619" Count="0" />
+      <LineId Id="1627" Count="0" />
+      <LineId Id="1473" Count="0" />
+      <LineId Id="1475" Count="0" />
+      <LineId Id="1551" Count="2" />
+      <LineId Id="1612" Count="1" />
+      <LineId Id="1558" Count="0" />
+      <LineId Id="1479" Count="0" />
+      <LineId Id="1481" Count="67" />
+      <LineId Id="1472" Count="0" />
+      <LineId Id="1461" Count="0" />
+      <LineId Id="1447" Count="0" />
+      <LineId Id="867" Count="0" />
+      <LineId Id="1295" Count="0" />
+      <LineId Id="862" Count="0" />
+      <LineId Id="55" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

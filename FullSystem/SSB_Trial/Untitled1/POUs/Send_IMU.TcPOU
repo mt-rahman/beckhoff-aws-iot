@@ -42,7 +42,7 @@ VAR
 	arrayEnd		: STRING := '"]';
 	arrayEnd2		: STRING := ']';
 	msgEnd			: STRING := '}';
-	i				: UDINT;
+	i				: ULINT;
 	
 	(* topic subscription *)
 	bSubscribed : BOOL;

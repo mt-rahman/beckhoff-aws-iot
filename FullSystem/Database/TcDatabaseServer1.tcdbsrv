@@ -16,5 +16,6 @@
     <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_IMU\Buffer_IMU.tcdbsrvdb" />
     <tcdbsrvdbCompile Include="TcDatabaseServer1\Data\Data.tcdbsrvdb" />
     <tcdbsrvdbCompile Include="TcDatabaseServer1\IMU\IMU.tcdbsrvdb" />
+    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_IMU_2\Buffer_IMU_2.tcdbsrvdb" />
   </TcDbSrvProject>
 </ServerSettings>

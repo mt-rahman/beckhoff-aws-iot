@@ -39,6 +39,9 @@
     <Compile Include="PlcTask_Read.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PlcTask_Vacuum.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Background_FatigueCam.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -78,6 +81,9 @@
     <Compile Include="POUs\Main_Send.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Main_Vacuum.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Read_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -112,6 +118,21 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Send_IMU.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Vacuum_Buffer_Data.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Vacuum_Buffer_IMU.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Vacuum_Buffer_IMU_2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Vacuum_Data.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Vacuum_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

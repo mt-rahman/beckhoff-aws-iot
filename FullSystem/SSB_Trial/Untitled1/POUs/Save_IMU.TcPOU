@@ -3,15 +3,15 @@
   <POU Name="Save_IMU" Id="{0593a3af-b256-48a9-a4b4-c7aba26ff107}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Save_IMU
 VAR
-	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#10S);
-	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#10S);
-	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#10S); 
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#1000S); 
 	sCmd			: STRING(1000000);
 	sCmd2			: STRING(10000);
 	nState			: INT;
 	
 	Done			: BOOL;
-	i				: UDINT;
+	i				: ULINT;
 	Vacuumed		: BOOL := FALSE;
 END_VAR
 ]]></Declaration>
@@ -34,24 +34,6 @@ ELSE
 			END_IF
 			
 		1:	
-			IF NOT Vacuumed THEN
-				(* build query *)	
-				sCmd	:= 'VACUUM';
-				
-				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
-					IF fbSQLCommand.bError THEN
-						nState := 255; 
-					ELSE
-						nState 		:= nState+1; 
-						Vacuumed 	:= TRUE;
-					END_IF
-				END_IF
-				
-			ELSE 
-				nState := nState+1;
-			END_IF
-			
-		2:	
 			(* build query *)	
 			sCmd	:= 'DELETE FROM imu WHERE datetime < datetime($'now$', $'-1 month$');';
 			
@@ -64,7 +46,7 @@ ELSE
 				
 			END_IF
 			
-		3:	
+		2:	
 			(* build query *)	
 			sCmd	:= 'INSERT INTO imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
 			
@@ -113,7 +95,7 @@ ELSE
 				
 			END_IF
 		
-		4: 
+		3: 
 			Done	:= TRUE;
 			nState	:= 0;
 				
@@ -125,11 +107,8 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_IMU">
-      <LineId Id="73" Count="16" />
-      <LineId Id="211" Count="1" />
-      <LineId Id="228" Count="0" />
-      <LineId Id="214" Count="12" />
-      <LineId Id="209" Count="1" />
+      <LineId Id="73" Count="15" />
+      <LineId Id="210" Count="0" />
       <LineId Id="90" Count="1" />
       <LineId Id="96" Count="9" />
       <LineId Id="127" Count="0" />

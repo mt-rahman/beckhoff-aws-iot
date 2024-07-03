@@ -71,7 +71,7 @@ ELSE
 				sCmd2	:= CONCAT(sCmd2, UDINT_TO_STRING(Data_Length));
 				sCmd2	:= CONCAT(sCmd2, ');');
 				
-				IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd2), SIZEOF(sCmd2), ADR(fbSqlResult)) THEN
+				IF fbSQLCommand.Execute(ADR(sCmd2), SIZEOF(sCmd2)) THEN
 					IF fbSQLCommand.bError THEN
 						nState := 255; 
 					ELSE

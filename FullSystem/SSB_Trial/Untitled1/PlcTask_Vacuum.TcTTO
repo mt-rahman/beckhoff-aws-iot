@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <Task Name="PlcTask_Vacuum" Id="{33253937-414e-4a23-a9da-a3f945970de0}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>333.3</CycleTime>
+    <Priority>16</Priority>
+    <PouCall>
+      <Name>Main_Vacuum</Name>
+    </PouCall>
+    <TaskFBGuid>{56f50bc7-d9d8-465c-aabb-fb2a00315620}</TaskFBGuid>
+    <Fb_init>{2eb877da-04ae-4438-8612-ec39bfc72196}</Fb_init>
+    <Fb_exit>{4857ce1a-c2f7-452b-9753-febdc9eda06a}</Fb_exit>
+    <CycleUpdate>{ed647458-97ab-4f42-9d8f-8a9a6a551d43}</CycleUpdate>
+    <PostCycleUpdate>{0a520743-bcf3-422e-ab52-4bc89106ec86}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>

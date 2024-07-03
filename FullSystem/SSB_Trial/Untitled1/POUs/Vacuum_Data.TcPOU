@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Vacuum_Data" Id="{04762ee3-773f-45bd-9a86-b1227d8df739}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Vacuum_Data
+VAR
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#1000S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID :='', tTimeout   := T#1000S); 
+	nState			: INT;
+	sCmd			: STRING(500000);
+	Vacuumed		: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE nState OF
+				
+		0:
+			(* connect to buffer_imu *)		
+			IF fbSqlDatabase.Connect(3) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					IF fbSqlDatabase.bConnected THEN
+						nState := nState+1;
+					END_IF 
+				END_IF
+			END_IF
+			
+		1:
+			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+		
+		2:	
+			IF NOT Vacuumed THEN
+				(* build query *)	
+				sCmd	:= 'VACUUM';
+				
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState 		:= nState+1; 
+					END_IF
+				END_IF
+				
+			ELSE 
+				nState := nState+1;
+			END_IF
+			
+		3:
+			IF fbSqlDatabase.Disconnect() THEN
+				IF fbSqlDatabase.bError THEN
+					nState := 255;
+				ELSE
+					nState 		:= nState+1;
+					Vacuumed 	:= TRUE;
+				END_IF
+			END_IF
+			
+		255:
+			nState := 0;
+			
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Vacuum_Data">
+      <LineId Id="12" Count="32" />
+      <LineId Id="46" Count="5" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="58" Count="5" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

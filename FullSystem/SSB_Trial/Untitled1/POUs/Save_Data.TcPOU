@@ -34,24 +34,6 @@ ELSE
 			END_IF
 			
 		1:	
-				IF NOT Vacuumed THEN
-					(* build query *)	
-					sCmd	:= 'VACUUM';
-					
-					IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
-						IF fbSQLCommand.bError THEN
-							nState := 255; 
-						ELSE
-							nState 		:= nState+1; 
-							Vacuumed 	:= TRUE;
-						END_IF
-					END_IF
-					
-				ELSE 
-					nState := nState+1;
-				END_IF
-			
-		2:	
 			(* build query *)	
 			sCmd	:= 'DELETE FROM data WHERE datetime < datetime($'now$', $'-3 month$');';
 			
@@ -65,7 +47,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		3:	
+		2:	
 			(* build query *)	
 			sCmd	:= 'INSERT INTO data (datetime,trailer_id_lead,trailer_id_rear,latitude,longitude,speed,overspeed,payload_lead,payload_rear,overload_lead,overload_rear,pressure_lead,pressure_rear,overpressure_lead,overpressure_rear,event_code) VALUES ';
 			
@@ -121,7 +103,7 @@ ELSE
 				END_IF
 			END_IF
 				
-		4: 
+		3: 
 			Done	:= TRUE;
 			nState	:= 0;
 				
@@ -133,11 +115,7 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_Data">
-      <LineId Id="115" Count="15" />
-      <LineId Id="261" Count="0" />
-      <LineId Id="263" Count="15" />
-      <LineId Id="262" Count="0" />
-      <LineId Id="131" Count="3" />
+      <LineId Id="115" Count="19" />
       <LineId Id="139" Count="9" />
       <LineId Id="170" Count="0" />
       <LineId Id="172" Count="2" />
