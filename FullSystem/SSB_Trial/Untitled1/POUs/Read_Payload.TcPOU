@@ -31,9 +31,13 @@ END_VAR
       <ST><![CDATA[R3_Bit := INT_TO_REAL(EL3061_Lead_Bit);
 R4_Bit := INT_TO_REAL(EL3061_Rear_Bit);
 
+(*
 Payload_Rear	:= (R4_Bit - R4_BitTare) / R42_BitPerTon;
 Payload_Lead	:= (R3_Bit - (R32_BitPerTon * Payload_Rear)) / R31_BitPerTon;
 Payload_Total	:= Payload_Lead + Payload_Rear;
+*)
+
+Payload_Rear	:= (R4_Bit - R4_BitTare) / R42_BitPerTon;
 
 IF Payload_Lead < 0 THEN
 	Payload_Lead := 0;
@@ -69,7 +73,13 @@ END_IF
 *)]]></ST>
     </Implementation>
     <LineIds Name="Read_Payload">
-      <LineId Id="90" Count="12" />
+      <LineId Id="90" Count="1" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="92" Count="3" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="96" Count="6" />
       <LineId Id="88" Count="0" />
       <LineId Id="110" Count="4" />
       <LineId Id="109" Count="0" />
