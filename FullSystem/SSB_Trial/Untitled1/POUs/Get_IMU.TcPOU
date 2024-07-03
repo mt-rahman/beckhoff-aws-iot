@@ -54,7 +54,7 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* get new data only if prev data sent to aws & saved to localdb *)
-IF Main_SendIMU.Saved THEN
+IF Main_Send.Saved THEN
 	Done	:= FALSE;
 	Deleted	:= FALSE;
 	IF fbSqlDatabase.bConnected THEN

@@ -8,7 +8,7 @@ VAR
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#1000S); 
 	sCmd			: STRING(1000000);
 	sCmd2			: STRING(10000);
-	nState			: INT;
+	nState			: INT := 9;
 	
 	Done			: BOOL;
 	i				: ULINT;
@@ -25,7 +25,11 @@ END_VAR
     <Implementation>
       <ST><![CDATA[(* connect to localdb *)
 IF NOT fbSqlDatabase.bConnected THEN
-	fbSqlDatabase.Connect(4);
+	
+	IF Vacuum_IMU.Vacuumed THEN
+		fbSqlDatabase.Connect(4);	
+	END_IF
+	
 ELSE
 
 	CASE nState OF
@@ -165,7 +169,17 @@ ELSE
 		
 		7: 
 			Done	:= TRUE;
-			nState	:= 0;
+			nState	:= nState + 1;
+			
+		8:
+			IF NOT Main_Send.New_IMU THEN
+				nState := nState + 1;
+			END_IF
+			
+		9:
+			IF Main_Send.Sent THEN
+				nState := 0;
+			END_IF
 				
 		255:
 			nState := 0;
@@ -175,7 +189,10 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_IMU">
-      <LineId Id="73" Count="12" />
+      <LineId Id="73" Count="1" />
+      <LineId Id="363" Count="0" />
+      <LineId Id="360" Count="2" />
+      <LineId Id="75" Count="10" />
       <LineId Id="273" Count="1" />
       <LineId Id="276" Count="1" />
       <LineId Id="275" Count="0" />
@@ -204,7 +221,10 @@ END_IF]]></ST>
       <LineId Id="136" Count="7" />
       <LineId Id="128" Count="0" />
       <LineId Id="160" Count="0" />
-      <LineId Id="107" Count="8" />
+      <LineId Id="107" Count="1" />
+      <LineId Id="372" Count="9" />
+      <LineId Id="371" Count="0" />
+      <LineId Id="110" Count="5" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

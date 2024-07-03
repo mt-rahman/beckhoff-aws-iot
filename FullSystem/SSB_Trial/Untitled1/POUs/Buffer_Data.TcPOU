@@ -442,92 +442,7 @@ ELSE
 			
 		END_IF
 	END_IF
-END_IF
-
-(*
-(* save data to buffer every second *)
-IF diff:= Background_Time.cSec <> pSec THEN
-
-	IF Done THEN
-		nState 	:= 0;
-		Done	:= FALSE;	
-	END_IF
-	
-	
-	(* connect to localdb *)
-	IF NOT fbSqlDatabase.bConnected THEN
-		fbSqlDatabase.Connect(1);
-	ELSE
-	
-		CASE nState OF
-				
-			0:
-				IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
-					IF fbSqlDatabase.bError THEN
-						nState := 255; 
-					ELSE
-						nState := nState+1; 
-					END_IF
-				END_IF
-				
-			1:	
-				(* build query *)	
-				sCmd:= 'INSERT INTO buffer_data (datetime,trailer_id_lead,trailer_id_rear,latitude,longitude,speed,overspeed,payload_lead,payload_rear,overload_lead,overload_rear,pressure_lead,pressure_rear,overpressure_lead,overpressure_rear,event_code) VALUES ($'';
-				sCmd2:= TimeStr;
-				sCmd2:= CONCAT(sCmd2, '$',');
-				sCmd2:= CONCAT(sCmd2, Trailer_ID_Lead);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Trailer_ID_Rear);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Lat);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Lon);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Speed);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Overspeed);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Payload_Lead);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Payload_Rear);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Overload_Lead);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Overload_Rear);
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Pressure_Lead); 
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Pressure_Rear); 
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Overpressure_Lead); 
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, Overpressure_Rear); 
-				sCmd2:= CONCAT(sCmd2, ',');
-				sCmd2:= CONCAT(sCmd2, EventCode);
-				sCmd2:= CONCAT(sCmd2, ')');
-				CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
-				
-				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
-					IF fbSQLCommand.bError THEN
-						nState := 255; 
-					ELSE
-						nState := nState+1; 
-						pSec := Background_Time.cSec;
-						
-					END_IF
-				END_IF
-				
-			2: 
-				Done		:= TRUE;	
-				
-			255:
-				nState := 0;
-	
-		END_CASE
-	END_IF
-END_IF
-*)
-]]></ST>
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="Buffer_Data">
       <LineId Id="722" Count="0" />
@@ -572,22 +487,6 @@ END_IF
       <LineId Id="1405" Count="0" />
       <LineId Id="1551" Count="2" />
       <LineId Id="1108" Count="0" />
-      <LineId Id="1311" Count="0" />
-      <LineId Id="739" Count="32" />
-      <LineId Id="859" Count="1" />
-      <LineId Id="772" Count="13" />
-      <LineId Id="861" Count="1" />
-      <LineId Id="786" Count="3" />
-      <LineId Id="895" Count="2" />
-      <LineId Id="894" Count="0" />
-      <LineId Id="794" Count="0" />
-      <LineId Id="799" Count="14" />
-      <LineId Id="1025" Count="0" />
-      <LineId Id="815" Count="3" />
-      <LineId Id="820" Count="0" />
-      <LineId Id="822" Count="0" />
-      <LineId Id="1315" Count="0" />
-      <LineId Id="140" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

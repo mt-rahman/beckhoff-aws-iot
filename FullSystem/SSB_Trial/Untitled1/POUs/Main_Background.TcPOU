@@ -10,7 +10,7 @@ END_VAR
 Background_Time();
 //Background_IMU();
 //Background_FatigueCam();
-//Background_GPS();]]></ST>
+Background_GPS();]]></ST>
     </Implementation>
     <LineIds Name="Main_Background">
       <LineId Id="9" Count="1" />

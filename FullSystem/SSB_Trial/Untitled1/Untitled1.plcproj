@@ -75,12 +75,6 @@
     <Compile Include="POUs\Main_Read.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Main_SendIMU.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Main_Send.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\Main_Vacuum.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -96,7 +90,7 @@
     <Compile Include="POUs\Main_Buffer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Main_SendData.TcPOU">
+    <Compile Include="POUs\Main_Send.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_FatigueCam.TcPOU">
@@ -114,7 +108,7 @@
     <Compile Include="POUs\Save_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Send_Data.TcPOU">
+    <Compile Include="POUs\Send.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Send_IMU.TcPOU">

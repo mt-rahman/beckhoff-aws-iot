@@ -1,0 +1,618 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Send" Id="{c70f107a-6ca5-4bfb-b775-e2929cbf9dae}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Send
+VAR
+	fbMqttClient : FB_IotMqttClient;
+	bSetParameter : BOOL := TRUE;
+	bConnect : BOOL := TRUE;
+	
+	(* aws certificates *)
+	
+	(*------------------ actual ----------------*)
+	(*
+	rootCA		: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
+	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-private.pem.key';
+	*)
+	
+	rootCA		: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
+	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\30ca1f75dd1439c7068842e0254dcd64758e3e884a9c2ab8cf28b27caf6d120f-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\30ca1f75dd1439c7068842e0254dcd64758e3e884a9c2ab8cf28b27caf6d120f-private.pem.key';
+	
+	(* ------------------ test ------------------ *)
+	(*
+	rootCA		: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\AmazonRootCA1.pem';
+	thingCert	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-test-certs\8872c9f9d2c9335079f20c0506a3dd3599fd4d8552622bd2d7f8ae6d1681c64f-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-test-certs\8872c9f9d2c9335079f20c0506a3dd3599fd4d8552622bd2d7f8ae6d1681c64f-private.pem.key';
+	*)
+	
+	(* broker settings *)
+	endpoint	: STRING := 'a2o01t3xth0mr1-ats.iot.ap-southeast-1.amazonaws.com';
+	port		: UINT := 8883;
+	clientID	: STRING := 'double-sdt-2';
+	//clientID	: STRING := 'double-sdt-test';
+	
+	(* published message *)
+	sTopicPub 		: STRING(255) := 'iot/smartproduct/mifa/double-sdt/data'; //message topic
+	sTopicPub_2 	: STRING(255) := 'iot/smartproduct/mifa/double-sdt/imu'; //message topic
+	sPayloadPub 	: STRING(50000000);
+	str				: STRING(10000000);
+	valSeparator	: STRING := '","';
+	comma			: STRING := ',';
+	arrayEnd		: STRING := '"]';
+	arrayEnd2		: STRING := ']';
+	msgEnd			: STRING := '}';
+	i				: ULINT;
+	
+	(* topic subscription *)
+	bSubscribed : BOOL;
+	sTopicSub 	: STRING(255) := 'iot/smartproduct/mifa/double-sdt/data';
+	sTopicSub_2	: STRING(255) := 'iot/smartproduct/mifa/double-sdt/imu';
+	
+	(* received message *)	
+	{attribute 'TcEncoding':='UTF-8'}
+	sTopicRcv : STRING(255);
+	{attribute 'TcEncoding':='UTF-8'}
+	sPayloadRcv : STRING(255);
+	
+	fbMessageQueue : FB_IotMqttMessageQueue;
+	fbMessage : FB_IotMqttMessage;
+	
+	hrErrorOccurred : HRESULT; // contains the latest occurred error
+	
+	Published_Data		: BOOL;
+	Publish_Data		: BOOL;
+	Published_IMU		: BOOL;
+	Publish_IMU			: BOOL;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bSetParameter THEN
+	bSetParameter := FALSE;
+	
+	(* TLS settings for AWS IoT connection *)
+	fbMqttClient.stTLS.sCA 		:= rootCA; //root CA
+    fbMqttClient.stTLS.sCert 	:= thingCert; //certificate of thing
+    fbMqttClient.stTLS.sKeyFile := privateKey; //private key of thing
+	
+	(* Broker settings für AWS IoT *)
+	fbMqttClient.sHostName:= endpoint; //broker endpoint
+	fbMqttClient.nHostPort:= port; //default mqtt tls port
+	fbMqttClient.sClientId:= clientID; //client id
+	fbMqttClient.sTopicPrefix:= ''; 
+	
+	fbMqttClient.ipMessageQueue := fbMessageQueue;
+END_IF
+
+(* connect to mqtt broker *)
+fbMqttClient.Execute(bConnect); 
+IF fbMqttClient.bError THEN
+	// add your error logging here
+	hrErrorOccurred := fbMqttClient.hrErrorCode;
+END_IF
+
+(* send data *)
+IF Main_Send.New_Data THEN
+	Publish_Data		:= FALSE;
+	Published_Data	 	:= FALSE;	
+	
+	IF fbMqttClient.bConnected THEN	
+		IF NOT bSubscribed THEN
+			bSubscribed := fbMqttClient.Subscribe(sTopic:=sTopicSub, eQoS:=TcIotMqttQos.AtMostOnceDelivery); //subscribe to topic
+			IF fbMqttClient.bError THEN
+				// add your error logging here
+				hrErrorOccurred := fbMqttClient.hrErrorCode;
+			END_IF
+		END_IF
+		
+		(* build message payload *)
+		sPayloadPub := CONCAT('{"primemover_id":', Read_ID.PrimeMover_ID);
+		
+		(* lead trailer id string *)
+		str	:= ',"trailer_id_lead":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Trailer_ID_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* rear trailer id string *)
+		str	:= ',"trailer_id_rear":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Trailer_ID_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* date time string *)
+		str	:= ',"datetime":["';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.TimeStr[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* latitude string *)
+		str	:= ',"latitude":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Lat[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* longitude string *)
+		str	:= ',"longitude":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Lon[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* speed string *)
+		str	:= ',"speed":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Speed[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* overspeed string *)
+		str	:= ',"overspeed":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Overspeed[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* payload lead string *)
+		str	:= ',"payload_lead":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Payload_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* payload rear string *)
+		str	:= ',"payload_rear":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Payload_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* overload lead string *)
+		str	:= ',"overload_lead":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Overload_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* overload rear string *)
+		str	:= ',"overload_rear":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Overload_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* pressure lead string *)
+		str	:= ',"pressure_lead":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Pressure_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+		(* pressure rear string *)
+		str	:= ',"pressure_rear":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Pressure_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* overpressure lead string *)
+		str	:= ',"overpressure_lead":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Overpressure_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* overpressure rear string *)
+		str	:= ',"overpressure_rear":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.Overpressure_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* event code string *)
+		str	:= ',"event_code":[';
+		FOR i:=1 TO Get_Data.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_Data.EventCode[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_Data.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		CONCAT2(ADR(sPayloadPub), ADR(msgEnd), ADR(sPayloadPub), SIZEOF(sPayloadPub)); //message ending
+		
+		(* publish message to subscribed topic *)
+		IF Publish_Data := fbMqttClient.Publish(sTopic:= sTopicPub, pPayload:= ADR(sPayloadPub), nPayloadSize:= LEN2(ADR(sPayloadPub)), eQoS:= TcIotMqttQos.AtMostOnceDelivery, bRetain:= FALSE, bQueue:= FALSE) THEN
+			IF fbMqttClient.bError THEN
+				// add your error logging here			
+				hrErrorOccurred := fbMqttClient.hrErrorCode;
+			ELSE
+				Published_Data 	:= TRUE;
+			END_IF
+			
+		END_IF
+		
+	END_IF
+	
+END_IF
+
+(* send imu *)
+IF Main_Send.New_IMU THEN
+	Publish_IMU		:= FALSE;
+	Published_IMU 	:= FALSE;
+
+	IF fbMqttClient.bConnected THEN	
+		IF NOT bSubscribed THEN
+			bSubscribed := fbMqttClient.Subscribe(sTopic:=sTopicSub_2, eQoS:=TcIotMqttQos.AtMostOnceDelivery); //subscribe to topic
+			IF fbMqttClient.bError THEN
+				// add your error logging here
+				hrErrorOccurred := fbMqttClient.hrErrorCode;
+			END_IF
+		END_IF
+		
+		(* build message payload *)
+		sPayloadPub := CONCAT('{"primemover_id":', Read_ID.PrimeMover_ID);
+		
+		(* lead trailer id string *)
+		str	:= ',"trailer_id_lead":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.Trailer_ID_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* rear trailer id string *)
+		str	:= ',"trailer_id_rear":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.Trailer_ID_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* date time string *)
+		str	:= ',"datetime":["';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.TimeStr[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* lead pitch string *)
+		str	:= ',"pitch_lead":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.Pitch_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* lead roll string *)
+		str	:= ',"roll_lead":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.Roll_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* lead acceleration x string *)
+		str	:= ',"ax_lead":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.AccX_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* lead acceleration y string *)
+		str	:= ',"ay_lead":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.AccY_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* lead acceleration z string *)
+		str	:= ',"az_lead":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.AccZ_Lead[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* lead pitch string *)
+		str	:= ',"pitch_rear":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.Pitch_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* rear roll string *)
+		str	:= ',"roll_rear":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.Roll_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* rear acceleration x string *)
+		str	:= ',"ax_rear":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.AccX_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* rear acceleration y string *)
+		str	:= ',"ay_rear":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.AccY_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		(* rear acceleration z string *)
+		str	:= ',"az_rear":[';
+		FOR i:=1 TO Get_IMU.Data_Length BY 1 DO
+			CONCAT2(ADR(str), ADR(Get_IMU.AccZ_Rear[i]), ADR(str), SIZEOF(str)); 
+			
+			IF i <> Get_IMU.Data_Length THEN
+				CONCAT2(ADR(str), ADR(comma), ADR(str), SIZEOF(str));
+			ELSE
+				CONCAT2(ADR(str), ADR(arrayEnd2), ADR(str), SIZEOF(str));
+			END_IF
+			
+		END_FOR
+		
+		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+		
+		CONCAT2(ADR(sPayloadPub), ADR(msgEnd), ADR(sPayloadPub), SIZEOF(sPayloadPub)); //message ending
+		
+		(* publish message to subscribed topic *)
+		IF Publish_IMU := fbMqttClient.Publish(sTopic:= sTopicPub_2, pPayload:= ADR(sPayloadPub), nPayloadSize:= LEN2(ADR(sPayloadPub)), eQoS:= TcIotMqttQos.AtMostOnceDelivery, bRetain:= FALSE, bQueue:= FALSE) THEN
+			IF fbMqttClient.bError THEN
+				// add your error logging here			
+				hrErrorOccurred := fbMqttClient.hrErrorCode;
+			ELSE
+				Published_IMU 	:= TRUE;
+			END_IF
+			
+		END_IF
+		
+	END_IF	
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="Send">
+      <LineId Id="1925" Count="22" />
+      <LineId Id="2284" Count="0" />
+      <LineId Id="2277" Count="3" />
+      <LineId Id="2282" Count="0" />
+      <LineId Id="2286" Count="264" />
+      <LineId Id="2285" Count="0" />
+      <LineId Id="2283" Count="0" />
+      <LineId Id="1948" Count="0" />
+      <LineId Id="2847" Count="0" />
+      <LineId Id="2621" Count="3" />
+      <LineId Id="2626" Count="220" />
+      <LineId Id="2625" Count="0" />
+      <LineId Id="2620" Count="0" />
+      <LineId Id="2553" Count="0" />
+      <LineId Id="2552" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

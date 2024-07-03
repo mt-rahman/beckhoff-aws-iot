@@ -1,19 +1,73 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
-  <POU Name="Main_Send" Id="{d7cc139f-c0a0-4426-8778-8d0a6349ccdb}" SpecialFunc="None">
+  <POU Name="Main_Send" Id="{f159ed40-cca9-4e3d-ac6a-ec5e9cf1af8e}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Main_Send
-VAR
+VAR	
+	Done		: BOOL;
+	New_Data	: BOOL;
+	New_IMU		: BOOL;
+	Sent		: BOOL;
+	Saved		: BOOL;
+	Sent_Data	: BOOL;
+	Sent_IMU	: BOOL;
+	Saved_Data	: BOOL;
+	Saved_IMU	: BOOL;
+	
+	nState		: INT;
+
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Main_SendData();
-Main_SendIMU();
-;]]></ST>
+      <ST><![CDATA[(* get data from database *)
+Get_Data();
+Get_IMU();
+
+New_Data := Get_Data.Done;
+New_IMU := Get_IMU.Done;
+ 
+IF New_Data AND New_IMU THEN
+	IF NOT Sent THEN
+		(* send data to aws iot core *)
+		Send();
+		
+		IF Send.Published_Data AND Send.Published_IMU THEN
+			Sent	:= TRUE;
+		END_IF	
+		
+	ELSE
+		IF Save_Data.Done AND Save_IMU.Done THEN
+			Saved := TRUE;
+		END_IF	
+		
+	END_IF
+	
+ELSE
+	Sent	:= FALSE;
+	Saved 	:= FALSE;
+	
+END_IF
+
+Save_Data();	
+Save_IMU();]]></ST>
     </Implementation>
     <LineIds Name="Main_Send">
-      <LineId Id="5" Count="0" />
-      <LineId Id="9" Count="0" />
-      <LineId Id="13" Count="0" />
+      <LineId Id="688" Count="1" />
+      <LineId Id="716" Count="0" />
+      <LineId Id="719" Count="0" />
+      <LineId Id="718" Count="0" />
+      <LineId Id="720" Count="0" />
+      <LineId Id="690" Count="1" />
+      <LineId Id="693" Count="0" />
+      <LineId Id="769" Count="0" />
+      <LineId Id="694" Count="4" />
+      <LineId Id="760" Count="1" />
+      <LineId Id="766" Count="1" />
+      <LineId Id="762" Count="0" />
+      <LineId Id="699" Count="1" />
+      <LineId Id="711" Count="4" />
+      <LineId Id="577" Count="0" />
+      <LineId Id="771" Count="1" />
+      <LineId Id="770" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

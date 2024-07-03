@@ -8,7 +8,7 @@ VAR
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#1000S); 
 	sCmd			: STRING(100000);
 	sCmd2			: STRING(10000);
-	nState			: INT;
+	nState			: INT := 9;
 	
 	Done			: BOOL;
 	i				: ULINT;
@@ -25,7 +25,11 @@ END_VAR
     <Implementation>
       <ST><![CDATA[(* connect to localdb *)
 IF NOT fbSqlDatabase.bConnected THEN
-	fbSqlDatabase.Connect(3);
+	
+	IF Vacuum_Data.Vacuumed THEN
+		fbSqlDatabase.Connect(3);	
+	END_IF
+	
 ELSE
 
 	CASE nState OF
@@ -165,135 +169,46 @@ ELSE
 					nState := 255; 
 				ELSE
 					nState := nState+1; 
-					
-					
 				END_IF
 			END_IF
 		
 		7: 
 			Done	:= TRUE;
-			nState	:= 0;
+			nState	:= nState + 1;
+			
+		8:
+			IF NOT Main_Send.New_Data THEN
+				nState := nState + 1;
+			END_IF
+			
+		9:
+			IF Main_Send.Sent THEN
+				nState := 0;
+			END_IF
+			
 				
 		255:
 			nState := 0;
 	
 	END_CASE
-	
-	(*
-	CASE nState OF
-				
-		0:
-			Done := FALSE;
-			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
-				IF fbSqlDatabase.bError THEN
-					nState := 255; 
-				ELSE
-					nState := nState+1; 
-				END_IF
-			END_IF
-			
-		1:	
-			(* build query *)	
-			sCmd	:= 'DELETE FROM data WHERE datetime < datetime($'now$', $'-3 month$');';
-			
-			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
-				IF fbSQLCommand.bError THEN
-					nState := 255; 
-				ELSE
-					nState := nState+1; 
-					
-					
-				END_IF
-			END_IF
-			
-		2:	
-			(* build query *)	
-			sCmd	:= 'INSERT INTO data (datetime,trailer_id_lead,trailer_id_rear,latitude,longitude,speed,overspeed,payload_lead,payload_rear,overload_lead,overload_rear,pressure_lead,pressure_rear,overpressure_lead,overpressure_rear,event_code) VALUES ';
-			
-			FOR i := 1 TO Get_Data.Data_Length BY 1 DO
-					sCmd2:= CONCAT('($'', Get_Data.TimeStr[i]);
-					sCmd2:= CONCAT(sCmd2, '$',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Trailer_ID_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Trailer_ID_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Lat[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Lon[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Speed[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Overspeed[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Payload_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Payload_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Overload_Lead[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Overload_Rear[i]);
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Pressure_Lead[i]); 
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Pressure_Rear[i]); 
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Overpressure_Lead[i]); 
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.Overpressure_Rear[i]); 
-					sCmd2:= CONCAT(sCmd2, ',');
-					sCmd2:= CONCAT(sCmd2, Get_Data.EventCode[i]);
-					
-					IF i = Get_Data.Data_Length THEN
-						sCmd2:= CONCAT(sCmd2, ')');
-					ELSE	
-						sCmd2:= CONCAT(sCmd2, '),');
-					END_IF
-					
-					CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
-				END_FOR
-			
-			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
-				IF fbSQLCommand.bError THEN
-					nState := 255; 
-				ELSE
-					nState := nState+1; 
-					
-					
-				END_IF
-			END_IF
-				
-		3: 
-			Done	:= TRUE;
-			nState	:= 0;
-				
-		255:
-			nState := 0;
-	
-	END_CASE
-	*)
 	
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_Data">
-      <LineId Id="115" Count="3" />
+      <LineId Id="115" Count="1" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="487" Count="2" />
+      <LineId Id="117" Count="1" />
       <LineId Id="264" Count="88" />
-      <LineId Id="415" Count="51" />
-      <LineId Id="398" Count="8" />
+      <LineId Id="415" Count="48" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="398" Count="3" />
+      <LineId Id="506" Count="6" />
+      <LineId Id="514" Count="2" />
+      <LineId Id="513" Count="0" />
+      <LineId Id="501" Count="0" />
+      <LineId Id="403" Count="3" />
       <LineId Id="262" Count="0" />
-      <LineId Id="407" Count="0" />
-      <LineId Id="119" Count="15" />
-      <LineId Id="139" Count="9" />
-      <LineId Id="170" Count="0" />
-      <LineId Id="172" Count="2" />
-      <LineId Id="179" Count="0" />
-      <LineId Id="190" Count="6" />
-      <LineId Id="225" Count="23" />
-      <LineId Id="215" Count="8" />
-      <LineId Id="188" Count="1" />
-      <LineId Id="180" Count="7" />
-      <LineId Id="171" Count="0" />
-      <LineId Id="149" Count="8" />
-      <LineId Id="263" Count="0" />
       <LineId Id="158" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>

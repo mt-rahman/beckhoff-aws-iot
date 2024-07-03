@@ -1,35 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{d83613dd-5b3b-4d65-ad92-9a61fb71296a}</ProjectGuid>
+    <ProjectGuid>{860185ab-e116-4d09-ace3-f54623730886}</ProjectGuid>
     <AssemblyName>Database</AssemblyName>
     <Name>Database</Name>
     <RootNamespace>Database</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="TcDatabaseServer1.tcdbsrv">
+    <Content Include="TcDbServer.tcdbsrv">
       <SubType>Content</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_IMU\Buffer_IMU.tcdbsrvdb">
-      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
-    </tcdbsrvdbCompile>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_Data\Buffer_Data.tcdbsrvdb">
-      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
-    </tcdbsrvdbCompile>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_IMU_2\Buffer_IMU_2.tcdbsrvdb">
-      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
-    </tcdbsrvdbCompile>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_Data_2\Buffer_Data_2.tcdbsrvdb">
-      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
-    </tcdbsrvdbCompile>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\IMU\IMU.tcdbsrvdb">
-      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
-    </tcdbsrvdbCompile>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\Data\Data.tcdbsrvdb">
-      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
-    </tcdbsrvdbCompile>
   </ItemGroup>
   <!-- This next bit is required unless the macro used to Import your targets is defined in an MSBuild toolset. -->
   <ProjectExtensions>
