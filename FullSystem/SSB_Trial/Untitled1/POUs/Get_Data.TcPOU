@@ -7,7 +7,7 @@ VAR
 	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlCommand2	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
-    aReadStruct		: ARRAY[1..20] OF ST_SelectStructData;
+    aReadStruct		: ARRAY[1..50] OF ST_SelectStructData;
 	nState			: INT;
 	sCmd			: STRING(20000);
 	sCmd2			: STRING(20000);
@@ -18,22 +18,22 @@ VAR
 	Done			: BOOL;
 	i 				: UDINT;
 	
-	TimeStr				: ARRAY[1..20] OF STRING;	
-	Trailer_ID_Lead		: ARRAY[1..20] OF STRING;
-	Trailer_ID_Rear		: ARRAY[1..20] OF STRING;
-	Lat					: ARRAY[1..20] OF STRING;
-	Lon					: ARRAY[1..20] OF STRING;
-	Speed				: ARRAY[1..20] OF STRING;
-	Overspeed			: ARRAY[1..20] OF STRING;
-	Payload_Lead		: ARRAY[1..20] OF STRING;
-	Payload_Rear		: ARRAY[1..20] OF STRING;
-	Overload_Lead		: ARRAY[1..20] OF STRING;
-	Overload_Rear		: ARRAY[1..20] OF STRING;
-	Pressure_Lead		: ARRAY[1..20] OF STRING;
-	Pressure_Rear		: ARRAY[1..20] OF STRING;
-	Overpressure_Lead	: ARRAY[1..20] OF STRING;
-	Overpressure_Rear	: ARRAY[1..20] OF STRING;
-	EventCode			: ARRAY[1..20] OF STRING;
+	TimeStr				: ARRAY[1..50] OF STRING;	
+	Trailer_ID_Lead		: ARRAY[1..50] OF STRING;
+	Trailer_ID_Rear		: ARRAY[1..50] OF STRING;
+	Lat					: ARRAY[1..50] OF STRING;
+	Lon					: ARRAY[1..50] OF STRING;
+	Speed				: ARRAY[1..50] OF STRING;
+	Overspeed			: ARRAY[1..50] OF STRING;
+	Payload_Lead		: ARRAY[1..50] OF STRING;
+	Payload_Rear		: ARRAY[1..50] OF STRING;
+	Overload_Lead		: ARRAY[1..50] OF STRING;
+	Overload_Rear		: ARRAY[1..50] OF STRING;
+	Pressure_Lead		: ARRAY[1..50] OF STRING;
+	Pressure_Rear		: ARRAY[1..50] OF STRING;
+	Overpressure_Lead	: ARRAY[1..50] OF STRING;
+	Overpressure_Rear	: ARRAY[1..50] OF STRING;
+	EventCode			: ARRAY[1..50] OF STRING;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -95,8 +95,11 @@ ELSE
 					ELSIF count < 20 THEN
 						Data_Length := 10;
 						nState := nState+1;
-					ELSE
+					ELSIF count < 50 THEN
 						Data_Length := 20;
+						nState := nState+1;					
+					ELSE
+						Data_Length := 50;
 						nState := nState+1;
 					END_IF
 					
@@ -173,7 +176,8 @@ END_IF
     <LineIds Name="Get_Data">
       <LineId Id="341" Count="46" />
       <LineId Id="389" Count="0" />
-      <LineId Id="609" Count="12" />
+      <LineId Id="609" Count="0" />
+      <LineId Id="687" Count="14" />
       <LineId Id="400" Count="2" />
       <LineId Id="561" Count="0" />
       <LineId Id="403" Count="31" />

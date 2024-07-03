@@ -27,8 +27,8 @@ VAR
 	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
-	sCmd			: STRING(50000);
-	sCmd2			: STRING(50000);
+	sCmd			: STRING(500000);
+	sCmd2			: STRING(500000);
 	nState			: INT;
 	
 	Done			: BOOL;

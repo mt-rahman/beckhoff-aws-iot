@@ -7,7 +7,7 @@ VAR
 	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlCommand2	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
-    aReadStruct		: ARRAY[1..1000] OF ST_SelectStructIMU;
+    aReadStruct		: ARRAY[1..2500] OF ST_SelectStructIMU;
 	nState			: INT;
 	sCmd			: STRING(20000);
 	sCmd2			: STRING(20000);
@@ -29,19 +29,19 @@ VAR
 	Done			: BOOL;
 	i 				: UDINT;
 	
-	TimeStr			: ARRAY[1..1000] OF STRING;	
-	Trailer_ID_Lead	: ARRAY[1..1000] OF STRING;
-	Trailer_ID_Rear	: ARRAY[1..1000] OF STRING;
-	Pitch_Lead		: ARRAY[1..1000] OF STRING;
-	Roll_Lead		: ARRAY[1..1000] OF STRING;
-	AccX_Lead		: ARRAY[1..1000] OF STRING;
-	AccY_Lead		: ARRAY[1..1000] OF STRING;
-	AccZ_Lead		: ARRAY[1..1000] OF STRING;
-	Pitch_Rear		: ARRAY[1..1000] OF STRING;
-	Roll_Rear		: ARRAY[1..1000] OF STRING;
-	AccX_Rear		: ARRAY[1..1000] OF STRING;
-	AccY_Rear		: ARRAY[1..1000] OF STRING;
-	AccZ_Rear		: ARRAY[1..1000] OF STRING;
+	TimeStr			: ARRAY[1..2500] OF STRING;	
+	Trailer_ID_Lead	: ARRAY[1..2500] OF STRING;
+	Trailer_ID_Rear	: ARRAY[1..2500] OF STRING;
+	Pitch_Lead		: ARRAY[1..2500] OF STRING;
+	Roll_Lead		: ARRAY[1..2500] OF STRING;
+	AccX_Lead		: ARRAY[1..2500] OF STRING;
+	AccY_Lead		: ARRAY[1..2500] OF STRING;
+	AccZ_Lead		: ARRAY[1..2500] OF STRING;
+	Pitch_Rear		: ARRAY[1..2500] OF STRING;
+	Roll_Rear		: ARRAY[1..2500] OF STRING;
+	AccX_Rear		: ARRAY[1..2500] OF STRING;
+	AccY_Rear		: ARRAY[1..2500] OF STRING;
+	AccZ_Rear		: ARRAY[1..2500] OF STRING;
 	
 END_VAR
 
@@ -108,8 +108,12 @@ ELSE
 						Data_Length := 500;
 						nState := nState+1;
 						
-					ELSE
+					ELSIF count < 2500 THEN
 						Data_Length := 1000;
+						nState := nState+1;
+						
+					ELSE
+						Data_Length := 2500;
 						nState := nState+1;
 	
 					END_IF
@@ -184,7 +188,9 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Get_IMU">
-      <LineId Id="509" Count="103" />
+      <LineId Id="509" Count="48" />
+      <LineId Id="716" Count="19" />
+      <LineId Id="574" Count="38" />
       <LineId Id="614" Count="0" />
       <LineId Id="631" Count="1" />
       <LineId Id="664" Count="0" />

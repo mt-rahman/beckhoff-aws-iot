@@ -49,6 +49,7 @@ END_VAR
       <ST><![CDATA[IF Background_Time.cSec <> pSec THEN
 	
 	(* sync time every 1 minute *)
+	(*
 	IF pSec = 0 THEN 
 		Synced := FALSE;
 	END_IF
@@ -174,7 +175,24 @@ END_VAR
 		pSec := Background_Time.cSec;
 	
 	END_IF
+	*)
 	
+	(* receive response *)
+	Prefix		:= 16#AA;
+	LenPrefix	:= 1;	
+	
+	fb_Receive(
+		RxBuffer	:= Background_FatigueCam.RxBuffer,
+		Command		:= Command,
+		Prefix		:= Prefix,
+		LenPrefix	:= LenPrefix,
+		EventID		=> EventID,
+		EventCode	=> EventCode,
+		Response	=> Response,
+	);
+	
+	pSec := Background_Time.cSec;
+		
 	IF EventCode = '' OR EventID = prevEventID THEN
 		EventCode 	:= '0';
 	ELSE
@@ -184,7 +202,19 @@ END_VAR
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Read_FatigueCam">
-      <LineId Id="576" Count="134" />
+      <LineId Id="576" Count="2" />
+      <LineId Id="770" Count="0" />
+      <LineId Id="579" Count="124" />
+      <LineId Id="769" Count="0" />
+      <LineId Id="704" Count="0" />
+      <LineId Id="757" Count="0" />
+      <LineId Id="771" Count="0" />
+      <LineId Id="773" Count="0" />
+      <LineId Id="772" Count="0" />
+      <LineId Id="758" Count="9" />
+      <LineId Id="756" Count="0" />
+      <LineId Id="768" Count="0" />
+      <LineId Id="705" Count="5" />
       <LineId Id="455" Count="0" />
     </LineIds>
   </POU>

@@ -13,7 +13,7 @@ TimeStr	:= Background_Time.TimeStr;
 (* read sensors *)
 Read_IMU();
 //Read_FatigueCam();
-Read_GPS();
+//Read_GPS();
 //Read_Payload();
 //Read_Pressure();]]></ST>
     </Implementation>

@@ -11,7 +11,6 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* get data from database *)
-(*
 Get_Data();
  
 IF New_Data := Get_Data.Done THEN
@@ -39,16 +38,12 @@ ELSE
 	Sent	:= FALSE;
 	Saved 	:= FALSE;
 	
-END_IF
-*)]]></ST>
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="Main_SendData">
-      <LineId Id="293" Count="0" />
-      <LineId Id="358" Count="0" />
-      <LineId Id="294" Count="2" />
+      <LineId Id="293" Count="3" />
       <LineId Id="325" Count="20" />
       <LineId Id="347" Count="3" />
-      <LineId Id="158" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

@@ -1341,56 +1341,6 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 		<DataType>
-			<Name GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom" AutoDeleteType="true">EL6inData22B</Name>
-			<Comment><![CDATA[ This data type is corresponding to the
-   EL-6xxx data structure used in the
-   TwinCAT SystemManager
-   (EL-6xxx version using 22 data bytes) 
-]]></Comment>
-			<BitSize>192</BitSize>
-			<SubItem>
-				<Name>Status</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000004}">WORD</Type>
-				<BitSize>16</BitSize>
-				<BitOffs>0</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>D</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
-				<ArrayInfo>
-					<LBound>0</LBound>
-					<Elements>22</Elements>
-				</ArrayInfo>
-				<BitSize>176</BitSize>
-				<BitOffs>16</BitOffs>
-			</SubItem>
-		</DataType>
-		<DataType>
-			<Name GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom" AutoDeleteType="true">EL6outData22B</Name>
-			<Comment><![CDATA[ This data type is corresponding to the
-   EL-6xxx data structure used in the
-   TwinCAT SystemManager
-   (EL-6xxx version using 22 data bytes) 
-]]></Comment>
-			<BitSize>192</BitSize>
-			<SubItem>
-				<Name>Ctrl</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000004}">WORD</Type>
-				<BitSize>16</BitSize>
-				<BitOffs>0</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>D</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
-				<ArrayInfo>
-					<LBound>0</LBound>
-					<Elements>22</Elements>
-				</ArrayInfo>
-				<BitSize>176</BitSize>
-				<BitOffs>16</BitOffs>
-			</SubItem>
-		</DataType>
-		<DataType>
 			<Name GUID="{030FFB8A-A6E9-8903-2886-016014F84E04}" Namespace="Tc2_SerialCom" AutoDeleteType="true">PcComInData</Name>
 			<Comment><![CDATA[ This data type is corresponding to the
    PC COM-Port data structure used in
@@ -1416,6 +1366,31 @@ External Setpoint Generation:
 			</SubItem>
 		</DataType>
 		<DataType>
+			<Name GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom" AutoDeleteType="true">EL6inData22B</Name>
+			<Comment><![CDATA[ This data type is corresponding to the
+   EL-6xxx data structure used in the
+   TwinCAT SystemManager
+   (EL-6xxx version using 22 data bytes) 
+]]></Comment>
+			<BitSize>192</BitSize>
+			<SubItem>
+				<Name>Status</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000004}">WORD</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>D</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<ArrayInfo>
+					<LBound>0</LBound>
+					<Elements>22</Elements>
+				</ArrayInfo>
+				<BitSize>176</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
 			<Name GUID="{675EF7AA-B859-9A65-9CAB-B83BD9AA10F1}" Namespace="Tc2_SerialCom" AutoDeleteType="true">PcComOutData</Name>
 			<Comment><![CDATA[ This data type is corresponding to the
    PC COM-Port data structure used in
@@ -1437,6 +1412,31 @@ External Setpoint Generation:
 					<Elements>64</Elements>
 				</ArrayInfo>
 				<BitSize>512</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom" AutoDeleteType="true">EL6outData22B</Name>
+			<Comment><![CDATA[ This data type is corresponding to the
+   EL-6xxx data structure used in the
+   TwinCAT SystemManager
+   (EL-6xxx version using 22 data bytes) 
+]]></Comment>
+			<BitSize>192</BitSize>
+			<SubItem>
+				<Name>Ctrl</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000004}">WORD</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>D</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<ArrayInfo>
+					<LBound>0</LBound>
+					<Elements>22</Elements>
+				</ArrayInfo>
+				<BitSize>176</BitSize>
 				<BitOffs>16</BitOffs>
 			</SubItem>
 		</DataType>
@@ -1486,7 +1486,7 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000006}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..5] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000006}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..5] OF BIT</Name>
 			<BitSize>6</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -1495,7 +1495,7 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000004}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..3] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000004}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..3] OF BIT</Name>
 			<BitSize>4</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -1513,7 +1513,7 @@ External Setpoint Generation:
 		<ImageData Id="1005">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ff000000000000ff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ff000000ff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ffff00ffff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ff000000ff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ff000000000000ff00ffff00ffff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
 		<ImageData Id="1006">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
 	</ImageDatas>
-	<Project ProjectGUID="{227948A6-6203-41CF-BEA7-80098D7EC886}" TargetNetId="5.95.30.48.1.1" Target64Bit="true" ShowHideConfigurations="#x106">
+	<Project ProjectGUID="{227948A6-6203-41CF-BEA7-80098D7EC886}" Target64Bit="true" ShowHideConfigurations="#x106">
 		<System>
 			<Settings MaxCpus="2">
 				<Cpu/>
@@ -1542,7 +1542,7 @@ External Setpoint Generation:
 		</System>
 		<Motion>
 			<NC>
-				<SafTask Priority="4" CycleTime="23331" AmsPort="501" Affinity="#x00000002" IoAtBegin="true" AmsNetId="192.168.5.134.1.1">
+				<SafTask Priority="4" CycleTime="23331" AmsPort="501" Affinity="#x00000002" IoAtBegin="true" AmsNetId="5.95.30.48.1.1">
 					<Name>NC-Task 1 SAF</Name>
 					<Vars VarGrpType="1" InsertType="1">
 						<Name>Inputs</Name>
@@ -1870,32 +1870,6 @@ External Setpoint Generation:
 				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
-					<Vars VarGrpType="1">
-						<Name>PlcTask_Background Inputs</Name>
-						<Var>
-							<Name>Background_IMU.stIn_EL6001_Lead</Name>
-							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
-							<Type GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom">EL6inData22B</Type>
-						</Var>
-						<Var>
-							<Name>Background_IMU.stIn_EL6001_Rear</Name>
-							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
-							<Type GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom">EL6inData22B</Type>
-						</Var>
-					</Vars>
-					<Vars VarGrpType="2" AreaNo="1">
-						<Name>PlcTask_Background Outputs</Name>
-						<Var>
-							<Name>Background_IMU.stOut_EL6001_Lead</Name>
-							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
-							<Type GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom">EL6outData22B</Type>
-						</Var>
-						<Var>
-							<Name>Background_IMU.stOut_EL6001_Rear</Name>
-							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
-							<Type GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom">EL6outData22B</Type>
-						</Var>
-					</Vars>
 					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
 						<Name>PlcTask_Read Inputs</Name>
 						<Var>
@@ -1930,6 +1904,16 @@ External Setpoint Generation:
 							<Comment><![CDATA[ linked to the port in the TwinCAT System Manager ]]></Comment>
 							<Type GUID="{030FFB8A-A6E9-8903-2886-016014F84E04}" Namespace="Tc2_SerialCom">PcComInData</Type>
 						</Var>
+						<Var>
+							<Name>Background_IMU.stIn_EL6001_Lead</Name>
+							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
+							<Type GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom">EL6inData22B</Type>
+						</Var>
+						<Var>
+							<Name>Background_IMU.stIn_EL6001_Rear</Name>
+							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
+							<Type GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom">EL6inData22B</Type>
+						</Var>
 					</Vars>
 					<Vars VarGrpType="2" ContextId="3" AreaNo="49">
 						<Name>PlcTask_Send Outputs</Name>
@@ -1937,6 +1921,16 @@ External Setpoint Generation:
 							<Name>Background_FatigueCam.stOut_PcCom</Name>
 							<Comment><![CDATA[ linked to the port in the TwinCAT System Manager ]]></Comment>
 							<Type GUID="{675EF7AA-B859-9A65-9CAB-B83BD9AA10F1}" Namespace="Tc2_SerialCom">PcComOutData</Type>
+						</Var>
+						<Var>
+							<Name>Background_IMU.stOut_EL6001_Lead</Name>
+							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
+							<Type GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom">EL6outData22B</Type>
+						</Var>
+						<Var>
+							<Name>Background_IMU.stOut_EL6001_Rear</Name>
+							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
+							<Type GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom">EL6outData22B</Type>
 						</Var>
 					</Vars>
 					<UnrestoredVarLinks ImportTime="2021-04-15T14:29:17">
@@ -2236,7 +2230,7 @@ External Setpoint Generation:
 			<PlcAuxTask Affinity="#x00000002"/>
 		</Plc>
 		<Io>
-			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="5.95.30.48.2.1" RemoteName="Device 1 (EtherCAT)">
+			<Device Id="1" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.5.134.2.1" RemoteName="Device 1 (EtherCAT)">
 				<Name>Device 1 (EtherCAT)</Name>
 				<AddressInfo>
 					<Ccat>
@@ -2357,7 +2351,7 @@ External Setpoint Generation:
 				</Box>
 				<EtherCAT/>
 			</Device>
-			<Device Id="4" DevType="111" DevFlags="#x0003" AmsPort="28676" AmsNetId="5.95.30.48.5.1" RemoteName="Device 4 (EtherCAT)">
+			<Device Id="4" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28676" AmsNetId="192.168.5.134.5.1" RemoteName="Device 4 (EtherCAT)">
 				<Name>Device 4 (EtherCAT)</Name>
 				<AddressInfo>
 					<Pnp>
@@ -4540,100 +4534,100 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 	<Mappings>
 		<OwnerA Name="TIPC^Untitled1^Untitled1 Instance">
 			<OwnerB Name="TIID^Device 4 (EtherCAT)^Term 10 (EK1101)^Term 14 (EL6001)">
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[0]" VarB="COM Inputs^Data In 0"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[10]" VarB="COM Inputs^Data In 10"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[11]" VarB="COM Inputs^Data In 11"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[12]" VarB="COM Inputs^Data In 12"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[13]" VarB="COM Inputs^Data In 13"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[14]" VarB="COM Inputs^Data In 14"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[15]" VarB="COM Inputs^Data In 15"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[16]" VarB="COM Inputs^Data In 16"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[17]" VarB="COM Inputs^Data In 17"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[18]" VarB="COM Inputs^Data In 18"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[19]" VarB="COM Inputs^Data In 19"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[1]" VarB="COM Inputs^Data In 1"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[20]" VarB="COM Inputs^Data In 20"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[21]" VarB="COM Inputs^Data In 21"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[2]" VarB="COM Inputs^Data In 2"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[3]" VarB="COM Inputs^Data In 3"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[4]" VarB="COM Inputs^Data In 4"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[5]" VarB="COM Inputs^Data In 5"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[6]" VarB="COM Inputs^Data In 6"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[7]" VarB="COM Inputs^Data In 7"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[8]" VarB="COM Inputs^Data In 8"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^D[9]" VarB="COM Inputs^Data In 9"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Rear^Status" VarB="COM Inputs^Status"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^Ctrl" VarB="COM Outputs^Ctrl"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[0]" VarB="COM Outputs^Data Out 0"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[10]" VarB="COM Outputs^Data Out 10"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[11]" VarB="COM Outputs^Data Out 11"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[12]" VarB="COM Outputs^Data Out 12"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[13]" VarB="COM Outputs^Data Out 13"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[14]" VarB="COM Outputs^Data Out 14"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[15]" VarB="COM Outputs^Data Out 15"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[16]" VarB="COM Outputs^Data Out 16"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[17]" VarB="COM Outputs^Data Out 17"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[18]" VarB="COM Outputs^Data Out 18"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[19]" VarB="COM Outputs^Data Out 19"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[1]" VarB="COM Outputs^Data Out 1"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[20]" VarB="COM Outputs^Data Out 20"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[21]" VarB="COM Outputs^Data Out 21"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[2]" VarB="COM Outputs^Data Out 2"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[3]" VarB="COM Outputs^Data Out 3"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[4]" VarB="COM Outputs^Data Out 4"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[5]" VarB="COM Outputs^Data Out 5"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[6]" VarB="COM Outputs^Data Out 6"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[7]" VarB="COM Outputs^Data Out 7"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[8]" VarB="COM Outputs^Data Out 8"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Rear^D[9]" VarB="COM Outputs^Data Out 9"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[0]" VarB="COM Inputs^Data In 0"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[10]" VarB="COM Inputs^Data In 10"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[11]" VarB="COM Inputs^Data In 11"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[12]" VarB="COM Inputs^Data In 12"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[13]" VarB="COM Inputs^Data In 13"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[14]" VarB="COM Inputs^Data In 14"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[15]" VarB="COM Inputs^Data In 15"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[16]" VarB="COM Inputs^Data In 16"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[17]" VarB="COM Inputs^Data In 17"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[18]" VarB="COM Inputs^Data In 18"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[19]" VarB="COM Inputs^Data In 19"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[1]" VarB="COM Inputs^Data In 1"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[20]" VarB="COM Inputs^Data In 20"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[21]" VarB="COM Inputs^Data In 21"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[2]" VarB="COM Inputs^Data In 2"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[3]" VarB="COM Inputs^Data In 3"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[4]" VarB="COM Inputs^Data In 4"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[5]" VarB="COM Inputs^Data In 5"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[6]" VarB="COM Inputs^Data In 6"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[7]" VarB="COM Inputs^Data In 7"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[8]" VarB="COM Inputs^Data In 8"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^D[9]" VarB="COM Inputs^Data In 9"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Rear^Status" VarB="COM Inputs^Status"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^Ctrl" VarB="COM Outputs^Ctrl"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[0]" VarB="COM Outputs^Data Out 0"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[10]" VarB="COM Outputs^Data Out 10"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[11]" VarB="COM Outputs^Data Out 11"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[12]" VarB="COM Outputs^Data Out 12"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[13]" VarB="COM Outputs^Data Out 13"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[14]" VarB="COM Outputs^Data Out 14"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[15]" VarB="COM Outputs^Data Out 15"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[16]" VarB="COM Outputs^Data Out 16"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[17]" VarB="COM Outputs^Data Out 17"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[18]" VarB="COM Outputs^Data Out 18"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[19]" VarB="COM Outputs^Data Out 19"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[1]" VarB="COM Outputs^Data Out 1"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[20]" VarB="COM Outputs^Data Out 20"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[21]" VarB="COM Outputs^Data Out 21"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[2]" VarB="COM Outputs^Data Out 2"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[3]" VarB="COM Outputs^Data Out 3"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[4]" VarB="COM Outputs^Data Out 4"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[5]" VarB="COM Outputs^Data Out 5"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[6]" VarB="COM Outputs^Data Out 6"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[7]" VarB="COM Outputs^Data Out 7"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[8]" VarB="COM Outputs^Data Out 8"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Rear^D[9]" VarB="COM Outputs^Data Out 9"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 4 (EtherCAT)^Term 4 (EK1101)^Term 8 (EL6001)">
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[0]" VarB="COM Inputs^Data In 0"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[10]" VarB="COM Inputs^Data In 10"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[11]" VarB="COM Inputs^Data In 11"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[12]" VarB="COM Inputs^Data In 12"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[13]" VarB="COM Inputs^Data In 13"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[14]" VarB="COM Inputs^Data In 14"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[15]" VarB="COM Inputs^Data In 15"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[16]" VarB="COM Inputs^Data In 16"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[17]" VarB="COM Inputs^Data In 17"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[18]" VarB="COM Inputs^Data In 18"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[19]" VarB="COM Inputs^Data In 19"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[1]" VarB="COM Inputs^Data In 1"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[20]" VarB="COM Inputs^Data In 20"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[21]" VarB="COM Inputs^Data In 21"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[2]" VarB="COM Inputs^Data In 2"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[3]" VarB="COM Inputs^Data In 3"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[4]" VarB="COM Inputs^Data In 4"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[5]" VarB="COM Inputs^Data In 5"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[6]" VarB="COM Inputs^Data In 6"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[7]" VarB="COM Inputs^Data In 7"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[8]" VarB="COM Inputs^Data In 8"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^D[9]" VarB="COM Inputs^Data In 9"/>
-				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001_Lead^Status" VarB="COM Inputs^Status"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^Ctrl" VarB="COM Outputs^Ctrl"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[0]" VarB="COM Outputs^Data Out 0"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[10]" VarB="COM Outputs^Data Out 10"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[11]" VarB="COM Outputs^Data Out 11"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[12]" VarB="COM Outputs^Data Out 12"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[13]" VarB="COM Outputs^Data Out 13"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[14]" VarB="COM Outputs^Data Out 14"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[15]" VarB="COM Outputs^Data Out 15"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[16]" VarB="COM Outputs^Data Out 16"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[17]" VarB="COM Outputs^Data Out 17"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[18]" VarB="COM Outputs^Data Out 18"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[19]" VarB="COM Outputs^Data Out 19"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[1]" VarB="COM Outputs^Data Out 1"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[20]" VarB="COM Outputs^Data Out 20"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[21]" VarB="COM Outputs^Data Out 21"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[2]" VarB="COM Outputs^Data Out 2"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[3]" VarB="COM Outputs^Data Out 3"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[4]" VarB="COM Outputs^Data Out 4"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[5]" VarB="COM Outputs^Data Out 5"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[6]" VarB="COM Outputs^Data Out 6"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[7]" VarB="COM Outputs^Data Out 7"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[8]" VarB="COM Outputs^Data Out 8"/>
-				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001_Lead^D[9]" VarB="COM Outputs^Data Out 9"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[0]" VarB="COM Inputs^Data In 0"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[10]" VarB="COM Inputs^Data In 10"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[11]" VarB="COM Inputs^Data In 11"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[12]" VarB="COM Inputs^Data In 12"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[13]" VarB="COM Inputs^Data In 13"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[14]" VarB="COM Inputs^Data In 14"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[15]" VarB="COM Inputs^Data In 15"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[16]" VarB="COM Inputs^Data In 16"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[17]" VarB="COM Inputs^Data In 17"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[18]" VarB="COM Inputs^Data In 18"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[19]" VarB="COM Inputs^Data In 19"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[1]" VarB="COM Inputs^Data In 1"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[20]" VarB="COM Inputs^Data In 20"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[21]" VarB="COM Inputs^Data In 21"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[2]" VarB="COM Inputs^Data In 2"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[3]" VarB="COM Inputs^Data In 3"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[4]" VarB="COM Inputs^Data In 4"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[5]" VarB="COM Inputs^Data In 5"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[6]" VarB="COM Inputs^Data In 6"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[7]" VarB="COM Inputs^Data In 7"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[8]" VarB="COM Inputs^Data In 8"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^D[9]" VarB="COM Inputs^Data In 9"/>
+				<Link VarA="PlcTask_Send Inputs^Background_IMU.stIn_EL6001_Lead^Status" VarB="COM Inputs^Status"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^Ctrl" VarB="COM Outputs^Ctrl"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[0]" VarB="COM Outputs^Data Out 0"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[10]" VarB="COM Outputs^Data Out 10"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[11]" VarB="COM Outputs^Data Out 11"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[12]" VarB="COM Outputs^Data Out 12"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[13]" VarB="COM Outputs^Data Out 13"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[14]" VarB="COM Outputs^Data Out 14"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[15]" VarB="COM Outputs^Data Out 15"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[16]" VarB="COM Outputs^Data Out 16"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[17]" VarB="COM Outputs^Data Out 17"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[18]" VarB="COM Outputs^Data Out 18"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[19]" VarB="COM Outputs^Data Out 19"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[1]" VarB="COM Outputs^Data Out 1"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[20]" VarB="COM Outputs^Data Out 20"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[21]" VarB="COM Outputs^Data Out 21"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[2]" VarB="COM Outputs^Data Out 2"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[3]" VarB="COM Outputs^Data Out 3"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[4]" VarB="COM Outputs^Data Out 4"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[5]" VarB="COM Outputs^Data Out 5"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[6]" VarB="COM Outputs^Data Out 6"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[7]" VarB="COM Outputs^Data Out 7"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[8]" VarB="COM Outputs^Data Out 8"/>
+				<Link VarA="PlcTask_Send Outputs^Background_IMU.stOut_EL6001_Lead^D[9]" VarB="COM Outputs^Data Out 9"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>

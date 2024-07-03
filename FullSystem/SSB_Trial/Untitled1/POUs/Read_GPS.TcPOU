@@ -118,18 +118,16 @@ IF aSplit[3] = 'A' THEN
 	
 	(* speed conversion *)
 	Speed	:= STRING_TO_REAL(aSplit[8]) * 1.852;
-	
-	(* check for overspeed *)
-	IF Speed > Threshold THEN
-		Overspeed := TRUE;
-	ELSE
-		Overspeed := FALSE;
-	END_IF
-	
-	(* calculate cycle time *)
-	//Cycle_Duration :=
+
 ELSE
 	(* gps no signal error handling *)
+END_IF
+
+(* check for overspeed *)
+IF Speed > Threshold THEN
+	Overspeed := TRUE;
+ELSE
+	Overspeed := FALSE;
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Read_GPS">
@@ -173,14 +171,11 @@ END_IF]]></ST>
       <LineId Id="184" Count="0" />
       <LineId Id="183" Count="0" />
       <LineId Id="91" Count="0" />
-      <LineId Id="245" Count="0" />
-      <LineId Id="249" Count="0" />
-      <LineId Id="252" Count="1" />
-      <LineId Id="256" Count="1" />
-      <LineId Id="254" Count="0" />
-      <LineId Id="349" Count="2" />
+      <LineId Id="351" Count="0" />
       <LineId Id="246" Count="1" />
       <LineId Id="86" Count="0" />
+      <LineId Id="397" Count="5" />
+      <LineId Id="396" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

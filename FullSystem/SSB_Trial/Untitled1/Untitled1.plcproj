@@ -71,6 +71,9 @@
     <Compile Include="POUs\Main_SendIMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Main_Send.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Read_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>

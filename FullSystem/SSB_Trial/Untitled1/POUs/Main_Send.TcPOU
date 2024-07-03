@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main_Send" Id="{d7cc139f-c0a0-4426-8778-8d0a6349ccdb}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main_Send
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Main_SendData();
+Main_SendIMU();]]></ST>
+    </Implementation>
+    <LineIds Name="Main_Send">
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
