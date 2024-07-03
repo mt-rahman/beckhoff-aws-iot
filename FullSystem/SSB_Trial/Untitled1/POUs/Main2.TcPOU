@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main2" Id="{f159ed40-cca9-4e3d-ac6a-ec5e9cf1af8e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main2
+VAR
+	Truck_ID	: STRING;
+	Trailer_ID	: STRING;
+	TimeStr		: STRING;
+	Lat			: STRING;
+	Lon			: STRING;
+	Speed		: STRING;
+	Overspeed	: STRING;
+	EventCode	: STRING;
+	Payload_EMA : STRING;
+	Payload_Raw	: STRING;
+	Payload		: STRING;
+	Overload	: STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* get data from database *)
+
+(* parse query result *)
+Truck_ID	:= UINT_TO_STRING(Main1.Truck_ID);
+Trailer_ID	:= UINT_TO_STRING(Main1.Trailer_ID);
+TimeStr		:= Main1.TimeStr;
+Lat			:= REAL_TO_STRING(Read_GPS.Lat);
+Lon			:= REAL_TO_STRING(Read_GPS.Lon);
+Speed		:= REAL_TO_STRING(Read_GPS.Speed);
+Overspeed	:= BOOL_TO_STRING(Read_GPS.Overspeed);
+EventCode	:= Read_FatigueCam.EventCode;
+Payload_EMA	:= REAL_TO_STRING(Read_Payload.Payload_EMA);
+Payload_Raw	:= REAL_TO_STRING(Read_Payload.Payload_Raw);
+Payload		:= REAL_TO_STRING(Read_Payload.Payload);
+Overload	:= BOOL_TO_STRING(Read_Payload.Overload);
+
+(* time formatting *)
+TimeStr		:= Replace(TimeStr, 'T', 1, 11);
+TimeStr		:= Insert(TimeStr, 'Z', 23);
+
+(* send data to aws iot core *)
+Send_MQTT();]]></ST>
+    </Implementation>
+    <LineIds Name="Main2">
+      <LineId Id="42" Count="8" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="65" Count="1" />
+      <LineId Id="53" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

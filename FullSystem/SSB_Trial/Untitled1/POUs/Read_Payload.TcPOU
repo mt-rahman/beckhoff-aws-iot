@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Read_Payload" Id="{54a58c0d-9bb6-4287-ad4a-87a5313c1987}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Read_Payload
+VAR
+	Payload_EMA	: REAL;
+	Payload_Raw	: REAL;
+	Payload		: REAL;
+	
+	Threshold	: REAL := 70;	
+	Overload	: BOOL := FALSE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* raw & ema payload *)
+Payload_EMA := Background_Payload.Payload_EMA;
+Payload_Raw := Background_Payload.Payload;
+
+(* get payload when stationary *)
+//IF Inclination < 5 AND Tilt < 5 AND Speed < 1 THEN
+	Payload	:= Background_Payload.Payload;
+//END_IF
+
+(* check for overload *)
+IF Payload > Threshold THEN
+	Overload := TRUE;
+ELSE
+	Overload := FALSE;	
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Read_Payload">
+      <LineId Id="44" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="46" Count="1" />
+      <LineId Id="41" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

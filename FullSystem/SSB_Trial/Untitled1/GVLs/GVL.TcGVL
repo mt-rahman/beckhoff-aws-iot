@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.4">
+  <GVL Name="GVL" Id="{81d2b858-087b-445f-93ac-76920f0638e9}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	RxBufferEL			: ComBuffer;	(* Receive data buffer; used with all receive function blocks *)
+	TxBufferEL			: ComBuffer;	(* Transmit data buffer; used with all receive function blocks *)
+	
+	RxBufferEL2			: ComBuffer;	(* Receive data buffer; used with all receive function blocks *)
+	TxBufferEL2			: ComBuffer;	(* Transmit data buffer; used with all receive function blocks *)
+	
+	ReadResult			:STRING(80);
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

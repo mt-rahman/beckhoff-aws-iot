@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Read_GPS" Id="{f36d1006-7c94-4f5c-b7c0-319b834be15d}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Read_GPS
+VAR
+	(* receive string variables *)
+	fbReceiveString	: ReceiveString;
+	DataString		: STRING;
+	Pref			: STRING := '$$GPRMC,';
+	Suff			: STRING := '*';
+	
+	(* parsing variables *)
+    sSeparator   : STRING(1) := ',';
+	sSeparator2  : STRING(1) := '.';
+    aSplit       : ARRAY[1..cMax] OF STRING; //parsed string
+    bResultSplit : BOOL;
+    i            : UDINT;
+	
+	(* gps variables *)
+	HourInt		: INT;
+	HourStr		: STRING;
+	TimeStamp	: STRING;
+	LatLeftStr	: STRING;
+	LatRightStr	: STRING;
+	LonLeftStr	: STRING;
+	LonRightStr	: STRING;
+	LatLeft		: INT;
+	LatRight	: INT;
+	LonLeft		: INT;
+	LonRight	: INT;
+	LatDeg		: REAL;
+	LonDeg		: REAL;
+	LatMin		: REAL;
+	LonMin		: REAL;
+	Lat			: REAL;
+	Lon			: REAL;
+	Speed		: REAL;
+	Threshold	: REAL := 60;
+	Overspeed	: BOOL := FALSE;
+END_VAR
+
+VAR CONSTANT
+    cMax         : UDINT := 11; //no. of substrings
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* get gps data string *)
+fbReceiveString(
+	RxBuffer := BACKGROUND_GPS.RxBuffer, 
+	Prefix := Pref, 
+	Suffix := Suff, 
+	Timeout := T#1S, 
+	ReceivedString := DataString
+);
+
+(* gps data parsing *)
+aSplit[1] := DataString;
+FOR i:=1 TO cMax-1 DO
+    bResultSplit := FindAndSplit( 
+						pSeparator     := ADR(sSeparator),  
+						pSrcString := ADR(aSplit[i]), 
+           				pLeftString    := ADR(aSplit[i]),   
+						nLeftSize  := SIZEOF(aSplit[i]), 
+                     	pRightString   := ADR(aSplit[i+1]), 
+						nRightSize := SIZEOF(aSplit[i+1]),
+                      	bSearchFromRight := FALSE 
+					);
+    IF NOT bResultSplit THEN
+        EXIT;
+    END_IF
+END_FOR
+
+IF aSplit[3] = 'A' THEN
+	(* latitude & longitude conversion *)
+	FindAndSplit( 
+		pSeparator     		:= ADR(sSeparator2),  
+		pSrcString 			:= ADR(aSplit[4]), 
+		pLeftString    		:= ADR(LatLeftStr),   
+		nLeftSize  			:= SIZEOF(LatLeftStr), 
+		pRightString   		:= ADR(LatRightStr), 
+		nRightSize 			:= SIZEOF(LatRightStr),
+		bSearchFromRight 	:= FALSE 
+	);
+	
+	FindAndSplit( 
+		pSeparator     		:= ADR(sSeparator2),  
+		pSrcString 			:= ADR(aSplit[6]), 
+		pLeftString    		:= ADR(LonLeftStr),   
+		nLeftSize  			:= SIZEOF(LonLeftStr), 
+		pRightString   		:= ADR(LonRightStr), 
+		nRightSize 			:= SIZEOF(LonRightStr),
+		bSearchFromRight 	:= FALSE 
+	);
+	
+	LatLeft 	:= STRING_TO_INT(LatLeftStr);
+	LatRight 	:= STRING_TO_INT(LatRightStr);
+	LonLeft 	:= STRING_TO_INT(LonLeftStr);
+	LonRight 	:= STRING_TO_INT(LonRightStr);
+	Lat			:= INT_TO_REAL(LatLeft) + (INT_TO_REAL(LatRight)/EXPT(10,LEN(LatRightStr)));
+	Lon 		:= INT_TO_REAL(LonLeft) + (INT_TO_REAL(LonRight)/EXPT(10,LEN(LonRightStr)));;
+	LatDeg 		:= TRUNC(Lat/100);
+	LonDeg 		:= TRUNC(Lon/100);
+	LatMin 		:= Lat - (LatDeg*100);
+	LonMin 		:= Lon - (LonDeg*100);
+	Lat 		:= LatDeg + (LatMin/60);
+	Lon			:= LonDeg + (LonMin/60);
+	
+	IF aSplit[5] = 'S' THEN
+		Lat := Lat*(-1);
+	END_IF
+	
+	IF aSplit[7] = 'W' THEN
+		Lon := Lon*(-1); 
+	END_IF
+	
+	(* speed conversion *)
+	Speed	:= STRING_TO_REAL(aSplit[8]) * 1.852;
+	
+	(* check for overspeed *)
+	IF Speed > Threshold THEN
+		Overspeed := TRUE;
+	ELSE
+		Overspeed := FALSE;
+	END_IF
+ELSE
+	(* gps no signal error handling *)
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="Read_GPS">
+      <LineId Id="248" Count="0" />
+      <LineId Id="26" Count="6" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="178" Count="1" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="57" Count="2" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="186" Count="17" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="93" Count="2" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="249" Count="0" />
+      <LineId Id="252" Count="1" />
+      <LineId Id="256" Count="1" />
+      <LineId Id="254" Count="0" />
+      <LineId Id="246" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="85" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

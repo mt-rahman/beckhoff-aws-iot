@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <Task Name="PlcTask_Fast" Id="{f57d0b9b-c1c6-4982-97c1-6bdadda0ef8d}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>2000</CycleTime>
+    <Priority>19</Priority>
+    <PouCall>
+      <Name>Background_GPS</Name>
+    </PouCall>
+    <PouCall>
+      <Name>Background_FatigueCam</Name>
+    </PouCall>
+    <PouCall>
+      <Name>Background_Payload</Name>
+    </PouCall>
+    <TaskFBGuid>{a204404e-e41c-42f7-8e41-7fea246b4a81}</TaskFBGuid>
+    <Fb_init>{6c75f578-ff87-4ecc-85c2-031f54aa7df7}</Fb_init>
+    <Fb_exit>{2eb24614-d0e5-417d-acd2-60e18bf7ec57}</Fb_exit>
+    <CycleUpdate>{1c049817-ea44-44a1-8f3c-283a5a554428}</CycleUpdate>
+    <PostCycleUpdate>{8d36236c-7994-42e4-bbc0-8c42406f098b}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>

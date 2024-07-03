@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Background_GPS" Id="{d21b8d5b-1fe8-418c-aa61-d85ef3e640c3}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Background_GPS
+
+VAR
+	RxBuffer	:ComBuffer;
+	TxBuffer	:ComBuffer;
+	
+	fbLineCtrlAds	: SerialLineControlADS;
+	bAdsError		: BOOL;
+	nAdsErrorID		: UDINT;
+	bConnect		: BOOL := TRUE;
+	sNetID			: T_amsNetId;
+	stSerialCfg		: ComSerialConfig;
+	Port			: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[stSerialCfg.Baudrate := 4800;
+stSerialCfg.ComPort := 3;
+stSerialCfg.DataBits := 8;
+stSerialCfg.Parity := PARITY_NONE;
+stSerialCfg.StopBits := STOPBITS_ONE;
+
+fbLineCtrlAds(
+	Connect 	:= bConnect,
+	SerialCfg	:= stSerialCfg,
+	NetId		:= sNetId,
+	Timeout		:= T#5s,
+	TxBuffer	:= TxBuffer,
+	RxBuffer	:= RxBuffer,
+	Busy		:= ,
+	Error		=> bAdsError,
+	ErrorID		=> nAdsErrorID,
+	PortOpened	=> Port
+);
+
+
+
+	
+	]]></ST>
+    </Implementation>
+    <LineIds Name="Background_GPS">
+      <LineId Id="29" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="18" Count="7" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

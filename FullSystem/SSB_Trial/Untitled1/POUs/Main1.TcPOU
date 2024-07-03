@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main1" Id="{d634cea7-0b2b-4450-a767-f61c97526782}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main1
+VAR
+	fbTime 		: FB_LocalSystemTime := ( bEnable := TRUE, dwCycle := 1 );
+	bValid		: BOOL := FALSE;
+	TimeStr		: STRING;
+	
+	Truck_ID			: UINT := 1;
+	Trailer_ID AT %I*	: UINT;
+	Lat					: STRING;
+	Lon					: STRING;
+	Speed				: STRING;
+	EventCode			: STRING;
+	Payload				: STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* get system time *)
+WHILE bValid = FALSE DO
+	fbTime(bValid => bValid);	
+END_WHILE
+
+fbTime();
+TimeStr	:= SYSTEMTIME_TO_STRING(fbTime.systemTime);
+
+(* read sensors *)
+Read_FatigueCam();
+Read_GPS();
+Read_Payload();
+
+(* save data to database *)]]></ST>
+    </Implementation>
+    <LineIds Name="Main1">
+      <LineId Id="23" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
