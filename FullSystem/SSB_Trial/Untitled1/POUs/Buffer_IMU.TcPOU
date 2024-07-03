@@ -30,6 +30,7 @@ VAR
 	sCmd			: STRING(500000);
 	sCmd2			: STRING(500000);
 	nState			: INT;
+	nState_Switch	: INT;
 	
 	aReadStruct		: ST_SelectStructIMU;
 	aReadStruct_2	: ST_SelectStructIMU;
@@ -37,12 +38,9 @@ VAR
 	Timestamp_2		: DT; 
 	
 	Initialized		: BOOL := FALSE;
-	Vacuumed_1		: BOOL := FALSE;
-	Vacuumed_2		: BOOL := FALSE;
 	Done			: BOOL;
 	i				: INT;
-	Switch			: BOOL;
-	Switched		: BOOL;
+	Pragma_Done		: BOOL;
 	Counter			: ULINT;
 	
 	Dbid			: UDINT;
@@ -99,7 +97,18 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		2:
+		2:	(* execute pragmas *)
+			sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		3:
 			(* select oldest data from buffer_imu *)
 			sCmd	:= 'SELECT * FROM `buffer_imu` ORDER BY datetime ASC LIMIT 1';
 			
@@ -111,7 +120,7 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		3:
+		4:
 			IF fbSqlResult.Read(0, 1, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -120,7 +129,7 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		4:
+		5:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -129,7 +138,18 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		5:
+		6:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		7:
 			(* disconnect from buffer_imu *)
 			IF fbSqlDatabase.Disconnect() THEN
 				IF fbSqlDatabase.bError THEN
@@ -139,7 +159,7 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		6:	
+		8:	
 			(* connect to buffer_imu_2 *)
 			IF Vacuum_Buffer_IMU_2.Vacuumed THEN
 				
@@ -154,7 +174,7 @@ IF NOT Initialized THEN
 				
 			END_IF	
 			
-		7:
+		9:
 			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
 				IF fbSqlDatabase.bError THEN
 					nState := 255; 
@@ -163,7 +183,18 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		8:
+		10:	(* execute pragmas *)
+			sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		11:
 			(* select oldest data from buffer_imu *)
 			sCmd	:= 'SELECT * FROM `buffer_imu` ORDER BY datetime ASC LIMIT 1';
 			
@@ -175,7 +206,7 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		9:
+		12:
 			IF fbSqlResult.Read(0, 1, ADR(aReadStruct_2), SIZEOF(aReadStruct_2), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -184,7 +215,7 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		10:
+		13:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -193,7 +224,18 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		11:
+		14:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		15:
 			(* disconnect from buffer_imu_2 *)
 			IF bDisconnect := fbSqlDatabase.Disconnect() THEN
 				IF fbSqlDatabase.bError THEN
@@ -203,7 +245,7 @@ IF NOT Initialized THEN
 				END_IF
 			END_IF
 			
-		12:
+		16:
 			// compare oldest data
 			aReadStruct.datetime 	:= REPLACE(aReadStruct.datetime, '-', 1, 11);
 			aReadStruct_2.datetime 	:= REPLACE(aReadStruct_2.datetime, '-', 1, 11);
@@ -237,16 +279,37 @@ ELSE
 		//database switching
 		IF Get_IMU.Switch AND Counter > 1000 THEN
 			
-			IF fbSqlDatabase.bConnected THEN
-				fbSqlDatabase.Disconnect();
-			ELSE
-				IF Dbid = 2 THEN
-					Dbid := 5;
-				ELSE
-					Dbid := 2;
-				END_IF
-				Counter := 0;	
-			END_IF
+			CASE nState_Switch OF
+				
+				0:	(* execute pragma optimize *)
+					sCmd	:= 'PRAGMA optimize;';
+					
+					IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+						IF fbSQLCommand.bError THEN
+							nState_Switch := 255; 
+						ELSE
+							nState_Switch := nState_Switch+1; 
+						END_IF
+					END_IF
+				
+				1:
+					IF fbSqlDatabase.bConnected THEN
+						fbSqlDatabase.Disconnect();
+					ELSE
+						IF Dbid = 2 THEN
+							Dbid := 5;
+						ELSE
+							Dbid := 2;
+						END_IF
+						Counter			:= 0;
+						nState_Switch 	:= 0;
+						Pragma_Done		:= FALSE;
+					END_IF
+					
+				255:
+					nState_Switch := 0;
+					
+			END_CASE
 		
 		ELSE
 			
@@ -278,7 +341,25 @@ ELSE
 						END_IF
 					END_IF
 					
-				2:	
+				2:	(* execute pragmas *)
+					IF NOT Pragma_Done THEN
+						sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+					
+						IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+							IF fbSQLCommand.bError THEN
+								nState := 255; 
+							ELSE
+								nState 		:= nState+1; 
+								Pragma_Done := TRUE;
+							END_IF
+						END_IF
+					
+					ELSE
+						nState 		:= nState+1;
+ 
+					END_IF
+					
+				3:	
 					(* build query *)	
 					sCmd:= 'INSERT INTO buffer_imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
 					
@@ -329,7 +410,7 @@ ELSE
 						END_IF
 					END_IF
 					
-				3: 
+				4: 
 					Counter := Counter + 50;
 					Done	:= TRUE;
 						
@@ -367,9 +448,16 @@ END_IF
       <LineId Id="1376" Count="0" />
       <LineId Id="1365" Count="0" />
       <LineId Id="879" Count="9" />
+      <LineId Id="1732" Count="0" />
+      <LineId Id="1734" Count="8" />
+      <LineId Id="1733" Count="0" />
       <LineId Id="907" Count="4" />
       <LineId Id="1258" Count="5" />
-      <LineId Id="918" Count="31" />
+      <LineId Id="918" Count="18" />
+      <LineId Id="1743" Count="0" />
+      <LineId Id="1745" Count="8" />
+      <LineId Id="1744" Count="0" />
+      <LineId Id="937" Count="12" />
       <LineId Id="1380" Count="0" />
       <LineId Id="1395" Count="0" />
       <LineId Id="1383" Count="4" />
@@ -379,9 +467,16 @@ END_IF
       <LineId Id="1392" Count="0" />
       <LineId Id="1382" Count="0" />
       <LineId Id="958" Count="8" />
+      <LineId Id="1765" Count="0" />
+      <LineId Id="1767" Count="8" />
+      <LineId Id="1766" Count="0" />
       <LineId Id="985" Count="4" />
       <LineId Id="1264" Count="5" />
-      <LineId Id="996" Count="31" />
+      <LineId Id="996" Count="18" />
+      <LineId Id="1754" Count="0" />
+      <LineId Id="1756" Count="8" />
+      <LineId Id="1755" Count="0" />
+      <LineId Id="1015" Count="12" />
       <LineId Id="1246" Count="3" />
       <LineId Id="1251" Count="0" />
       <LineId Id="1678" Count="0" />
@@ -401,9 +496,20 @@ END_IF
       <LineId Id="1281" Count="0" />
       <LineId Id="1448" Count="1" />
       <LineId Id="1550" Count="0" />
-      <LineId Id="1452" Count="7" />
-      <LineId Id="1628" Count="0" />
-      <LineId Id="1460" Count="0" />
+      <LineId Id="1776" Count="0" />
+      <LineId Id="1815" Count="0" />
+      <LineId Id="1794" Count="0" />
+      <LineId Id="1803" Count="7" />
+      <LineId Id="1777" Count="0" />
+      <LineId Id="1779" Count="1" />
+      <LineId Id="1785" Count="8" />
+      <LineId Id="1813" Count="0" />
+      <LineId Id="1846" Count="0" />
+      <LineId Id="1781" Count="0" />
+      <LineId Id="1811" Count="0" />
+      <LineId Id="1782" Count="1" />
+      <LineId Id="1812" Count="0" />
+      <LineId Id="1778" Count="0" />
       <LineId Id="1470" Count="1" />
       <LineId Id="1549" Count="0" />
       <LineId Id="1620" Count="6" />
@@ -415,7 +521,16 @@ END_IF
       <LineId Id="1612" Count="1" />
       <LineId Id="1558" Count="0" />
       <LineId Id="1479" Count="0" />
-      <LineId Id="1481" Count="67" />
+      <LineId Id="1481" Count="8" />
+      <LineId Id="1817" Count="0" />
+      <LineId Id="1819" Count="0" />
+      <LineId Id="1829" Count="0" />
+      <LineId Id="1832" Count="8" />
+      <LineId Id="1830" Count="0" />
+      <LineId Id="1841" Count="2" />
+      <LineId Id="1845" Count="0" />
+      <LineId Id="1831" Count="0" />
+      <LineId Id="1490" Count="58" />
       <LineId Id="1472" Count="0" />
       <LineId Id="1461" Count="0" />
       <LineId Id="1447" Count="0" />

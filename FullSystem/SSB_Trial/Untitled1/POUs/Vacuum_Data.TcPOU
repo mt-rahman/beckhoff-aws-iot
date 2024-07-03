@@ -34,8 +34,19 @@ END_VAR
 					nState := nState+1; 
 				END_IF
 			END_IF
+			
+		2:	(* execute pragmas *)
+			sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
 		
-		2:	
+		3:	
 			IF NOT Vacuumed THEN
 				(* build query *)	
 				sCmd	:= 'VACUUM';
@@ -52,7 +63,18 @@ END_VAR
 				nState := nState+1;
 			END_IF
 			
-		3:
+		4:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+		
+		5:
 			IF fbSqlDatabase.Disconnect() THEN
 				IF fbSqlDatabase.bError THEN
 					nState := 255;
@@ -68,14 +90,9 @@ END_VAR
 END_CASE]]></ST>
     </Implementation>
     <LineIds Name="Vacuum_Data">
-      <LineId Id="12" Count="32" />
-      <LineId Id="46" Count="5" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="58" Count="5" />
-      <LineId Id="65" Count="0" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="57" Count="0" />
-      <LineId Id="52" Count="3" />
+      <LineId Id="12" Count="13" />
+      <LineId Id="75" Count="58" />
+      <LineId Id="54" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

@@ -19,6 +19,7 @@ VAR
 	Today			: DWORD;
 	
 	Deleted			: BOOL;
+	Pragma_Done		: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -38,12 +39,29 @@ ELSE
 					IF NOT Deleted THEN
 						nState := nState+1;
 					ELSE
-						nState := 5;	
+						nState := 6; //skip to save data
 					END_IF
 				END_IF
 			END_IF
 			
-		1:
+		1:	(* execute pragmas *)
+			IF NOT Pragma_Done THEN
+				sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState 		:= nState+1; 
+						Pragma_Done := TRUE;
+					END_IF
+				END_IF
+			
+			ELSE
+				nState 		:= nState+1;
+			END_IF
+			
+		2:
 			(* select oldest data from buffer_imu *)
 			sCmd	:= 'SELECT * FROM `imu` ORDER BY datetime ASC LIMIT 1';
 			
@@ -55,7 +73,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		2:
+		3:
 			IF fbSqlResult.Read(0, 1, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -64,7 +82,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		3:
+		4:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -73,7 +91,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		4:	
+		5:	
 			//oldest data < today - 3 months?
 			aReadStruct.datetime 	:= REPLACE(aReadStruct.datetime, '-', 1, 11);
 			Oldest_data				:= DT_TO_DWORD(SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct.datetime)));
@@ -96,7 +114,7 @@ ELSE
 				Deleted	:= TRUE;
 			END_IF
 			
-		5:	
+		6:	
 			(* build query *)	
 			sCmd	:= 'INSERT INTO imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
 			
@@ -145,7 +163,7 @@ ELSE
 				
 			END_IF
 		
-		6: 
+		7: 
 			Done	:= TRUE;
 			nState	:= 0;
 				
@@ -162,6 +180,9 @@ END_IF]]></ST>
       <LineId Id="276" Count="1" />
       <LineId Id="275" Count="0" />
       <LineId Id="87" Count="1" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="325" Count="14" />
+      <LineId Id="324" Count="0" />
       <LineId Id="240" Count="0" />
       <LineId Id="243" Count="27" />
       <LineId Id="241" Count="0" />

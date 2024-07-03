@@ -46,6 +46,7 @@ VAR
 	
 	Dbid			: UDINT;
 	Switch			: BOOL;
+	Pragma_Done		: BOOL;
 	
 	bDisconnect		: BOOL;
 	
@@ -98,8 +99,25 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 					nState := nState+1; 
 				END_IF
 			END_IF
+			
+		2:	(* execute pragmas *)
+			IF NOT Pragma_Done THEN
+				sCmd	:= 'PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY; PRAGMA mmap_size = 30000000000; PRAGMA page_size = 32768; PRAGMA locking_mode = EXCLUSIVE;';
+			
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState 		:= nState+1; 
+						Pragma_Done := TRUE;
+					END_IF
+				END_IF
+			
+			ELSE
+				nState 		:= nState+1;
+			END_IF
 		
-		2:	
+		3:	
 			IF Deleted THEN
 				nState := nState+1;
 			ELSE
@@ -118,7 +136,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				END_IF
 			END_IF
 			
-		3:	
+		4:	
 			(* count no of records in buffer *)
 			sCmd2 := 'SELECT COUNT(*) FROM `buffer_imu`';
 			
@@ -130,7 +148,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				END_IF
 			END_IF
 			
-		4:	
+		5:	
 			IF fbSqlResult.Read(0, 1, ADR(count), SIZEOF(count), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -139,7 +157,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				END_IF
 			END_IF
 			
-		5:
+		6:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -149,11 +167,11 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				
 			END_IF
 			
-		6:
+		7:
 			(* determine no of records to select *)
 			IF count = 0 THEN
 				Data_Length := 0;
-				nState := 12;
+				nState := 13;
 			(*
 			ELSIF count < 50 THEN
 				Data_Length := count;
@@ -192,7 +210,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 			
 			END_IF
 			
-		7:	
+		8:	
 			(* get records from buffer *)
 			sCmd2 := 'SELECT * FROM `buffer_imu` ORDER BY datetime ASC LIMIT ';
 			sCmd2 := CONCAT(sCmd2, ULINT_TO_STRING(Data_Length));
@@ -205,7 +223,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				END_IF
 			END_IF
 			
-		8:
+		9:
 			IF fbSqlResult.Read(0, ULINT_TO_UDINT(Data_Length), ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -214,7 +232,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				END_IF
 			END_IF
 			
-		9:
+		10:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -223,7 +241,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 				END_IF
 			END_IF
 		
-		10:
+		11:
 			(* parse query result *)
 			FOR i:=1 TO Data_Length BY 1 DO
 				TimeStr[i]			:= aReadStruct[i].datetime;
@@ -246,17 +264,29 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 			
 			nState	:= nState + 1;
 			
-		11:
+		12:
 			Done	:= TRUE;
 			
-		12:
+		13:	(* execute pragma optimize *)
+			sCmd	:= 'PRAGMA optimize;';
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		14:
 			//disconnect from db
 			IF bDisconnect := fbSqlDatabase.Disconnect() THEN
 				IF fbSqlDatabase.bError THEN
 					nState := 255;
 				ELSE
-					nState := 0;
-					Switch := TRUE;
+					nState 		:= 0;
+					Switch 		:= TRUE;
+					Pragma_Done	:= FALSE;
 				END_IF
 			END_IF			
 		
@@ -300,7 +330,11 @@ END_IF
       <LineId Id="1071" Count="0" />
       <LineId Id="1061" Count="0" />
       <LineId Id="1450" Count="0" />
-      <LineId Id="912" Count="9" />
+      <LineId Id="912" Count="7" />
+      <LineId Id="1647" Count="0" />
+      <LineId Id="1649" Count="14" />
+      <LineId Id="1648" Count="0" />
+      <LineId Id="920" Count="1" />
       <LineId Id="923" Count="18" />
       <LineId Id="1479" Count="0" />
       <LineId Id="942" Count="23" />
@@ -316,16 +350,20 @@ END_IF
       <LineId Id="1589" Count="0" />
       <LineId Id="1591" Count="5" />
       <LineId Id="1590" Count="0" />
-      <LineId Id="1588" Count="0" />
+      <LineId Id="1679" Count="0" />
       <LineId Id="1220" Count="0" />
       <LineId Id="993" Count="1" />
       <LineId Id="1480" Count="0" />
       <LineId Id="995" Count="53" />
+      <LineId Id="1667" Count="0" />
+      <LineId Id="1669" Count="8" />
+      <LineId Id="1668" Count="0" />
       <LineId Id="1256" Count="1" />
       <LineId Id="1259" Count="0" />
       <LineId Id="1369" Count="0" />
       <LineId Id="1363" Count="1" />
       <LineId Id="1469" Count="2" />
+      <LineId Id="1666" Count="0" />
       <LineId Id="1368" Count="0" />
       <LineId Id="1468" Count="0" />
       <LineId Id="1049" Count="3" />
