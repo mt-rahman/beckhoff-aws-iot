@@ -11,6 +11,7 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* get data from database *)
+(*
 Get_IMU();
 
 IF New_Data := Get_IMU.Done THEN
@@ -38,12 +39,16 @@ ELSE
 	Sent	:= FALSE;
 	Saved 	:= FALSE;
 	
-END_IF]]></ST>
+END_IF
+*)]]></ST>
     </Implementation>
     <LineIds Name="Main_SendIMU">
-      <LineId Id="10" Count="1" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="11" Count="0" />
       <LineId Id="40" Count="0" />
       <LineId Id="13" Count="25" />
+      <LineId Id="49" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

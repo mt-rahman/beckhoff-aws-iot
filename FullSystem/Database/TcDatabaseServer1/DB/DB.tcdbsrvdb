@@ -2,15 +2,15 @@
 <Database>
   <ID>1</ID>
   <Name>DB</Name>
-  <ServerName>localhost</ServerName>
-  <DatabaseName>localdb</DatabaseName>
+  <ServerName />
+  <DatabaseName />
   <TableName />
-  <Authentication>True</Authentication>
-  <UserID>beckhoff</UserID>
-  <Password>wfZnaskgw9BOEt1ExF2bdw==</Password>
+  <Authentication>False</Authentication>
+  <UserID />
+  <Password />
   <Driver />
   <Provider />
-  <Port>3306</Port>
+  <Port>0</Port>
   <Protocol />
   <Scheme />
   <Sequence />
@@ -19,7 +19,7 @@
   <OLDASCIIFormat>False</OLDASCIIFormat>
   <ASCIISeparator />
   <DBValueType>NONE</DBValueType>
-  <DBType>NET_MySQL</DBType>
+  <DBType>None</DBType>
   <OdbcSubType>Unknown</OdbcSubType>
   <Temporary>False</Temporary>
   <Disabled>False</Disabled>

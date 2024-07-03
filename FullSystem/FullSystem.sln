@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # TcXaeShell Solution File, Format Version 11.00
 VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{B1E792BE-AA5F-4E3C-8C82-674BF9C0715B}") = "FullSystem_v5", "SSB_Trial\FullSystem_v5.tsproj", "{227948A6-6203-41CF-BEA7-80098D7EC886}"
+Project("{B1E792BE-AA5F-4E3C-8C82-674BF9C0715B}") = "FullSystem_v6", "SSB_Trial\FullSystem_v6.tsproj", "{227948A6-6203-41CF-BEA7-80098D7EC886}"
 EndProject
 Project("{BACAAE27-5D5D-4513-97FF-0FED82FEF961}") = "Database", "Database\Database.tcconnproj", "{D83613DD-5B3B-4D65-AD92-9A61FB71296A}"
 EndProject

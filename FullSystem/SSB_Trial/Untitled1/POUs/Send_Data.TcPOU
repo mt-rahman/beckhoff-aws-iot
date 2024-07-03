@@ -19,11 +19,12 @@ VAR
 	
 	(* published message *)
 	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/sdt/data'; //message topic
-	sPayloadPub : STRING(10000);
-	str			: STRING(10000);
-	str2		: STRING(10000);
-	i			: UINT;
-	fbTimer : TON := (PT:=T#1S);
+	sPayloadPub 	: STRING(200000);
+	str				: STRING(100000);
+	valSeparator	: STRING := '","';
+	arrayEnd		: STRING := '"]';
+	msgEnd			: STRING := '}';
+	i				: UINT;
 	
 	(* topic subscription *)
 	bSubscribed : BOOL;
@@ -93,55 +94,298 @@ IF fbMqttClient.bConnected THEN
 	END_IF
 	
 	(* build message payload *)
+	sPayloadPub := CONCAT('{"primemover_id":"', Read_ID.PrimeMover_ID);
+	sPayloadPub := CONCAT(sPayloadPub, '"');
+	
+	(* trailer id string *)
+	str	:= ',"trailer_id":["';
 	i := 1;
-	sPayloadPub := '[';
 	WHILE i <= Get_Data.Data_Length DO
-		str	:= CONCAT('{"primemover_id":"', Read_ID.PrimeMover_ID);
-		str	:= CONCAT(str, '","trailer_id":"');
-		str	:= CONCAT(str, Get_Data.Trailer_ID[i]);
-		str	:= CONCAT(str, '","datetime":"');
-		str	:= CONCAT(str, Get_Data.TimeStr[i]);
-		str	:= CONCAT(str, '","latitude":"');
-		str	:= CONCAT(str, Get_Data.Lat[i]);
-		str	:= CONCAT(str, '","longitude":"');
-		str	:= CONCAT(str, Get_Data.Lon[i]);
-		str	:= CONCAT(str, '","speed":"');
-		str	:= CONCAT(str, Get_Data.Speed[i]);
-		str	:= CONCAT(str, '","overspeed":"');
-		str	:= CONCAT(str, Get_Data.Overspeed[i]);
-		str	:= CONCAT(str, '","payload_raw":"');
-		str	:= CONCAT(str, Get_Data.Payload_Raw[i]);
-		str	:= CONCAT(str, '","payload_ema":"');
-		str	:= CONCAT(str, Get_Data.Payload_EMA[i]);
-		
-		str2	:= CONCAT('","overload":"', Get_Data.Overload[i]);
-		str2	:= CONCAT(str2, '","pressure_cyl":"');
-		str2	:= CONCAT(str2, Get_Data.Pressure_Cyl[i]);
-		str2	:= CONCAT(str2, '","pressure_val":"');
-		str2	:= CONCAT(str2, Get_Data.Pressure_Val[i]);
-		str2	:= CONCAT(str2, '","strain_left":"');
-		str2	:= CONCAT(str2, Get_Data.Strain_Left[i]);
-		str2	:= CONCAT(str2, '","strain_right":"');
-		str2	:= CONCAT(str2, Get_Data.Strain_Right[i]);
-		str2	:= CONCAT(str2, '","fatigue_event":"');
-		str2	:= CONCAT(str2, Get_Data.EventCode[i]);
-		str2	:= CONCAT(str2, '","cycle_duration":"');
-		str2	:= CONCAT(str2, Get_Data.Cycle_Duration[i]);
-		str2	:= CONCAT(str2, '","hyd_efficiency":"');
-		str2	:= CONCAT(str2, Get_Data.Hyd_Efficiency[i]);
-		str2	:= CONCAT(str2, '"}');
+		CONCAT2(ADR(str), ADR(Get_Data.Trailer_ID[i]), ADR(str), SIZEOF(str)); 
 		
 		IF i <> Get_Data.Data_Length THEN
-			str2	:= CONCAT(str2, ',');
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
 		ELSE
-			str2	:= CONCAT(str2, ']');
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
 		END_IF
 		
-		CONCAT2(ADR(str), ADR(str2), ADR(str), SIZEOF(str));
-		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 		i := i+1;
 		
 	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* date time string *)
+	str	:= ',"datetime":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.TimeStr[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* latitude string *)
+	str	:= ',"latitude":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Lat[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* longitude string *)
+	str	:= ',"longitude":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Lon[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* speed string *)
+	str	:= ',"speed":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Speed[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* overspeed string *)
+	str	:= ',"overspeed":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Overspeed[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* payload raw string *)
+	str	:= ',"payload_raw":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Payload_Raw[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* payload ema string *)
+	str	:= ',"payload_ema":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Payload_EMA[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* overload string *)
+	str	:= ',"overload":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Overload[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* pressure cylinder string *)
+	str	:= ',"pressure_cyl":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Pressure_Cyl[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* pressure valve string *)
+	str	:= ',"pressure_val":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Pressure_Val[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* strain left string *)
+	str	:= ',"strain_left":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Strain_Left[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* strain right string *)
+	str	:= ',"strain_right":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Strain_Right[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* fatigue event string *)
+	str	:= ',"fatigue_event":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.EventCode[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* cycle duration string *)
+	str	:= ',"cycle_duration":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Cycle_Duration[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* hydraulic efficiency string *)
+	str	:= ',"hyd_efficiency":["';
+	i := 1;
+	WHILE i <= Get_Data.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_Data.Hyd_Efficiency[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_Data.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	CONCAT2(ADR(sPayloadPub), ADR(msgEnd), ADR(sPayloadPub), SIZEOF(sPayloadPub)); //message ending
 	
 	(* publish message to subscribed topic *)
 	IF Publish := fbMqttClient.Publish(sTopic:= sTopicPub, pPayload:= ADR(sPayloadPub), nPayloadSize:= LEN2(ADR(sPayloadPub)), eQoS:= TcIotMqttQos.AtMostOnceDelivery, bRetain:= FALSE, bQueue:= FALSE) THEN
@@ -168,36 +412,47 @@ END_IF]]></ST>
       <LineId Id="540" Count="1" />
       <LineId Id="543" Count="6" />
       <LineId Id="866" Count="0" />
-      <LineId Id="555" Count="0" />
-      <LineId Id="736" Count="0" />
-      <LineId Id="765" Count="0" />
-      <LineId Id="732" Count="0" />
-      <LineId Id="556" Count="0" />
-      <LineId Id="643" Count="1" />
-      <LineId Id="613" Count="0" />
-      <LineId Id="642" Count="0" />
-      <LineId Id="645" Count="0" />
-      <LineId Id="560" Count="4" />
-      <LineId Id="686" Count="1" />
-      <LineId Id="748" Count="1" />
-      <LineId Id="646" Count="1" />
-      <LineId Id="764" Count="0" />
-      <LineId Id="742" Count="0" />
-      <LineId Id="750" Count="7" />
-      <LineId Id="741" Count="0" />
-      <LineId Id="739" Count="0" />
-      <LineId Id="758" Count="3" />
-      <LineId Id="565" Count="0" />
-      <LineId Id="766" Count="0" />
-      <LineId Id="744" Count="1" />
-      <LineId Id="861" Count="1" />
-      <LineId Id="746" Count="1" />
-      <LineId Id="767" Count="0" />
-      <LineId Id="769" Count="0" />
-      <LineId Id="737" Count="0" />
-      <LineId Id="962" Count="0" />
-      <LineId Id="566" Count="0" />
-      <LineId Id="735" Count="0" />
+      <LineId Id="1007" Count="57" />
+      <LineId Id="1163" Count="15" />
+      <LineId Id="1162" Count="0" />
+      <LineId Id="1154" Count="0" />
+      <LineId Id="1181" Count="15" />
+      <LineId Id="1179" Count="1" />
+      <LineId Id="1199" Count="15" />
+      <LineId Id="1197" Count="0" />
+      <LineId Id="1215" Count="0" />
+      <LineId Id="1217" Count="15" />
+      <LineId Id="1216" Count="0" />
+      <LineId Id="1233" Count="0" />
+      <LineId Id="1235" Count="15" />
+      <LineId Id="1234" Count="0" />
+      <LineId Id="1251" Count="0" />
+      <LineId Id="1253" Count="15" />
+      <LineId Id="1252" Count="0" />
+      <LineId Id="1269" Count="0" />
+      <LineId Id="1271" Count="15" />
+      <LineId Id="1270" Count="0" />
+      <LineId Id="1287" Count="0" />
+      <LineId Id="1289" Count="15" />
+      <LineId Id="1288" Count="0" />
+      <LineId Id="1305" Count="0" />
+      <LineId Id="1307" Count="15" />
+      <LineId Id="1306" Count="0" />
+      <LineId Id="1323" Count="0" />
+      <LineId Id="1325" Count="15" />
+      <LineId Id="1324" Count="0" />
+      <LineId Id="1341" Count="0" />
+      <LineId Id="1343" Count="15" />
+      <LineId Id="1342" Count="0" />
+      <LineId Id="1359" Count="0" />
+      <LineId Id="1361" Count="15" />
+      <LineId Id="1360" Count="0" />
+      <LineId Id="1377" Count="0" />
+      <LineId Id="1379" Count="15" />
+      <LineId Id="1378" Count="0" />
+      <LineId Id="1198" Count="0" />
+      <LineId Id="1005" Count="0" />
+      <LineId Id="1161" Count="0" />
       <LineId Id="567" Count="0" />
       <LineId Id="810" Count="0" />
       <LineId Id="813" Count="2" />

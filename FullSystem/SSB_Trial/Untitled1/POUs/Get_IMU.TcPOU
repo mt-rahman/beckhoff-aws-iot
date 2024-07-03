@@ -89,20 +89,15 @@ ELSE
 				IF fbSqlResult.bError THEN
 					nState := 255;
 				ELSE
-					nState := nState+1;
 					
 					(* determine no of records to select *)
-					IF count = 0 THEN
-						nState := 1;
-						
-					ELSIF count < 500 THEN
-						Data_Length := 50;
-						
-					ELSIF count < 1000 THEN
+					IF count >= 1000 THEN
 						Data_Length := 500;
+						nState := nState+1;
 						
 					ELSE
-						Data_Length := 1000;
+						Data_Length := 0;
+						nState := 1;
 						
 					END_IF
 					
@@ -189,7 +184,13 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Get_IMU">
-      <LineId Id="185" Count="64" />
+      <LineId Id="185" Count="46" />
+      <LineId Id="233" Count="2" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="468" Count="0" />
+      <LineId Id="243" Count="2" />
+      <LineId Id="469" Count="0" />
+      <LineId Id="246" Count="3" />
       <LineId Id="322" Count="0" />
       <LineId Id="250" Count="38" />
       <LineId Id="428" Count="0" />

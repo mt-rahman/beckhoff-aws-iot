@@ -7,15 +7,22 @@ VAR
 	Pressure_Cyl	: REAL := 0;
 	
 	Hyd_Efficiency	: REAL := 0;
-	//nBit_Val AT %I*	: INT;
-	//nBit_Cyl AT %I*	: INT;
+	nBit_Val AT %I*	: UINT;
+	nBit_Cyl AT %I*	: UINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(* calculate hyd efficiency *)
+      <ST><![CDATA[(* convert to pressure *)
+Pressure_Val := (nBit_Val/32767)*160;
+Pressure_Cyl := (nBit_Cyl/32767)*160;
+
+(* calculate hyd efficiency *)
 //rHyd_Efficiency := Read_Pressure.Pressure_Cyl / Read_Pressure.Pressure_Val;]]></ST>
     </Implementation>
     <LineIds Name="Read_Pressure">
+      <LineId Id="27" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="28" Count="0" />
       <LineId Id="16" Count="1" />
     </LineIds>
   </POU>
