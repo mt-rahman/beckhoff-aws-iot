@@ -12,7 +12,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <tcdbsrvdbCompile Include="TcDatabaseServer1\DB\DB.tcdbsrvdb">
+    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_IMU\Buffer_IMU.tcdbsrvdb">
+      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
+    </tcdbsrvdbCompile>
+    <tcdbsrvdbCompile Include="TcDatabaseServer1\Buffer_Data\Buffer_Data.tcdbsrvdb">
+      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
+    </tcdbsrvdbCompile>
+    <tcdbsrvdbCompile Include="TcDatabaseServer1\IMU\IMU.tcdbsrvdb">
+      <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
+    </tcdbsrvdbCompile>
+    <tcdbsrvdbCompile Include="TcDatabaseServer1\Data\Data.tcdbsrvdb">
       <DependentUpon>TcDatabaseServer1.tcdbsrv</DependentUpon>
     </tcdbsrvdbCompile>
   </ItemGroup>

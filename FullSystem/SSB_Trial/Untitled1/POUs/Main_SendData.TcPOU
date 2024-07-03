@@ -42,7 +42,9 @@ END_IF]]></ST>
     </Implementation>
     <LineIds Name="Main_SendData">
       <LineId Id="293" Count="3" />
-      <LineId Id="325" Count="20" />
+      <LineId Id="325" Count="8" />
+      <LineId Id="360" Count="0" />
+      <LineId Id="335" Count="10" />
       <LineId Id="347" Count="3" />
     </LineIds>
   </POU>

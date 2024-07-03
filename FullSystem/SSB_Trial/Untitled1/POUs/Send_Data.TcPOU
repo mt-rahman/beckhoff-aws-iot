@@ -11,8 +11,8 @@ VAR
 	
 	(*------------------ actual ----------------*)
 	rootCA		: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
-	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-certificate.pem.crt';
-	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-private.pem.key';
+	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\30ca1f75dd1439c7068842e0254dcd64758e3e884a9c2ab8cf28b27caf6d120f-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\30ca1f75dd1439c7068842e0254dcd64758e3e884a9c2ab8cf28b27caf6d120f-private.pem.key';
 	
 	(* ------------------ test ------------------ *)
 	(*
@@ -24,7 +24,7 @@ VAR
 	(* broker settings *)
 	endpoint	: STRING := 'a2o01t3xth0mr1-ats.iot.ap-southeast-1.amazonaws.com';
 	port		: UINT := 8883;
-	clientID	: STRING := 'double-sdt-1';
+	clientID	: STRING := 'double-sdt-2';
 	
 	(* published message *)
 	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/double-sdt/data'; //message topic

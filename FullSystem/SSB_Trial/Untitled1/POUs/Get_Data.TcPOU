@@ -16,6 +16,7 @@ VAR
 	Data_Length		: UDINT;
 	datetime		: STRING;
 	Done			: BOOL;
+	Deleted			: BOOL := TRUE;
 	i 				: UDINT;
 	
 	TimeStr				: ARRAY[1..50] OF STRING;	
@@ -41,6 +42,7 @@ END_VAR
 IF Main_SendData.Saved THEN
 	nState 	:= 0;
 	Done	:= FALSE;
+	Deleted	:= FALSE;
 END_IF
 
 (* connect to localdb *)
@@ -59,7 +61,27 @@ ELSE
 				END_IF
 			END_IF
 			
-		1:	(* count no of records in buffer *)
+		1:	
+			
+			IF Deleted THEN
+				nState := nState+1;
+			ELSE
+				(* delete saved data from buffer *)
+				sCmd2	:= 'DELETE FROM buffer_data WHERE datetime IN (SELECT datetime FROM buffer_data ORDER BY datetime ASC LIMIT ';
+				sCmd2	:= CONCAT(sCmd2, UDINT_TO_STRING(Data_Length));
+				sCmd2	:= CONCAT(sCmd2, ');');
+				
+				IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd2), SIZEOF(sCmd2), ADR(fbSqlResult)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1; 
+						Deleted := TRUE;
+					END_IF
+				END_IF
+			END_IF
+			
+		2:	(* count no of records in buffer *)
 			sCmd2 := 'SELECT COUNT(*) FROM `buffer_data`';
 			
 			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd2), SIZEOF(sCmd2), ADR(fbSqlResult)) THEN
@@ -70,7 +92,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		2:	
+		3:	
 			IF fbSqlResult.Read(0, 1, ADR(count), SIZEOF(count), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -79,7 +101,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		3:
+		4:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -107,7 +129,7 @@ ELSE
 				
 			END_IF
 			
-		4:	(* get records from buffer *)
+		5:	(* get records from buffer *)
 			sCmd2 := 'SELECT * FROM `buffer_data` ORDER BY datetime ASC LIMIT ';
 			sCmd2 := CONCAT(sCmd2, UDINT_TO_STRING(Data_Length));
 			
@@ -119,7 +141,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		5:
+		6:
 			IF fbSqlResult.Read(0, Data_Length, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
 					nState := 255; 
@@ -128,7 +150,7 @@ ELSE
 				END_IF
 			END_IF
 			
-		6:
+		7:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
 					nState := 255;
@@ -137,7 +159,7 @@ ELSE
 				END_IF
 			END_IF
 		
-		7:
+		8:
 			(* parse query result *)
 			FOR i:=1 TO Data_Length BY 1 DO
 				TimeStr[i] 					:= aReadStruct[i].datetime;
@@ -161,7 +183,7 @@ ELSE
 			
 			nState	:= nState + 1;
 			
-		8:
+		9:
 			Done	:= TRUE;
 		
 		255:
@@ -174,7 +196,15 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Get_Data">
-      <LineId Id="341" Count="46" />
+      <LineId Id="341" Count="3" />
+      <LineId Id="736" Count="0" />
+      <LineId Id="345" Count="16" />
+      <LineId Id="738" Count="0" />
+      <LineId Id="740" Count="14" />
+      <LineId Id="757" Count="0" />
+      <LineId Id="755" Count="1" />
+      <LineId Id="739" Count="0" />
+      <LineId Id="362" Count="25" />
       <LineId Id="389" Count="0" />
       <LineId Id="609" Count="0" />
       <LineId Id="687" Count="14" />

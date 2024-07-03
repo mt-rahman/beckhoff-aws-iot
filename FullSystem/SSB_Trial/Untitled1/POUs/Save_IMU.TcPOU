@@ -6,17 +6,18 @@ VAR
 	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
 	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
-	sCmd			: STRING(10000);
+	sCmd			: STRING(1000000);
 	sCmd2			: STRING(10000);
 	nState			: INT;
 	
 	Done			: BOOL;
+	i				: UDINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* connect to localdb *)
 IF NOT fbSqlDatabase.bConnected THEN
-	fbSqlDatabase.Connect(1);
+	fbSqlDatabase.Connect(4);
 ELSE
 
 	CASE nState OF
@@ -33,11 +34,7 @@ ELSE
 			
 		1:	
 			(* build query *)	
-			sCmd	:= 'DELETE FROM imu WHERE datetime < datetime($'now$', $'-3 month$'); INSERT INTO imu SELECT * FROM buffer_imu ORDER BY datetime ASC LIMIT ';
-			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_IMU.Data_Length));
-			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_imu WHERE datetime IN (SELECT datetime FROM buffer_imu ORDER BY datetime ASC LIMIT ');
-			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_IMU.Data_Length));
-			sCmd	:= CONCAT(sCmd, ');');
+			sCmd	:= 'DELETE FROM imu WHERE datetime < datetime($'now$', $'-1 month$');';
 			
 			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
 				IF fbSQLCommand.bError THEN
@@ -47,8 +44,57 @@ ELSE
 				END_IF
 				
 			END_IF
+			
+		2:	
+			(* build query *)	
+			sCmd	:= 'INSERT INTO imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
+			
+			FOR i := 1 TO Get_IMU.Data_Length BY 1 DO
+					sCmd2:= CONCAT('($'', Get_IMU.TimeStr[i]);
+					sCmd2:= CONCAT(sCmd2, '$',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.Trailer_ID_Lead[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.Trailer_ID_Rear[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.Pitch_Lead[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.Roll_Lead[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.AccX_Lead[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.AccY_Lead[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.AccZ_Lead[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.Pitch_Rear[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.Roll_Rear[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.AccX_Rear[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.AccY_Rear[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Get_IMU.AccZ_Rear[i]);
+					
+					IF i = Get_IMU.Data_Length THEN
+						sCmd2:= CONCAT(sCmd2, ')');
+					ELSE	
+						sCmd2:= CONCAT(sCmd2, '),');
+					END_IF
+					
+					CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
+				END_FOR
+			
+			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+				IF fbSQLCommand.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
 				
-		2: 
+			END_IF
+		
+		3: 
 			Done	:= TRUE;
 			nState	:= 0;
 				
@@ -60,7 +106,16 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_IMU">
-      <LineId Id="73" Count="42" />
+      <LineId Id="73" Count="18" />
+      <LineId Id="96" Count="9" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="129" Count="3" />
+      <LineId Id="163" Count="33" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="136" Count="7" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="107" Count="8" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

@@ -66,7 +66,7 @@ IF diff:= Background_Time.cSec <> pSec THEN
 	
 	(* connect to localdb *)
 	IF NOT fbSqlDatabase.bConnected THEN
-		fbSqlDatabase.Connect(1);
+		fbSqlDatabase.Connect(2);
 	ELSE
 	
 		CASE nState OF

@@ -18,7 +18,7 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[stSerialCfg.Baudrate := 4800;
-stSerialCfg.ComPort := 3;
+stSerialCfg.ComPort := 4;
 stSerialCfg.DataBits := 8;
 stSerialCfg.Parity := PARITY_NONE;
 stSerialCfg.StopBits := STOPBITS_ONE;

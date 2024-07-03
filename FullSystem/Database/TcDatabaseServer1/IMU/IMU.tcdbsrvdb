@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Database>
-  <ID>1</ID>
-  <Name>DB</Name>
-  <ServerName>C:\Program Files\DB Browser for SQLite\localdb.db</ServerName>
+  <ID>4</ID>
+  <Name>IMU</Name>
+  <ServerName>C:\Program Files\DB Browser for SQLite\imu.db</ServerName>
   <DatabaseName />
   <TableName />
   <Authentication>False</Authentication>
@@ -10,7 +10,7 @@
   <Password />
   <Driver />
   <Provider />
-  <Port>5432</Port>
+  <Port>0</Port>
   <Protocol />
   <Scheme />
   <Sequence />

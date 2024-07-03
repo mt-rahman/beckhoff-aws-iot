@@ -30,6 +30,7 @@ VAR
 	sCmd2			: STRING(10000);
 	nState			: INT;
 	
+	Buffer_Done		: BOOL;
 	Done			: BOOL;
 	 
 END_VAR
@@ -70,6 +71,10 @@ Lat					:= REAL_TO_STRING(Read_GPS.Lat);
 Lon					:= REAL_TO_STRING(Read_GPS.Lon);
 Speed				:= REAL_TO_STRING(Read_GPS.Speed);
 Overspeed			:= BOOL_TO_STRING(Read_GPS.Overspeed);
+
+IF Read_FatigueCam.New_Event THEN
+	Buffer_Done := FALSE;
+END_IF
 EventCode			:= Read_FatigueCam.EventCode;
 
 (* save data to buffer every second *)
@@ -145,8 +150,8 @@ IF diff:= Background_Time.cSec <> pSec THEN
 				END_IF
 				
 			2: 
-				Done	:= TRUE;
-					
+				Done		:= TRUE;	
+				
 			255:
 				nState := 0;
 	
@@ -178,7 +183,10 @@ END_IF
       <LineId Id="723" Count="0" />
       <LineId Id="893" Count="0" />
       <LineId Id="725" Count="3" />
-      <LineId Id="738" Count="33" />
+      <LineId Id="1019" Count="0" />
+      <LineId Id="1018" Count="0" />
+      <LineId Id="1020" Count="2" />
+      <LineId Id="739" Count="32" />
       <LineId Id="859" Count="1" />
       <LineId Id="772" Count="13" />
       <LineId Id="861" Count="1" />
@@ -186,7 +194,9 @@ END_IF
       <LineId Id="895" Count="2" />
       <LineId Id="894" Count="0" />
       <LineId Id="794" Count="0" />
-      <LineId Id="799" Count="23" />
+      <LineId Id="799" Count="14" />
+      <LineId Id="1025" Count="0" />
+      <LineId Id="815" Count="7" />
       <LineId Id="140" Count="0" />
     </LineIds>
   </POU>
