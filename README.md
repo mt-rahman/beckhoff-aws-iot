@@ -22,13 +22,73 @@
 
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
-
 ### Features:
 
 * Read data with a sampling rate of 1 Hz & 100 Hz from analog sensors, RS-232 serial, and GPS
 * Periodically send data to AWS IoT Core using MQTT
 * Buffers data to SQLite database in case of network connection loss
 * Saves sent data to SQLite database for local data storage
+
+## Project Tree
+```bash
+.
+├── FullSystem
+│   ├── Database
+│   │   ├── Database.tcconnproj
+│   │   └── TcDbServer.tcdbsrv
+│   ├── FullSystem.sln
+│   └── Plc
+│       ├── App
+│       │   ├── DUTs
+│       │   │   ├── ST_SelectStructData.TcDUT
+│       │   │   ├── ST_SelectStructData.xml
+│       │   │   ├── ST_SelectStructIMU.TcDUT
+│       │   │   └── ST_SelectStructIMU.xml
+│       │   ├── GVLs
+│       │   │   └── GVL.TcGVL
+│       │   ├── PlcTask_Background.TcTTO
+│       │   ├── PlcTask_Buffer.TcTTO
+│       │   ├── PlcTask_Read.TcTTO
+│       │   ├── PlcTask_Send.TcTTO
+│       │   ├── PlcTask_Vacuum.TcTTO
+│       │   ├── POUs
+│       │   │   ├── Background_FatigueCam.TcPOU
+│       │   │   ├── Background_GPS.TcPOU
+│       │   │   ├── Background_IMU.TcPOU
+│       │   │   ├── Background_Time.TcPOU
+│       │   │   ├── Buffer_Data.TcPOU
+│       │   │   ├── Buffer_IMU.TcPOU
+│       │   │   ├── DRAFT_Buffer_Data.TcPOU
+│       │   │   ├── DRAFT_Get_Data.TcPOU
+│       │   │   ├── FB_FatigueCam_Receive.TcPOU
+│       │   │   ├── Get_Data.TcPOU
+│       │   │   ├── Get_IMU.TcPOU
+│       │   │   ├── Main_Background.TcPOU
+│       │   │   ├── Main_Buffer.TcPOU
+│       │   │   ├── Main_Read.TcPOU
+│       │   │   ├── Main_Send.TcPOU
+│       │   │   ├── Main_Vacuum.TcPOU
+│       │   │   ├── Read_FatigueCam.TcPOU
+│       │   │   ├── Read_GPS.TcPOU
+│       │   │   ├── Read_ID.TcPOU
+│       │   │   ├── Read_IMU.TcPOU
+│       │   │   ├── Read_Payload.TcPOU
+│       │   │   ├── Read_Pressure.TcPOU
+│       │   │   ├── Save_Data.TcPOU
+│       │   │   ├── Save_IMU.TcPOU
+│       │   │   ├── Send_IMU.TcPOU
+│       │   │   ├── Send.TcPOU
+│       │   │   ├── Vacuum_Buffer_Data_2.TcPOU
+│       │   │   ├── Vacuum_Buffer_Data.TcPOU
+│       │   │   ├── Vacuum_Buffer_IMU_2.TcPOU
+│       │   │   ├── Vacuum_Buffer_IMU.TcPOU
+│       │   │   ├── Vacuum_Data.TcPOU
+│       │   │   └── Vacuum_IMU.TcPOU
+│       │   └── App.plcproj
+│       └── FullSystem.tsproj
+├── LICENSE
+└── README.md
+```
 
 <!-- LICENSE -->
 ## License
