@@ -10,21 +10,28 @@ VAR
 	(* aws certificates *)
 	
 	(*------------------ actual ----------------*)
+	(*
 	rootCA		: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
-	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\30ca1f75dd1439c7068842e0254dcd64758e3e884a9c2ab8cf28b27caf6d120f-certificate.pem.crt';
-	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\30ca1f75dd1439c7068842e0254dcd64758e3e884a9c2ab8cf28b27caf6d120f-private.pem.key';
+	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-private.pem.key';
+	*)
+	
+	rootCA		: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
+	thingCert	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\8872c9f9d2c9335079f20c0506a3dd3599fd4d8552622bd2d7f8ae6d1681c64f-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\Administrator\Downloads\AWSCert\8872c9f9d2c9335079f20c0506a3dd3599fd4d8552622bd2d7f8ae6d1681c64f-private.pem.key';
 	
 	(* ------------------ test ------------------ *)
 	(*
 	rootCA		: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\AmazonRootCA1.pem';
-	thingCert	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-certificate.pem.crt';
-	privateKey	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-1-certs\a2ca8bd1ed97a43e38f2bffcdf7ca64a29d3483826fdb03b3eb616af8a5efc9e-private.pem.key';
+	thingCert	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-test-certs\8872c9f9d2c9335079f20c0506a3dd3599fd4d8552622bd2d7f8ae6d1681c64f-certificate.pem.crt';
+	privateKey	: STRING(255) := 'C:\Users\muhammad.rahman\Downloads\double-sdt-test-certs\8872c9f9d2c9335079f20c0506a3dd3599fd4d8552622bd2d7f8ae6d1681c64f-private.pem.key';
 	*)
 	
 	(* broker settings *)
 	endpoint	: STRING := 'a2o01t3xth0mr1-ats.iot.ap-southeast-1.amazonaws.com';
 	port		: UINT := 8883;
-	clientID	: STRING := 'double-sdt-2';
+	//clientID	: STRING := 'double-sdt-1';
+	clientID	: STRING := 'double-sdt-test';
 	
 	(* published message *)
 	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/double-sdt/data'; //message topic

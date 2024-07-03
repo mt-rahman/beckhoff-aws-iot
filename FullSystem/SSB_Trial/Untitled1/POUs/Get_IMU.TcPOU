@@ -122,20 +122,20 @@ ELSE
 						Data_Length := 0;
 						nState := 1;
 						
-					ELSIF count < 500 THEN
+					ELSIF count < 250 THEN
 						Data_Length := 50;
 						nState := nState+1;
 						
-					ELSIF count < 1000 THEN
+					ELSIF count < 500 THEN
+						Data_Length := 250;
+						nState := nState+1;
+						
+					ELSIF count < 750 THEN
 						Data_Length := 500;
 						nState := nState+1;
 						
-					ELSIF count < 2500 THEN
-						Data_Length := 1000;
-						nState := nState+1;
-						
 					ELSE
-						Data_Length := 2500;
+						Data_Length := 750;
 						nState := nState+1;
 	
 					END_IF
@@ -182,16 +182,16 @@ ELSE
 				Trailer_ID_Lead[i]			:= LINT_TO_STRING(aReadStruct[i].trailer_id_lead);
 				Trailer_ID_Rear[i]			:= LINT_TO_STRING(aReadStruct[i].trailer_id_rear);
 				//RoadSec[i]				:= UINT_TO_STRING(aReadStruct[i].RoadSec);
-				Pitch_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].pitch_lead);
-				Roll_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].roll_lead);
-				AccX_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].ax_lead);
-				AccY_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].ay_lead);
-				AccZ_Lead[i]				:= LREAL_TO_STRING(aReadStruct[i].az_lead);
-				Pitch_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].pitch_rear);
-				Roll_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].roll_rear);
-				AccX_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].ax_rear);
-				AccY_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].ay_rear);
-				AccZ_Rear[i]				:= LREAL_TO_STRING(aReadStruct[i].az_rear);
+				Pitch_Lead[i]				:= REAL_TO_STRING(aReadStruct[i].pitch_lead);
+				Roll_Lead[i]				:= REAL_TO_STRING(aReadStruct[i].roll_lead);
+				AccX_Lead[i]				:= REAL_TO_STRING(aReadStruct[i].ax_lead);
+				AccY_Lead[i]				:= REAL_TO_STRING(aReadStruct[i].ay_lead);
+				AccZ_Lead[i]				:= REAL_TO_STRING(aReadStruct[i].az_lead);
+				Pitch_Rear[i]				:= REAL_TO_STRING(aReadStruct[i].pitch_rear);
+				Roll_Rear[i]				:= REAL_TO_STRING(aReadStruct[i].roll_rear);
+				AccX_Rear[i]				:= REAL_TO_STRING(aReadStruct[i].ax_rear);
+				AccY_Rear[i]				:= REAL_TO_STRING(aReadStruct[i].ay_rear);
+				AccZ_Rear[i]				:= REAL_TO_STRING(aReadStruct[i].az_rear);
 				
 			END_FOR
 			
@@ -226,7 +226,11 @@ END_IF
       <LineId Id="797" Count="0" />
       <LineId Id="782" Count="0" />
       <LineId Id="531" Count="26" />
-      <LineId Id="716" Count="19" />
+      <LineId Id="716" Count="10" />
+      <LineId Id="860" Count="0" />
+      <LineId Id="728" Count="2" />
+      <LineId Id="859" Count="0" />
+      <LineId Id="732" Count="3" />
       <LineId Id="574" Count="38" />
       <LineId Id="614" Count="0" />
       <LineId Id="631" Count="1" />

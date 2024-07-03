@@ -32,7 +32,8 @@ VAR
 	
 	Buffer_Done		: BOOL;
 	Done			: BOOL;
-	 
+	Vacuumed		: BOOL := FALSE;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -75,7 +76,8 @@ Overspeed			:= BOOL_TO_STRING(Read_GPS.Overspeed);
 IF Read_FatigueCam.New_Event THEN
 	Buffer_Done := FALSE;
 END_IF
-EventCode			:= Read_FatigueCam.EventCode;
+
+EventCode	:= Read_FatigueCam.EventCode;
 
 (* save data to buffer every second *)
 IF diff:= Background_Time.cSec <> pSec THEN
@@ -103,6 +105,24 @@ IF diff:= Background_Time.cSec <> pSec THEN
 				END_IF
 				
 			1:	
+				IF NOT Vacuumed THEN
+					(* build query *)	
+					sCmd	:= 'VACUUM';
+					
+					IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+						IF fbSQLCommand.bError THEN
+							nState := 255; 
+						ELSE
+							nState 		:= nState+1; 
+							Vacuumed 	:= TRUE;
+						END_IF
+					END_IF
+					
+				ELSE 
+					nState := nState+1;
+				END_IF
+				
+			2:	
 				(* build query *)	
 				sCmd:= 'INSERT INTO buffer_data (datetime,trailer_id_lead,trailer_id_rear,latitude,longitude,speed,overspeed,payload_lead,payload_rear,overload_lead,overload_rear,pressure_lead,pressure_rear,overpressure_lead,overpressure_rear,event_code) VALUES ($'';
 				sCmd2:= TimeStr;
@@ -149,7 +169,7 @@ IF diff:= Background_Time.cSec <> pSec THEN
 					END_IF
 				END_IF
 				
-			2: 
+			3: 
 				Done		:= TRUE;	
 				
 			255:
@@ -185,8 +205,14 @@ END_IF
       <LineId Id="725" Count="3" />
       <LineId Id="1019" Count="0" />
       <LineId Id="1018" Count="0" />
-      <LineId Id="1020" Count="2" />
-      <LineId Id="739" Count="32" />
+      <LineId Id="1020" Count="1" />
+      <LineId Id="1059" Count="0" />
+      <LineId Id="1022" Count="0" />
+      <LineId Id="739" Count="24" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1094" Count="15" />
+      <LineId Id="1093" Count="0" />
+      <LineId Id="764" Count="7" />
       <LineId Id="859" Count="1" />
       <LineId Id="772" Count="13" />
       <LineId Id="861" Count="1" />

@@ -53,6 +53,7 @@ END_VAR
 Prefix		:= 16#AA;
 LenPrefix	:= 1;	
 
+(*
 fb_Receive(
 	RxBuffer	:= Background_FatigueCam.RxBuffer,
 	Command		:= Command,
@@ -62,6 +63,8 @@ fb_Receive(
 	EventCode	=> EventCode,
 	Response	=> Response,
 );
+*)
+
 
 IF Background_Time.cSec <> pSec THEN
 	
@@ -209,8 +212,13 @@ IF Background_Time.cSec <> pSec THEN
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Read_FatigueCam">
-      <LineId Id="862" Count="11" />
-      <LineId Id="860" Count="1" />
+      <LineId Id="862" Count="2" />
+      <LineId Id="968" Count="0" />
+      <LineId Id="865" Count="8" />
+      <LineId Id="860" Count="0" />
+      <LineId Id="969" Count="0" />
+      <LineId Id="921" Count="0" />
+      <LineId Id="861" Count="0" />
       <LineId Id="576" Count="2" />
       <LineId Id="770" Count="0" />
       <LineId Id="579" Count="124" />
