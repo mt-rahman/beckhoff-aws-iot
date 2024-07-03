@@ -37,7 +37,7 @@ END_VAR
     <Implementation>
       <ST><![CDATA[(* convert to strings *)
 TimeStr			:= Main_Read.TimeStr;
-Trailer_ID		:= UINT_TO_STRING(Read_TrailerID.Trailer_ID);
+Trailer_ID		:= UINT_TO_STRING(Read_ID.Trailer_ID);
 Lat				:= REAL_TO_STRING(Read_GPS.Lat);
 Lon				:= REAL_TO_STRING(Read_GPS.Lon);
 Speed			:= REAL_TO_STRING(Read_GPS.Speed);
@@ -139,42 +139,7 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="Buffer_Data">
-      <LineId Id="654" Count="0" />
-      <LineId Id="689" Count="0" />
-      <LineId Id="655" Count="13" />
-      <LineId Id="637" Count="0" />
-      <LineId Id="686" Count="1" />
-      <LineId Id="274" Count="0" />
-      <LineId Id="552" Count="0" />
-      <LineId Id="540" Count="0" />
-      <LineId Id="535" Count="0" />
-      <LineId Id="537" Count="0" />
-      <LineId Id="536" Count="0" />
-      <LineId Id="528" Count="1" />
-      <LineId Id="278" Count="2" />
-      <LineId Id="282" Count="1" />
-      <LineId Id="438" Count="0" />
-      <LineId Id="445" Count="0" />
-      <LineId Id="447" Count="7" />
-      <LineId Id="557" Count="0" />
-      <LineId Id="455" Count="0" />
-      <LineId Id="487" Count="0" />
-      <LineId Id="489" Count="32" />
-      <LineId Id="464" Count="6" />
-      <LineId Id="527" Count="0" />
-      <LineId Id="541" Count="0" />
-      <LineId Id="471" Count="1" />
-      <LineId Id="558" Count="0" />
-      <LineId Id="526" Count="0" />
-      <LineId Id="531" Count="0" />
-      <LineId Id="551" Count="0" />
-      <LineId Id="538" Count="1" />
-      <LineId Id="534" Count="0" />
-      <LineId Id="437" Count="0" />
-      <LineId Id="525" Count="0" />
-      <LineId Id="524" Count="0" />
-      <LineId Id="485" Count="0" />
-      <LineId Id="484" Count="0" />
+      <LineId Id="722" Count="100" />
       <LineId Id="140" Count="0" />
     </LineIds>
   </POU>

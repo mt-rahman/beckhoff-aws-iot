@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main_SendIMU" Id="{bbcd2046-f035-4fcb-82dd-2c14584e261b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main_SendIMU
+VAR
+	Done		: BOOL;
+	Sent		: BOOL;
+	New_Data	: BOOL;
+	Saved		: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* get data from database *)
+Get_IMU();
+
+IF New_Data := Get_IMU.Done THEN
+	(* send data to aws iot core *)
+	IF NOT Sent THEN
+		Send_IMU();
+		
+		IF Send_IMU.Published THEN
+			Sent	:= TRUE;
+		END_IF	
+		
+	END_IF
+	
+	(* save data to localdb *)
+	IF Sent THEN
+		Save_IMU();
+		
+		IF Save_IMU.Done THEN
+			Saved := TRUE;
+		END_IF	
+		
+	END_IF
+	
+ELSE
+	Sent	:= FALSE;
+	Saved 	:= FALSE;
+	
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Main_SendIMU">
+      <LineId Id="10" Count="1" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="13" Count="25" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

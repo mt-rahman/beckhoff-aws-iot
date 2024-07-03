@@ -18,16 +18,16 @@ VAR
 	clientID	: STRING := 'sdt1';
 	
 	(* published message *)
-	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/sdt'; //message topic
+	sTopicPub 	: STRING(255) := 'iot/smartproduct/mifa/sdt/data'; //message topic
 	sPayloadPub : STRING(10000);
 	str			: STRING(10000);
 	str2		: STRING(10000);
-	i			: INT;
+	i			: UINT;
 	fbTimer : TON := (PT:=T#1S);
 	
 	(* topic subscription *)
 	bSubscribed : BOOL;
-	sTopicSub 	: STRING(255) := 'iot/smartproduct/mifa/sdt';
+	sTopicSub 	: STRING(255) := 'iot/smartproduct/mifa/sdt/data';
 	
 	(* received message *)	
 	{attribute 'TcEncoding':='UTF-8'}
@@ -45,7 +45,7 @@ END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF Main2.New_Data THEN
+      <ST><![CDATA[IF Main_SendData.New_Data THEN
 	Publish		:= FALSE;
 	Published 	:= FALSE;	
 END_IF
@@ -68,7 +68,8 @@ IF bSetParameter THEN
 	fbMqttClient.ipMessageQueue := fbMessageQueue;
 END_IF
 
-fbMqttClient.Execute(bConnect); //connect to mqtt broker
+(* connect to mqtt broker *)
+fbMqttClient.Execute(bConnect); 
 IF fbMqttClient.bError THEN
 	// add your error logging here
 	hrErrorOccurred := fbMqttClient.hrErrorCode;
@@ -94,43 +95,43 @@ IF fbMqttClient.bConnected THEN
 	(* build message payload *)
 	i := 1;
 	sPayloadPub := '[';
-	WHILE i <= Main2.Data_Length DO
-		str	:= CONCAT('{"primemover_id":"', Main2.Truck_ID);
+	WHILE i <= Get_Data.Data_Length DO
+		str	:= CONCAT('{"primemover_id":"', Read_ID.PrimeMover_ID);
 		str	:= CONCAT(str, '","trailer_id":"');
-		str	:= CONCAT(str, Main2.Trailer_ID[i]);
+		str	:= CONCAT(str, Get_Data.Trailer_ID[i]);
 		str	:= CONCAT(str, '","datetime":"');
-		str	:= CONCAT(str, Main2.TimeStr[i]);
+		str	:= CONCAT(str, Get_Data.TimeStr[i]);
 		str	:= CONCAT(str, '","latitude":"');
-		str	:= CONCAT(str, Main2.Lat[i]);
+		str	:= CONCAT(str, Get_Data.Lat[i]);
 		str	:= CONCAT(str, '","longitude":"');
-		str	:= CONCAT(str, Main2.Lon[i]);
+		str	:= CONCAT(str, Get_Data.Lon[i]);
 		str	:= CONCAT(str, '","speed":"');
-		str	:= CONCAT(str, Main2.Speed[i]);
+		str	:= CONCAT(str, Get_Data.Speed[i]);
 		str	:= CONCAT(str, '","overspeed":"');
-		str	:= CONCAT(str, Main2.Overspeed[i]);
+		str	:= CONCAT(str, Get_Data.Overspeed[i]);
 		str	:= CONCAT(str, '","payload_raw":"');
-		str	:= CONCAT(str, Main2.Payload_Raw[i]);
+		str	:= CONCAT(str, Get_Data.Payload_Raw[i]);
 		str	:= CONCAT(str, '","payload_ema":"');
-		str	:= CONCAT(str, Main2.Payload_EMA[i]);
+		str	:= CONCAT(str, Get_Data.Payload_EMA[i]);
 		
-		str2	:= CONCAT('","overload":"', Main2.Overload[i]);
+		str2	:= CONCAT('","overload":"', Get_Data.Overload[i]);
 		str2	:= CONCAT(str2, '","pressure_cyl":"');
-		str2	:= CONCAT(str2, Main2.Pressure_Cyl[i]);
+		str2	:= CONCAT(str2, Get_Data.Pressure_Cyl[i]);
 		str2	:= CONCAT(str2, '","pressure_val":"');
-		str2	:= CONCAT(str2, Main2.Pressure_Val[i]);
+		str2	:= CONCAT(str2, Get_Data.Pressure_Val[i]);
 		str2	:= CONCAT(str2, '","strain_left":"');
-		str2	:= CONCAT(str2, Main2.Strain_Left[i]);
+		str2	:= CONCAT(str2, Get_Data.Strain_Left[i]);
 		str2	:= CONCAT(str2, '","strain_right":"');
-		str2	:= CONCAT(str2, Main2.Strain_Right[i]);
+		str2	:= CONCAT(str2, Get_Data.Strain_Right[i]);
 		str2	:= CONCAT(str2, '","fatigue_event":"');
-		str2	:= CONCAT(str2, Main2.EventCode[i]);
+		str2	:= CONCAT(str2, Get_Data.EventCode[i]);
 		str2	:= CONCAT(str2, '","cycle_duration":"');
-		str2	:= CONCAT(str2, Main2.Cycle_Duration[i]);
+		str2	:= CONCAT(str2, Get_Data.Cycle_Duration[i]);
 		str2	:= CONCAT(str2, '","hyd_efficiency":"');
-		str2	:= CONCAT(str2, Main2.Hyd_Efficiency[i]);
+		str2	:= CONCAT(str2, Get_Data.Hyd_Efficiency[i]);
 		str2	:= CONCAT(str2, '"}');
 		
-		IF i <> Main2.Data_Length THEN
+		IF i <> Get_Data.Data_Length THEN
 			str2	:= CONCAT(str2, ',');
 		ELSE
 			str2	:= CONCAT(str2, ']');
@@ -139,6 +140,7 @@ IF fbMqttClient.bConnected THEN
 		CONCAT2(ADR(str), ADR(str2), ADR(str), SIZEOF(str));
 		CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
 		i := i+1;
+		
 	END_WHILE
 	
 	(* publish message to subscribed topic *)
@@ -149,9 +151,9 @@ IF fbMqttClient.bConnected THEN
 		ELSE
 			Published 	:= TRUE;
 		END_IF
+		
 	END_IF
 	
-	//END_IF
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Send_Data">
@@ -161,6 +163,7 @@ END_IF]]></ST>
       <LineId Id="868" Count="0" />
       <LineId Id="867" Count="0" />
       <LineId Id="508" Count="15" />
+      <LineId Id="960" Count="0" />
       <LineId Id="525" Count="13" />
       <LineId Id="540" Count="1" />
       <LineId Id="543" Count="6" />
@@ -192,14 +195,17 @@ END_IF]]></ST>
       <LineId Id="767" Count="0" />
       <LineId Id="769" Count="0" />
       <LineId Id="737" Count="0" />
+      <LineId Id="962" Count="0" />
       <LineId Id="566" Count="0" />
       <LineId Id="735" Count="0" />
       <LineId Id="567" Count="0" />
       <LineId Id="810" Count="0" />
       <LineId Id="813" Count="2" />
       <LineId Id="912" Count="1" />
-      <LineId Id="811" Count="1" />
-      <LineId Id="579" Count="1" />
+      <LineId Id="811" Count="0" />
+      <LineId Id="961" Count="0" />
+      <LineId Id="812" Count="0" />
+      <LineId Id="579" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

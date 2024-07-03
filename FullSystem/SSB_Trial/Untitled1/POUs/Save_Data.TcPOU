@@ -34,9 +34,9 @@ ELSE
 		1:	
 			(* build query *)	
 			sCmd	:= 'INSERT INTO sent_data SELECT * FROM buffer_data ORDER BY datetime ASC LIMIT ';
-			sCmd	:= CONCAT(sCmd, INT_TO_STRING(Main2.Data_Length));
+			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_Data.Data_Length));
 			sCmd	:= CONCAT(sCmd, '; DELETE FROM buffer_data ORDER BY datetime ASC LIMIT ');
-			sCmd	:= CONCAT(sCmd, INT_TO_STRING(Main2.Data_Length));
+			sCmd	:= CONCAT(sCmd, UDINT_TO_STRING(Get_Data.Data_Length));
 			sCmd	:= CONCAT(sCmd, ';');
 			
 			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
-  <DUT Name="ST_SelectStruct" Id="{e7f65f17-5ab8-4437-a2f6-648d9c46d320}">
-    <Declaration><![CDATA[TYPE ST_SelectStruct :
+  <DUT Name="ST_SelectStructData" Id="{e7f65f17-5ab8-4437-a2f6-648d9c46d320}">
+    <Declaration><![CDATA[TYPE ST_SelectStructData :
 STRUCT
 	TimeStr			: DATE_AND_TIME;	
 	Trailer_ID		: UINT;

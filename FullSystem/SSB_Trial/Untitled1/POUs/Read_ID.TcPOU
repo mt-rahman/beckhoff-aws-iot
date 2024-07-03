@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
-  <POU Name="Read_TrailerID" Id="{e1372c7c-abe8-4077-94d5-6aa297d659bb}" SpecialFunc="None">
-    <Declaration><![CDATA[PROGRAM Read_TrailerID
+  <POU Name="Read_ID" Id="{e1372c7c-abe8-4077-94d5-6aa297d659bb}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Read_ID
 VAR
+	PrimeMover_ID		: STRING := '1';
 	Trailer_ID AT %I*	: UINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[;]]></ST>
     </Implementation>
-    <LineIds Name="Read_TrailerID">
+    <LineIds Name="Read_ID">
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Send_IMU" Id="{f54450d6-3b2b-4158-910b-3329027ca0e4}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Send_IMU
+VAR
+	fbMqttClient : FB_IotMqttClient;
+	bSetParameter : BOOL := TRUE;
+	bConnect : BOOL := TRUE;
+	
+	(* aws certificates *)
+	rootCA		: STRING := 'C:\Users\Administrator\Downloads\AWSCert\AmazonRootCA1.pem';
+	thingCert	: STRING := 'C:\Users\Administrator\Downloads\AWSCert\6c62b288c2-certificate.pem.crt';
+	privateKey	: STRING := 'C:\Users\Administrator\Downloads\AWSCert\6c62b288c2-private.pem.key';
+	
+	(* broker settings *)
+	endpoint	: STRING := 'a2o01t3xth0mr1-ats.iot.ap-southeast-1.amazonaws.com';
+	port		: UINT := 8883;
+	clientID	: STRING := 'sdt1';
+	
+	(* published message *)
+	sTopicPub 		: STRING(255) := 'iot/smartproduct/mifa/sdt/imu'; //message topic
+	sPayloadPub 	: STRING(200000);
+	str				: STRING(100000);
+	valSeparator	: STRING := '","';
+	arrayEnd		: STRING := '"]';
+	msgEnd			: STRING := '}';
+	i				: UINT;
+	
+	(* topic subscription *)
+	bSubscribed : BOOL;
+	sTopicSub 	: STRING(255) := 'iot/smartproduct/mifa/sdt/imu';
+	
+	(* received message *)	
+	{attribute 'TcEncoding':='UTF-8'}
+	sTopicRcv : STRING(255);
+	{attribute 'TcEncoding':='UTF-8'}
+	sPayloadRcv : STRING(255);
+	
+	fbMessageQueue : FB_IotMqttMessageQueue;
+	fbMessage : FB_IotMqttMessage;
+	
+	hrErrorOccurred : HRESULT; // contains the latest occurred error
+	Published		: BOOL;
+	Publish			: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF Main_SendIMU.New_Data THEN
+	Publish		:= FALSE;
+	Published 	:= FALSE;	
+END_IF
+
+
+IF bSetParameter THEN
+	bSetParameter := FALSE;
+	
+	(* TLS settings for AWS IoT connection *)
+	fbMqttClient.stTLS.sCA 		:= rootCA; //root CA
+    fbMqttClient.stTLS.sCert 	:= thingCert; //certificate of thing
+    fbMqttClient.stTLS.sKeyFile := privateKey; //private key of thing
+	
+	(* Broker settings für AWS IoT *)
+	fbMqttClient.sHostName:= endpoint; //broker endpoint
+	fbMqttClient.nHostPort:= port; //default mqtt tls port
+	fbMqttClient.sClientId:= clientID; //client id
+	fbMqttClient.sTopicPrefix:= ''; 
+	
+	fbMqttClient.ipMessageQueue := fbMessageQueue;
+END_IF
+
+(* connect to mqtt broker *)
+fbMqttClient.Execute(bConnect); 
+IF fbMqttClient.bError THEN
+	// add your error logging here
+	hrErrorOccurred := fbMqttClient.hrErrorCode;
+END_IF
+
+(* get message from subscribed topic *)
+IF fbMessageQueue.nQueuedMessages > 0 THEN
+	IF fbMessageQueue.Dequeue(fbMessage:=fbMessage) THEN
+		fbMessage.GetTopic(pTopic:=ADR(sTopicRcv), nTopicSize:=SIZEOF(sTopicRcv) );
+		fbMessage.GetPayload(pPayload:=ADR(sPayloadRcv), nPayloadSize:=SIZEOF(sPayloadRcv), bSetNullTermination:=FALSE);
+	END_IF
+END_IF
+
+IF fbMqttClient.bConnected THEN	
+	IF NOT bSubscribed THEN
+		bSubscribed := fbMqttClient.Subscribe(sTopic:=sTopicSub, eQoS:=TcIotMqttQos.AtMostOnceDelivery); //subscribe to topic
+		IF fbMqttClient.bError THEN
+			// add your error logging here
+			hrErrorOccurred := fbMqttClient.hrErrorCode;
+		END_IF
+	END_IF
+	
+	(* build message payload *)
+	sPayloadPub := CONCAT('{"primemover_id":"', Read_ID.PrimeMover_ID);
+	sPayloadPub := CONCAT(sPayloadPub, '"');
+	
+	(* trailer id string *)
+	str	:= ',"trailer_id":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.Trailer_ID[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* date time string *)
+	str	:= ',"datetime":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.TimeStr[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* road section string *)
+	str	:= ',"road_section":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.RoadSec[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* acceleration x string *)
+	str	:= ',"acc_x":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.AccX[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* acceleration y string *)
+	str	:= ',"acc_y":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.AccY[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* acceleration z string *)
+	str	:= ',"acc_z":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.AccZ[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* pitch string *)
+	str	:= ',"pitch":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.Pitch[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	(* roll string *)
+	str	:= ',"roll":["';
+	i := 1;
+	WHILE i <= Get_IMU.Data_Length DO
+		CONCAT2(ADR(str), ADR(Get_IMU.Roll[i]), ADR(str), SIZEOF(str)); 
+		
+		IF i <> Get_IMU.Data_Length THEN
+			CONCAT2(ADR(str), ADR(valSeparator), ADR(str), SIZEOF(str));
+		ELSE
+			CONCAT2(ADR(str), ADR(arrayEnd), ADR(str), SIZEOF(str));
+		END_IF
+		
+		i := i+1;
+		
+	END_WHILE
+	
+	CONCAT2(ADR(sPayloadPub), ADR(str), ADR(sPayloadPub), SIZEOF(sPayloadPub));
+	
+	CONCAT2(ADR(sPayloadPub), ADR(msgEnd), ADR(sPayloadPub), SIZEOF(sPayloadPub)); //message ending
+	
+	(* publish message to subscribed topic *)
+	IF Publish := fbMqttClient.Publish(sTopic:= sTopicPub, pPayload:= ADR(sPayloadPub), nPayloadSize:= LEN2(ADR(sPayloadPub)), eQoS:= TcIotMqttQos.AtMostOnceDelivery, bRetain:= FALSE, bQueue:= FALSE) THEN
+		IF fbMqttClient.bError THEN
+			// add your error logging here			
+			hrErrorOccurred := fbMqttClient.hrErrorCode;
+		ELSE
+			Published 	:= TRUE;
+		END_IF
+		
+	END_IF
+	
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Send_IMU">
+      <LineId Id="44" Count="47" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="194" Count="0" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="129" Count="5" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="138" Count="2" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="227" Count="15" />
+      <LineId Id="226" Count="0" />
+      <LineId Id="243" Count="0" />
+      <LineId Id="245" Count="15" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="263" Count="15" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="280" Count="15" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="296" Count="0" />
+      <LineId Id="298" Count="15" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="316" Count="15" />
+      <LineId Id="315" Count="0" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="334" Count="15" />
+      <LineId Id="333" Count="0" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="142" Count="10" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

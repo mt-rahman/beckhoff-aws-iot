@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <DUT Name="ST_SelectStructIMU" Id="{7efcf5a1-343e-46ac-8d63-a2d9796a98be}">
+    <Declaration><![CDATA[TYPE ST_SelectStructIMU :
+STRUCT
+	TimeStr			: DATE_AND_TIME;
+	Millis			: UINT;	
+	Trailer_ID		: UINT;
+	RoadSec			: UINT;
+	AccX			: LREAL;
+	AccY			: LREAL;
+	AccZ			: LREAL;
+	Pitch			: LREAL;
+	Roll			: LREAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

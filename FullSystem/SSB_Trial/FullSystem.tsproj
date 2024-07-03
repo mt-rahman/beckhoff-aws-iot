@@ -1515,7 +1515,7 @@ External Setpoint Generation:
 					<Name>PlcTask_Read</Name>
 				</Task>
 				<Task Id="7" Priority="21" CycleTime="973236" AmsPort="352" Affinity="#x00000002" AdtTasks="true">
-					<Name>PlcTask2</Name>
+					<Name>PlcTask_Send</Name>
 				</Task>
 				<Task Id="8" Priority="18" CycleTime="3333" AmsPort="349" Affinity="#x00000002" AdtTasks="true">
 					<Name>PlcTask_Background</Name>
@@ -1875,7 +1875,7 @@ External Setpoint Generation:
 					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
 						<Name>PlcTask_Read Inputs</Name>
 						<Var>
-							<Name>Read_TrailerID.Trailer_ID</Name>
+							<Name>Read_ID.Trailer_ID</Name>
 							<Type>UINT</Type>
 						</Var>
 					</Vars>
@@ -2038,7 +2038,7 @@ External Setpoint Generation:
 						</Context>
 						<Context>
 							<Id NeedCalleeCall="true">3</Id>
-							<Name>PlcTask2</Name>
+							<Name>PlcTask_Send</Name>
 							<ManualConfig>
 								<OTCID>#x02010070</OTCID>
 							</ManualConfig>
@@ -5257,7 +5257,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="PlcTask_Background Inputs^Background_Payload.nBit" VarB="AI Standard Channel 1^Value"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)">
-				<Link VarA="PlcTask_Read Inputs^Read_TrailerID.Trailer_ID" VarB="ID^ID"/>
+				<Link VarA="PlcTask_Read Inputs^Read_ID.Trailer_ID" VarB="ID^ID"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)^Term 20 (EL6001)">
 				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[0]" VarB="COM Inputs^Data In 0"/>

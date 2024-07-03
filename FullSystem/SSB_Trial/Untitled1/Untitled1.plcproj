@@ -17,7 +17,10 @@
     <LibraryReferences>{2ac849aa-b428-47ea-ae95-b6ed3f4261f5}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DUTs\ST_SelectStruct.TcDUT">
+    <Compile Include="DUTs\ST_SelectStructData.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_SelectStructIMU.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
@@ -30,7 +33,7 @@
     <Compile Include="PlcTask_Buffer.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PlcTask2.TcTTO">
+    <Compile Include="PlcTask_Send.TcTTO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask_Read.TcTTO">
@@ -72,6 +75,9 @@
     <Compile Include="POUs\Main_Read.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Main_SendIMU.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Read_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -84,7 +90,7 @@
     <Compile Include="POUs\Main_Buffer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Main2.TcPOU">
+    <Compile Include="POUs\Main_SendData.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Read_FatigueCam.TcPOU">
@@ -96,7 +102,7 @@
     <Compile Include="POUs\Read_Strain.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Read_TrailerID.TcPOU">
+    <Compile Include="POUs\Read_ID.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Save_Data.TcPOU">
@@ -106,6 +112,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Send_Data.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Send_IMU.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

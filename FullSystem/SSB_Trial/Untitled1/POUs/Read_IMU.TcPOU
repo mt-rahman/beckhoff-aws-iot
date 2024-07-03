@@ -37,7 +37,7 @@ END_IF
 	
 IF pDiv <> cDiv THEN
 	TimeStr[i]		:= Background_Time.TimeStr;
-	Trailer_ID[i]	:= Read_TrailerID.Trailer_ID;
+	Trailer_ID[i]	:= Read_ID.Trailer_ID;
 	RoadSec[i]		:= Background_IMU.RoadSec;
 	Pitch[i]		:= Background_IMU.Pitch;
 	Roll[i]			:= Background_IMU.Roll;
