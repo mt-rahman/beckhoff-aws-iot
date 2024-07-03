@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Background_Time" Id="{77380658-b361-4e3d-9124-8dca135a14c1}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Background_Time
+VAR
+	fbTime 		: FB_LocalSystemTime := ( bEnable := TRUE, dwCycle := 1 );
+	bValid		: BOOL := FALSE;
+	TimeStr		: STRING;
+	cSec		: WORD;
+	cMil		: WORD;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* get system time *)
+WHILE bValid = FALSE DO
+	fbTime(bValid => bValid);	
+END_WHILE
+
+fbTime();
+
+TimeStr	:= SYSTEMTIME_TO_STRING(Background_Time.fbTime.systemTime);
+cSec	:= fbTime.systemTime.wSecond;
+cMil	:= fbTime.systemTime.wMilliseconds;
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="Background_Time">
+      <LineId Id="9" Count="5" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

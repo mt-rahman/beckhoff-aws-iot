@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main_Background" Id="{bf39ed73-1e87-4530-9028-00e14babda15}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main_Background
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* execute background processes *)
+Background_Time();
+Background_IMU();
+//Background_FatigueCam();
+Background_GPS();
+Background_Payload();]]></ST>
+    </Implementation>
+    <LineIds Name="Main_Background">
+      <LineId Id="9" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

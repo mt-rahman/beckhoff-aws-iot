@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main_Buffer" Id="{d634cea7-0b2b-4450-a767-f61c97526782}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main_Buffer
+VAR
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* save data to database *)
+Buffer_Data();
+Buffer_IMU();
+]]></ST>
+    </Implementation>
+    <LineIds Name="Main_Buffer">
+      <LineId Id="27" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="203" Count="0" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

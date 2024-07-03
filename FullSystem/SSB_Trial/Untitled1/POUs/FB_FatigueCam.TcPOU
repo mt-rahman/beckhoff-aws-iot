@@ -80,7 +80,7 @@ IF bDataReceived THEN
 END_IF
 
 (* response parsing *)
-Response 		:= LWORD_TO_HEXSTR(in := receive, iPrecision := 1, bLoCase := FALSE);
+Response 		:= LWORD_TO_HEXSTR(in := receive, iPrecision := 16, bLoCase := FALSE);
 InstructionID	:= RIGHT(STR := Response, SIZE := 4);
 IF InstructionID = '8BAA' THEN
 	EventID		:= MID(STR := Response, LEN := 2, POS := 3);

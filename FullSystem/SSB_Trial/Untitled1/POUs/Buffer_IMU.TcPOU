@@ -3,12 +3,162 @@
   <POU Name="Buffer_IMU" Id="{5645648d-eb13-4929-86df-ef282757094e}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Buffer_IMU
 VAR
+	pSec		: WORD;
+	diff		: BOOL;
+	
+	TimeStr		: ARRAY [1..50] OF STRING;
+	Trailer_ID	: ARRAY [1..50] OF STRING;
+	RoadSec		: ARRAY [1..50] OF STRING;
+	Pitch		: ARRAY [1..50] OF STRING;
+	Roll		: ARRAY [1..50] OF STRING;
+	AccX		: ARRAY [1..50] OF STRING;
+	AccY		: ARRAY [1..50] OF STRING;
+	AccZ		: ARRAY [1..50] OF STRING;
+	
+	fbSqlDatabase	: FB_SQLDatabaseEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlCommand	: FB_SQLCommandEvt(sNetID := '', tTimeout := T#5S);
+	fbSqlResult		: FB_SQLResultEvt(sNetID:='', tTimeout   := T#5S); 
+	sCmd			: STRING(50000);
+	sCmd2			: STRING(50000);
+	nState			: INT;
+	
+	Done			: BOOL;
+	i				: INT;
+	 
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[(* convert to strings *)
+TimeStr	:= Read_IMU.TimeStr;
+
+i := 1;
+WHILE i < 51 DO
+	RoadSec[i]		:= UINT_TO_STRING(Read_IMU.RoadSec[i]);
+	Trailer_ID[i]	:= UINT_TO_STRING(Read_IMU.Trailer_ID[i]);
+	Pitch[i]		:= REAL_TO_STRING(Read_IMU.Pitch[i]);
+	Roll[i]			:= REAL_TO_STRING(Read_IMU.Roll[i]);
+	AccX[i]			:= REAL_TO_STRING(Read_IMU.AccX[i]);
+	AccY[i]			:= REAL_TO_STRING(Read_IMU.AccY[i]);
+	AccZ[i]			:= REAL_TO_STRING(Read_IMU.AccZ[i]);
+	i := i+1;
+	
+END_WHILE
+
+(* save data to buffer every second *)
+IF diff:= Background_Time.cSec <> pSec THEN
+
+	IF Done THEN
+		nState 	:= 0;
+		Done	:= FALSE;	
+	END_IF
+	
+	
+	(* connect to localdb *)
+	IF NOT fbSqlDatabase.bConnected THEN
+		fbSqlDatabase.Connect(1);
+	ELSE
+	
+		CASE nState OF
+				
+			0:
+				IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
+					IF fbSqlDatabase.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1; 
+					END_IF
+				END_IF
+				
+			1:	
+				(* build query *)	
+				sCmd:= 'INSERT INTO buffer_imu (datetime,id_trailer,road_section,ax,ay,az,pitch,roll) VALUES ';
+				
+				i := 1;
+				WHILE i < 51 DO 
+					sCmd2:= CONCAT('($'', TimeStr[i]);
+					sCmd2:= CONCAT(sCmd2, '$',');
+					sCmd2:= CONCAT(sCmd2, Trailer_ID[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, RoadSec[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, AccX[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, AccY[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, AccZ[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Pitch[i]);
+					sCmd2:= CONCAT(sCmd2, ',');
+					sCmd2:= CONCAT(sCmd2, Roll[i]);
+					
+					IF i = 50 THEN
+						sCmd2:= CONCAT(sCmd2, ')');
+					ELSE	
+						sCmd2:= CONCAT(sCmd2, '),');
+					END_IF
+					
+					CONCAT2(ADR(sCmd), ADR(sCmd2), ADR(sCmd), SIZEOF(sCmd));
+					i := i+1;
+					
+				END_WHILE
+				
+				
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState := nState+1; 
+						pSec := Background_Time.cSec;
+						
+					END_IF
+				END_IF
+				
+			2: 
+				Done	:= TRUE;
+					
+			255:
+				nState := 0;
+	
+		END_CASE
+	
+	END_IF
+
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="Buffer_IMU">
+      <LineId Id="38" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="155" Count="1" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="55" Count="29" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="85" Count="2" />
+      <LineId Id="195" Count="2" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="201" Count="6" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="212" Count="1" />
+      <LineId Id="215" Count="1" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="194" Count="0" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="209" Count="1" />
+      <LineId Id="118" Count="19" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

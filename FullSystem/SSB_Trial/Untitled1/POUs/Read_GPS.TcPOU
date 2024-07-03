@@ -38,18 +38,20 @@ VAR
 	Threshold	: REAL := 60;
 	Overspeed	: BOOL := FALSE;
 	
-	pTime	: WORD;
+	Cycle_Duration	: STRING := '0';
+	
+	pSec	: WORD;
 END_VAR
 
 VAR CONSTANT
     cMax         : UDINT := 11; //no. of substrings
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF Main1.cTime <> pTime THEN
+      <ST><![CDATA[IF Background_Time.cSec <> pSec THEN
 
 	(* get gps data string *)
 	fbReceiveString(
-		RxBuffer := BACKGROUND_GPS.RxBuffer, 
+		RxBuffer := Background_GPS.RxBuffer, 
 		Prefix := Pref, 
 		Suffix := Suff, 
 		Timeout := T#1S, 
@@ -125,11 +127,14 @@ END_VAR]]></Declaration>
 		ELSE
 			Overspeed := FALSE;
 		END_IF
+		
+		(* calculate cycle time *)
+		//Cycle_Duration :=
 	ELSE
 		(* gps no signal error handling *)
 	END_IF
 	
-	pTime := Main1.cTime;
+	pSec := Background_Time.cSec;
 	
 END_IF]]></ST>
     </Implementation>
@@ -180,6 +185,7 @@ END_IF]]></ST>
       <LineId Id="252" Count="1" />
       <LineId Id="256" Count="1" />
       <LineId Id="254" Count="0" />
+      <LineId Id="349" Count="2" />
       <LineId Id="246" Count="1" />
       <LineId Id="86" Count="0" />
       <LineId Id="304" Count="2" />

@@ -7,7 +7,7 @@ VAR
 	RxBufferPcCom	: ComBuffer;	
 	TxBufferPcCom	: ComBuffer;
 	
-	pTime	: WORD := 0;
+	pSec	: WORD := 0;
 	
 	TimeStr		: STRING;
 	Year		: USINT;
@@ -31,7 +31,7 @@ VAR
 	Response		: STRING := 'ABC';
 	EventID			: STRING := '00';
 	prevEventID		: STRING;
-	EventCode		: STRING;
+	EventCode		: STRING := '0';
 	
 	Prefix		: WORD;
 	LenPrefix	: BYTE;
@@ -40,12 +40,12 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF Main1.cTime <> pTime THEN
+      <ST><![CDATA[IF Background_Time.cSec <> pSec THEN
 	
 	(* sync time every 1 minute *)
-	IF pTime = 0 THEN 
+	IF pSec = 0 THEN 
 		
-		TimeStr		:= SYSTEMTIME_TO_STRING(Main1.fbTime.systemTime); //get datetime
+		TimeStr		:= Background_Time.TimeStr; //get datetime
 	
 		Year		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 3));
 		Month		:= STRING_TO_USINT(MID(STR := TimeStr, LEN := 2, POS := 6));
@@ -95,7 +95,7 @@ END_VAR
 				Response	=> Response
 			);
 		ELSE
-			pTime := Main1.cTime;
+			pSec := Background_Time.cSec;
 		END_IF
 	
 	ELSE
@@ -114,7 +114,7 @@ END_VAR
 			Response	=> Response,
 		);
 	
-		pTime := Main1.cTime;
+		pSec := Background_Time.cSec;
 	
 	END_IF
 	

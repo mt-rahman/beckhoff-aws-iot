@@ -1499,8 +1499,8 @@ External Setpoint Generation:
 		<System>
 			<Settings MaxCpus="2" NonWinCpus="1">
 				<Cpu/>
-				<Cpu CpuId="1"/>
-				<IoIdleTask Affinity="#x00000002"/>
+				<Cpu CpuId="1" BaseTime="3333"/>
+				<IoIdleTask CycleTime="13332" Affinity="#x00000002"/>
 			</Settings>
 			<Licenses>
 				<Target>
@@ -1508,20 +1508,23 @@ External Setpoint Generation:
 				</Target>
 			</Licenses>
 			<Tasks>
-				<Task Id="3" Priority="20" CycleTime="500000" AmsPort="351" Affinity="#x00000002" AdtTasks="true">
-					<Name>PlcTask</Name>
+				<Task Id="3" Priority="20" CycleTime="473286" AmsPort="351" Affinity="#x00000002" AdtTasks="true">
+					<Name>PlcTask_Buffer</Name>
 				</Task>
-				<Task Id="4" Priority="19" CycleTime="20000" AmsPort="350" Affinity="#x00000002" AdtTasks="true">
-					<Name>PlcTask_Fast</Name>
+				<Task Id="4" Priority="19" CycleTime="19998" AmsPort="350" Affinity="#x00000002" AdtTasks="true">
+					<Name>PlcTask_Read</Name>
 				</Task>
-				<Task Id="7" Priority="21" CycleTime="2000000" AmsPort="352" Affinity="#x00000002" AdtTasks="true">
+				<Task Id="7" Priority="21" CycleTime="973236" AmsPort="352" Affinity="#x00000002" AdtTasks="true">
 					<Name>PlcTask2</Name>
+				</Task>
+				<Task Id="8" Priority="18" CycleTime="3333" AmsPort="349" Affinity="#x00000002" AdtTasks="true">
+					<Name>PlcTask_Background</Name>
 				</Task>
 			</Tasks>
 		</System>
 		<Motion>
 			<NC>
-				<SafTask Priority="4" CycleTime="20000" AmsPort="501" Affinity="#x00000002" IoAtBegin="true">
+				<SafTask Priority="4" CycleTime="23331" AmsPort="501" Affinity="#x00000002" IoAtBegin="true">
 					<Name>NC-Task 1 SAF</Name>
 					<Vars VarGrpType="1" InsertType="1">
 						<Name>Inputs</Name>
@@ -1533,7 +1536,7 @@ External Setpoint Generation:
 						<Name>Image</Name>
 					</Image>
 				</SafTask>
-				<SvbTask Priority="8" CycleTime="100000" AmsPort="511" Affinity="#x00000002">
+				<SvbTask Priority="8" CycleTime="103323" AmsPort="511" Affinity="#x00000002">
 					<Name>NC-Task 1 SVB</Name>
 				</SvbTask>
 				<Axis Id="1" CreateSymbols="true" AxisType="1">
@@ -1850,9 +1853,9 @@ External Setpoint Generation:
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
-						<Name>PlcTask_Fast Inputs</Name>
+						<Name>PlcTask_Background Inputs</Name>
 						<Var>
-							<Name>Background_FatigueCam.stIn_EL6001</Name>
+							<Name>Background_IMU.stIn_EL6001</Name>
 							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
 							<Type GUID="{0146173C-D895-D219-E209-CC005AC77636}" Namespace="Tc2_SerialCom">EL6inData22B</Type>
 						</Var>
@@ -1862,17 +1865,17 @@ External Setpoint Generation:
 						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
-						<Name>PlcTask_Fast Outputs</Name>
+						<Name>PlcTask_Background Outputs</Name>
 						<Var>
-							<Name>Background_FatigueCam.stOut_EL6001</Name>
+							<Name>Background_IMU.stOut_EL6001</Name>
 							<Comment><![CDATA[ linked to the EL6001 in the TwinCAT System Manager ]]></Comment>
 							<Type GUID="{D6B0A42D-897A-4B90-95E8-3C741C3CE3EE}" Namespace="Tc2_SerialCom">EL6outData22B</Type>
 						</Var>
 					</Vars>
 					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
-						<Name>PlcTask Inputs</Name>
+						<Name>PlcTask_Read Inputs</Name>
 						<Var>
-							<Name>Main1.iTrailer_ID</Name>
+							<Name>Read_TrailerID.Trailer_ID</Name>
 							<Type>UINT</Type>
 						</Var>
 					</Vars>
@@ -1946,39 +1949,108 @@ External Setpoint Generation:
 							</OwnerB>
 						</OwnerA>
 					</UnrestoredVarLinks>
+					<UnrestoredVarLinks ImportTime="2021-05-11T13:05:54">
+						<OwnerA Name="InputDst" Prefix="TIPC^Untitled1^Untitled1 Instance" Type="1">
+							<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)^Term 20 (EL6001)">
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[0]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 0" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[10]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 10" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[11]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 11" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[12]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 12" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[13]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 13" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[14]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 14" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[15]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 15" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[16]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 16" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[17]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 17" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[18]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 18" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[19]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 19" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[1]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 1" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[20]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 20" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[21]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 21" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[2]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 2" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[3]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 3" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[4]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 4" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[5]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 5" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[6]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 6" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[7]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 7" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[8]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 8" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^D[9]" TypeA="BYTE" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Inputs^Data In 9" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stIn_EL6001^Status" TypeA="WORD" InOutA="0" ParentTypeA="EL6inData22B" GuidA="{18071995-0000-0000-0000-000000000004}" VarB="COM Inputs^Status" RestoreInfo="ANotFound"/>
+							</OwnerB>
+							<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)">
+								<Link VarA="Main1.iTrailer_ID" TypeA="UINT" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000005}" VarB="ID^ID" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+						<OwnerA Name="OutputSrc" Prefix="TIPC^Untitled1^Untitled1 Instance" Type="2">
+							<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)^Term 20 (EL6001)">
+								<Link VarA="Background_FatigueCam.stOut_EL6001^Ctrl" TypeA="WORD" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000004}" VarB="COM Outputs^Ctrl" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[0]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 0" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[10]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 10" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[11]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 11" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[12]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 12" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[13]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 13" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[14]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 14" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[15]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 15" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[16]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 16" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[17]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 17" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[18]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 18" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[19]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 19" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[1]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 1" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[20]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 20" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[21]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 21" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[2]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 2" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[3]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 3" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[4]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 4" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[5]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 5" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[6]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 6" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[7]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 7" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[8]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 8" RestoreInfo="ANotFound"/>
+								<Link VarA="Background_FatigueCam.stOut_EL6001^D[9]" TypeA="BYTE" InOutA="1" ParentTypeA="EL6outData22B" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="COM Outputs^Data Out 9" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
 					<Contexts>
 						<Context>
 							<Id NeedCalleeCall="true">0</Id>
-							<Name>PlcTask_Fast</Name>
+							<Name>PlcTask_Background</Name>
+							<ManualConfig>
+								<OTCID>#x02010080</OTCID>
+							</ManualConfig>
+							<Priority>18</Priority>
+							<CycleTime>333300</CycleTime>
+						</Context>
+						<Context>
+							<Id NeedCalleeCall="true">1</Id>
+							<Name>PlcTask_Read</Name>
 							<ManualConfig>
 								<OTCID>#x02010040</OTCID>
 							</ManualConfig>
 							<Priority>19</Priority>
-							<CycleTime>2000000</CycleTime>
+							<CycleTime>1999800</CycleTime>
 						</Context>
 						<Context>
-							<Id NeedCalleeCall="true">1</Id>
-							<Name>PlcTask</Name>
+							<Id NeedCalleeCall="true">2</Id>
+							<Name>PlcTask_Buffer</Name>
 							<ManualConfig>
 								<OTCID>#x02010030</OTCID>
 							</ManualConfig>
 							<Priority>20</Priority>
-							<CycleTime>50000000</CycleTime>
+							<CycleTime>47328600</CycleTime>
 						</Context>
 						<Context>
-							<Id NeedCalleeCall="true">2</Id>
+							<Id NeedCalleeCall="true">3</Id>
 							<Name>PlcTask2</Name>
 							<ManualConfig>
 								<OTCID>#x02010070</OTCID>
 							</ManualConfig>
 							<Priority>21</Priority>
-							<CycleTime>200000000</CycleTime>
+							<CycleTime>97323600</CycleTime>
 						</Context>
 					</Contexts>
 					<TaskPouOids>
-						<TaskPouOid Prio="19" OTCID="#x08502001"/>
-						<TaskPouOid Prio="20" OTCID="#x08502002"/>
-						<TaskPouOid Prio="21" OTCID="#x08502003"/>
+						<TaskPouOid Prio="18" OTCID="#x08502001"/>
+						<TaskPouOid Prio="19" OTCID="#x08502002"/>
+						<TaskPouOid Prio="20" OTCID="#x08502003"/>
+						<TaskPouOid Prio="21" OTCID="#x08502004"/>
 					</TaskPouOids>
 				</Instance>
 			</Project>
@@ -5182,58 +5254,58 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 		</OwnerA>
 		<OwnerA Name="TIPC^Untitled1^Untitled1 Instance">
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 6 (EL3102)">
-				<Link VarA="PlcTask_Fast Inputs^Background_Payload.nBit" VarB="AI Standard Channel 1^Value"/>
+				<Link VarA="PlcTask_Background Inputs^Background_Payload.nBit" VarB="AI Standard Channel 1^Value"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)">
-				<Link VarA="PlcTask Inputs^Main1.iTrailer_ID" VarB="ID^ID"/>
+				<Link VarA="PlcTask_Read Inputs^Read_TrailerID.Trailer_ID" VarB="ID^ID"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 11 (EK1101)^Term 20 (EL6001)">
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[0]" VarB="COM Inputs^Data In 0"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[10]" VarB="COM Inputs^Data In 10"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[11]" VarB="COM Inputs^Data In 11"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[12]" VarB="COM Inputs^Data In 12"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[13]" VarB="COM Inputs^Data In 13"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[14]" VarB="COM Inputs^Data In 14"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[15]" VarB="COM Inputs^Data In 15"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[16]" VarB="COM Inputs^Data In 16"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[17]" VarB="COM Inputs^Data In 17"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[18]" VarB="COM Inputs^Data In 18"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[19]" VarB="COM Inputs^Data In 19"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[1]" VarB="COM Inputs^Data In 1"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[20]" VarB="COM Inputs^Data In 20"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[21]" VarB="COM Inputs^Data In 21"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[2]" VarB="COM Inputs^Data In 2"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[3]" VarB="COM Inputs^Data In 3"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[4]" VarB="COM Inputs^Data In 4"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[5]" VarB="COM Inputs^Data In 5"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[6]" VarB="COM Inputs^Data In 6"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[7]" VarB="COM Inputs^Data In 7"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[8]" VarB="COM Inputs^Data In 8"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^D[9]" VarB="COM Inputs^Data In 9"/>
-				<Link VarA="PlcTask_Fast Inputs^Background_FatigueCam.stIn_EL6001^Status" VarB="COM Inputs^Status"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^Ctrl" VarB="COM Outputs^Ctrl"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[0]" VarB="COM Outputs^Data Out 0"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[10]" VarB="COM Outputs^Data Out 10"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[11]" VarB="COM Outputs^Data Out 11"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[12]" VarB="COM Outputs^Data Out 12"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[13]" VarB="COM Outputs^Data Out 13"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[14]" VarB="COM Outputs^Data Out 14"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[15]" VarB="COM Outputs^Data Out 15"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[16]" VarB="COM Outputs^Data Out 16"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[17]" VarB="COM Outputs^Data Out 17"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[18]" VarB="COM Outputs^Data Out 18"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[19]" VarB="COM Outputs^Data Out 19"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[1]" VarB="COM Outputs^Data Out 1"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[20]" VarB="COM Outputs^Data Out 20"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[21]" VarB="COM Outputs^Data Out 21"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[2]" VarB="COM Outputs^Data Out 2"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[3]" VarB="COM Outputs^Data Out 3"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[4]" VarB="COM Outputs^Data Out 4"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[5]" VarB="COM Outputs^Data Out 5"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[6]" VarB="COM Outputs^Data Out 6"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[7]" VarB="COM Outputs^Data Out 7"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[8]" VarB="COM Outputs^Data Out 8"/>
-				<Link VarA="PlcTask_Fast Outputs^Background_FatigueCam.stOut_EL6001^D[9]" VarB="COM Outputs^Data Out 9"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[0]" VarB="COM Inputs^Data In 0"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[10]" VarB="COM Inputs^Data In 10"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[11]" VarB="COM Inputs^Data In 11"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[12]" VarB="COM Inputs^Data In 12"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[13]" VarB="COM Inputs^Data In 13"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[14]" VarB="COM Inputs^Data In 14"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[15]" VarB="COM Inputs^Data In 15"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[16]" VarB="COM Inputs^Data In 16"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[17]" VarB="COM Inputs^Data In 17"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[18]" VarB="COM Inputs^Data In 18"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[19]" VarB="COM Inputs^Data In 19"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[1]" VarB="COM Inputs^Data In 1"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[20]" VarB="COM Inputs^Data In 20"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[21]" VarB="COM Inputs^Data In 21"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[2]" VarB="COM Inputs^Data In 2"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[3]" VarB="COM Inputs^Data In 3"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[4]" VarB="COM Inputs^Data In 4"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[5]" VarB="COM Inputs^Data In 5"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[6]" VarB="COM Inputs^Data In 6"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[7]" VarB="COM Inputs^Data In 7"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[8]" VarB="COM Inputs^Data In 8"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^D[9]" VarB="COM Inputs^Data In 9"/>
+				<Link VarA="PlcTask_Background Inputs^Background_IMU.stIn_EL6001^Status" VarB="COM Inputs^Status"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^Ctrl" VarB="COM Outputs^Ctrl"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[0]" VarB="COM Outputs^Data Out 0"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[10]" VarB="COM Outputs^Data Out 10"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[11]" VarB="COM Outputs^Data Out 11"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[12]" VarB="COM Outputs^Data Out 12"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[13]" VarB="COM Outputs^Data Out 13"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[14]" VarB="COM Outputs^Data Out 14"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[15]" VarB="COM Outputs^Data Out 15"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[16]" VarB="COM Outputs^Data Out 16"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[17]" VarB="COM Outputs^Data Out 17"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[18]" VarB="COM Outputs^Data Out 18"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[19]" VarB="COM Outputs^Data Out 19"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[1]" VarB="COM Outputs^Data Out 1"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[20]" VarB="COM Outputs^Data Out 20"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[21]" VarB="COM Outputs^Data Out 21"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[2]" VarB="COM Outputs^Data Out 2"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[3]" VarB="COM Outputs^Data Out 3"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[4]" VarB="COM Outputs^Data Out 4"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[5]" VarB="COM Outputs^Data Out 5"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[6]" VarB="COM Outputs^Data Out 6"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[7]" VarB="COM Outputs^Data Out 7"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[8]" VarB="COM Outputs^Data Out 8"/>
+				<Link VarA="PlcTask_Background Outputs^Background_IMU.stOut_EL6001^D[9]" VarB="COM Outputs^Data Out 9"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>

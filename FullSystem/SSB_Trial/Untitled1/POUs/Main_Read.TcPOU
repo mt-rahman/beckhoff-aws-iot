@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Main_Read" Id="{a2a7af55-88d8-4c94-9be8-8a85ac14953c}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Main_Read
+VAR
+	TimeStr	: STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* get timestamp *)
+TimeStr	:= Background_Time.TimeStr;
+
+(* read sensors *)
+Read_IMU();
+//Read_FatigueCam();
+Read_GPS();
+Read_Payload();
+Read_Pressure();
+Read_Strain();]]></ST>
+    </Implementation>
+    <LineIds Name="Main_Read">
+      <LineId Id="15" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="7" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

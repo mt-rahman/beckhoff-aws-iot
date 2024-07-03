@@ -6,15 +6,17 @@ VAR
 	Pressure_Val	: REAL := 0;
 	Pressure_Cyl	: REAL := 0;
 	
+	Hyd_Efficiency	: REAL := 0;
 	//nBit_Val AT %I*	: INT;
 	//nBit_Cyl AT %I*	: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[;]]></ST>
+      <ST><![CDATA[(* calculate hyd efficiency *)
+//rHyd_Efficiency := Read_Pressure.Pressure_Cyl / Read_Pressure.Pressure_Val;]]></ST>
     </Implementation>
     <LineIds Name="Read_Pressure">
-      <LineId Id="5" Count="0" />
+      <LineId Id="16" Count="1" />
     </LineIds>
   </POU>
 </TcPlcObject>

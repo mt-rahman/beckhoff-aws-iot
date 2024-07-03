@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="Background_IMU" Id="{31dbd168-ee28-44e3-b044-5b986fafff5f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Background_IMU
+VAR
+	(* background communication with the EL6001 terminal *)
+	fbEL6001Ctrl		: SerialLineControl;
+	bEL6001CtrlError	: BOOL;
+	eEL6001CtrlErrorID	: ComError_t;
+	(* 	I/O variables for a EL6001 terminal*)
+	stIn_EL6001 AT %I*	: EL6inData22B;	(* linked to the EL6001 in the TwinCAT System Manager *)
+	stOut_EL6001 AT %Q*	: EL6outData22B;(* linked to the EL6001 in the TwinCAT System Manager *)
+	
+	fbReceive		: ReceiveData;
+	bReceiveBusy	: BOOL;
+	bReceiveError	: BOOL;
+	eReceiveErrorID	: ComError_t;
+	bReceiveTimeout	: BOOL;
+	nReceiveCounter	: UDINT := 1;
+	Prefix			: UINT := 16#2F77;
+	bDataReceived	: BOOL;
+	fbClearCom		: ClearComBuffer;
+	
+	Data	: ARRAY [1..6] OF ULINT;
+	DataStr	: ARRAY [1..6] OF STRING;
+	
+	Counter	: UINT := 0;
+	Total	: UINT;
+	
+	RoadSec	: UINT := 0;
+	Pitch	: REAL;
+	Roll	: REAL;
+	AccX	: REAL; //along pitch axis, perpendicular to driving direction 
+	AccY	: REAL;	//along roll axis, parallel to driving direction
+	AccZ	: REAL;
+	
+	pSec		: WORD;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+The SerialLineControl function block is supposed to be called in every PLC cycle.
+It communicates with the serial line hardware device and transmits or receives data.
+The SerialLineControl can be called in the standard task (e.g.for PcCOM port usage) 
+or in a separate fast task (e.g.for terminal usage) as well.
+A fast separate task will be necessary at high baud rates or with KL6001 terminals 
+which have a small process image (3 or 5 data bytes only)
+*)
+
+(* background communication with the EL6001 terminal *)
+fbEL6001Ctrl(
+	Mode:= SERIALLINEMODE_EL6_22B, 
+	pComIn:= ADR(stIn_EL6001), 
+	pComOut:= ADR(stOut_EL6001), 
+	SizeComIn:= SIZEOF(stIn_EL6001), 
+	Error=> , 
+	ErrorID=> , 
+	TxBuffer:= GVL.TxBufferEL, 
+	RxBuffer:= GVL.RxBufferEL );
+IF fbEL6001Ctrl.Error THEN
+	bEL6001CtrlError := TRUE;
+	eEL6001CtrlErrorID := fbEL6001Ctrl.ErrorID;
+END_IF
+
+(* read data from imu *)
+fbReceive( 
+	RxBuffer := GVL.RxBufferEL,
+	pPrefix := ADR(Prefix),
+	LenPrefix := 2,
+	pReceiveData := ADR(Data),
+	SizeReceiveData	:= 48,
+	Timeout:= T#1S,
+	Busy => bReceiveBusy,
+	Error => ,
+	DataReceived => bDataReceived,
+	RxTimeout=> bReceiveTimeout 
+);
+
+IF fbReceive.Error <> COMERROR_NOERROR THEN
+	eReceiveErrorID := fbReceive.Error;
+	
+END_IF
+
+IF bDataReceived THEN
+	fbClearCom(Buffer := GVL.RxBufferEL); //clear rx buffer
+	
+	(* parse data *)
+	DataStr[1]	:= LWORD_TO_HEXSTR(in := Data[1], iPrecision := 16, bLoCase := FALSE);
+	DataStr[2]	:= LWORD_TO_HEXSTR(in := Data[2], iPrecision := 16, bLoCase := FALSE);
+	DataStr[3]	:= LWORD_TO_HEXSTR(in := Data[3], iPrecision := 16, bLoCase := FALSE);
+	DataStr[4]	:= LWORD_TO_HEXSTR(in := Data[4], iPrecision := 16, bLoCase := FALSE);
+	
+	(* parse pitch *)
+	Pitch	:= (100 * STRING_TO_REAL(MID(DataStr[1], 1, 8))) + STRING_TO_REAL(MID(DataStr[1], 2, 5)) +  (0.01 * STRING_TO_REAL(MID(DataStr[1], 2, 3)));
+	IF MID(DataStr[1], 1, 7) = '1' THEN
+		Pitch	:= Pitch * (-1);
+		
+	END_IF
+		
+	(* parse roll *)
+	Roll	:= (100 * STRING_TO_REAL(MID(DataStr[1], 1, 2))) + STRING_TO_REAL(MID(DataStr[2], 2, 15)) +  (0.01 * STRING_TO_REAL(MID(DataStr[2], 2, 13)));
+	IF MID(DataStr[1], 1, 1) = '1' THEN
+		Roll	:= Roll * (-1);
+		
+	END_IF
+		
+	(* parse accx *)
+	IF MID(DataStr[2], 1, 6) = 'A' THEN
+		AccX	:= 10;
+		
+	ELSIF MID(DataStr[2], 1, 6) = 'B' THEN
+		AccX	:= 11;
+		
+	ELSIF MID(DataStr[2], 1, 6) = 'C' THEN
+		AccX	:= 12;
+		
+	ELSIF MID(DataStr[2], 1, 6) = 'D' THEN
+		AccX	:= 13;
+		
+	ELSIF MID(DataStr[2], 1, 6) = 'E' THEN
+		AccX	:= 14;
+	
+	ELSIF MID(DataStr[2], 1, 6) = 'F' THEN
+		AccX	:= 15;
+		
+	ELSE
+		AccX	:= STRING_TO_REAL(MID(DataStr[2], 1, 6));	
+	
+	END_IF
+	
+	AccX	:=  AccX + (0.01 * STRING_TO_REAL(MID(DataStr[2], 2, 3))) +  (0.0001 * STRING_TO_REAL(MID(DataStr[2], 2, 1)));
+	IF MID(DataStr[2], 1, 5) = '1' THEN
+		AccX	:= AccX * (-1);
+		
+	END_IF
+	
+	(* parse accy *)
+	IF MID(DataStr[3], 1, 16) = 'A' THEN
+		AccY	:= 10;
+		
+	ELSIF MID(DataStr[3], 1, 16) = 'B' THEN
+		AccY	:= 11;
+		
+	ELSIF MID(DataStr[3], 1, 16) = 'C' THEN
+		AccY	:= 12;
+		
+	ELSIF MID(DataStr[3], 1, 16) = 'D' THEN
+		AccY	:= 13;
+		
+	ELSIF MID(DataStr[3], 1, 16) = 'E' THEN
+		AccY	:= 14;
+	
+	ELSIF MID(DataStr[3], 1, 16) = 'F' THEN
+		AccY	:= 15;
+		
+	ELSE
+		AccY	:= STRING_TO_REAL(MID(DataStr[3], 1, 16));	
+	
+	END_IF
+	
+	AccY	:=  AccY + (0.01 * STRING_TO_REAL(MID(DataStr[3], 2, 13))) +  (0.0001 * STRING_TO_REAL(MID(DataStr[3], 2, 11)));
+	IF MID(DataStr[3], 1, 15) = '1' THEN
+		AccY	:= AccY * (-1);
+		
+	END_IF
+	
+	(* parse accz *)
+	IF MID(DataStr[3], 1, 10) = 'A' THEN
+		AccZ	:= 10;
+		
+	ELSIF MID(DataStr[3], 1, 10) = 'B' THEN
+		AccZ	:= 11;
+		
+	ELSIF MID(DataStr[3], 1, 10) = 'C' THEN
+		AccZ	:= 12;
+		
+	ELSIF MID(DataStr[3], 1, 10) = 'D' THEN
+		AccZ	:= 13;
+		
+	ELSIF MID(DataStr[3], 1, 10) = 'E' THEN
+		AccZ	:= 14;
+	
+	ELSIF MID(DataStr[3], 1, 10) = 'F' THEN
+		AccZ	:= 15;
+		
+	ELSE
+		AccZ	:= STRING_TO_REAL(MID(DataStr[3], 1, 10));	
+	
+	END_IF
+	
+	AccZ	:=  AccZ + (0.01 * STRING_TO_REAL(MID(DataStr[3], 2, 7))) +  (0.0001 * STRING_TO_REAL(MID(DataStr[3], 2, 5)));
+	IF MID(DataStr[3], 1, 9) = '1' THEN
+		AccZ	:= AccZ * (-1);
+		
+	END_IF
+	
+	(* detect road section *)
+	//algorithm for road section detection
+	
+	Counter			:= Counter + 1;	
+	
+END_IF
+
+(* count total received data per second *)
+IF pSec <> Background_Time.cSec THEN 
+		Total 	:= Counter;
+		Counter := 0;
+		pSec	:= Background_Time.cSec;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Background_IMU">
+      <LineId Id="3" Count="21" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="64" Count="130" />
+      <LineId Id="260" Count="1" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="195" Count="3" />
+      <LineId Id="254" Count="5" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

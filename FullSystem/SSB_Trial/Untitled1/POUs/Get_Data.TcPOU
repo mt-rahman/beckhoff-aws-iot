@@ -33,7 +33,7 @@ END_VAR
     <Implementation>
       <ST><![CDATA[(* get new data only if prev data sent to aws & saved to localdb *)
 IF Main2.Saved THEN
-	nState2 := 0;
+	nState 	:= 0;
 	Done	:= FALSE;
 END_IF
 
@@ -42,14 +42,14 @@ IF NOT fbSqlDatabase.bConnected THEN
 	fbSqlDatabase.Connect(1);
 ELSE
 
-	CASE nState2 OF
+	CASE nState OF
 		
 		0:
 			IF fbSqlDatabase.CreateCmd(ADR(fbSqlCommand)) THEN
 				IF fbSqlDatabase.bError THEN
-					nState2 := 255; 
+					nState := 255; 
 				ELSE
-					nState2 := nState2+1; 
+					nState := nState+1; 
 				END_IF
 			END_IF
 			
@@ -58,35 +58,38 @@ ELSE
 			
 			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd2), SIZEOF(sCmd2), ADR(fbSqlResult)) THEN
 				IF fbSQLCommand.bError THEN
-					nState2 := 255; 
+					nState := 255; 
 				ELSE
-					nState2 := nState2+1; 
+					nState := nState+1; 
 				END_IF
 			END_IF
 			
 		2:	
 			IF fbSqlResult.Read(0, 1, ADR(count), SIZEOF(count), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
-					nState2 := 255; 
+					nState := 255; 
 				ELSE
-					nState2 := nState2+1; 
+					nState := nState+1; 
 				END_IF
 			END_IF
 			
 		3:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
-					nState2 := 255;
+					nState := 255;
 				ELSE
-					nState2 := nState2+1;
+					nState := nState+1;
 					
 					(* determine no of records to select *)
 					IF count < 10 THEN
 						lim := 1;
+						
 					ELSIF count < 20 THEN
 						lim := 10;
+						
 					ELSE
 						lim := 20;
+						
 					END_IF
 					
 				END_IF
@@ -98,27 +101,27 @@ ELSE
 			
 			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd2), SIZEOF(sCmd2), ADR(fbSqlResult)) THEN
 				IF fbSQLCommand.bError THEN
-					nState2 := 255; 
+					nState := 255; 
 				ELSE
-					nState2 := nState2+1; 
+					nState := nState+1; 
 				END_IF
 			END_IF
 			
 		5:
 			IF fbSqlResult.Read(0, lim, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
 				IF fbSqlResult.bError THEN
-					nState2 := 255; 
+					nState := 255; 
 				ELSE
-					nState2 := nState2+1; 
+					nState := nState+1; 
 				END_IF
 			END_IF
 			
 		6:
 			IF fbSqlResult.Release() THEN
 				IF fbSqlResult.bError THEN
-					nState2 := 255;
+					nState := 255;
 				ELSE
-					nState2 := nState2+1;
+					nState := nState+1;
 				END_IF
 			END_IF
 		
@@ -127,7 +130,8 @@ ELSE
 		
 		255:
 			nState	:= 0;	
-END_CASE
+			
+	END_CASE
 
 END_IF
 
@@ -153,8 +157,12 @@ END_IF
       <LineId Id="243" Count="0" />
       <LineId Id="46" Count="5" />
       <LineId Id="137" Count="0" />
-      <LineId Id="131" Count="4" />
+      <LineId Id="131" Count="2" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="134" Count="1" />
+      <LineId Id="311" Count="0" />
       <LineId Id="279" Count="1" />
+      <LineId Id="312" Count="0" />
       <LineId Id="130" Count="0" />
       <LineId Id="136" Count="0" />
       <LineId Id="52" Count="1" />
@@ -177,6 +185,7 @@ END_IF
       <LineId Id="235" Count="0" />
       <LineId Id="275" Count="1" />
       <LineId Id="278" Count="0" />
+      <LineId Id="309" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="180" Count="0" />
       <LineId Id="179" Count="0" />
