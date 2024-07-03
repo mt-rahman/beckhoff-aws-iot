@@ -211,7 +211,11 @@ IF NOT Initialized THEN
 			Timestamp	:= SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct.datetime));
 			Timestamp_2	:= SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct_2.datetime));
 
-			IF Timestamp > Timestamp_2 THEN
+			IF Timestamp = DT#1970-1-1-00:00:00 THEN
+				Dbid := 2;
+			ELSIF Timestamp_2 = DT#1970-1-1-00:00:00 THEN
+				Dbid := 5;
+			ELSIF Timestamp > Timestamp_2 THEN
 				Dbid := 2;
 			ELSE
 				Dbid := 5;
@@ -231,7 +235,7 @@ ELSE
 	IF diff:= Background_Time.cSec <> pSec THEN
 		
 		//database switching
-		IF Get_IMU.Switch AND Counter > 3000 THEN
+		IF Get_IMU.Switch AND Counter > 1000 THEN
 			
 			IF fbSqlDatabase.bConnected THEN
 				fbSqlDatabase.Disconnect();
@@ -380,7 +384,10 @@ END_IF
       <LineId Id="996" Count="31" />
       <LineId Id="1246" Count="3" />
       <LineId Id="1251" Count="0" />
+      <LineId Id="1678" Count="0" />
       <LineId Id="1250" Count="0" />
+      <LineId Id="1679" Count="0" />
+      <LineId Id="1682" Count="1" />
       <LineId Id="1028" Count="4" />
       <LineId Id="1040" Count="0" />
       <LineId Id="1039" Count="0" />

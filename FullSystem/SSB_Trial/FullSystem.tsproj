@@ -128,7 +128,7 @@
 		<System>
 			<Settings MaxCpus="2">
 				<Cpu BaseTime="3333"/>
-				<Cpu CpuId="1" BaseTime="3333"/>
+				<Cpu CpuId="1" RtLimit="90" BaseTime="3333"/>
 				<IoIdleTask CycleTime="13332" Affinity="#x00000002"/>
 			</Settings>
 			<Licenses>

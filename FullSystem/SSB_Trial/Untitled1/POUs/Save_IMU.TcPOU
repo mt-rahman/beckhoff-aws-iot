@@ -13,6 +13,12 @@ VAR
 	Done			: BOOL;
 	i				: ULINT;
 	Vacuumed		: BOOL := FALSE;
+	
+	aReadStruct		: ST_SelectStructIMU;
+	Oldest_data		: DWORD;
+	Today			: DWORD;
+	
+	Deleted			: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -29,24 +35,68 @@ ELSE
 				IF fbSqlDatabase.bError THEN
 					nState := 255; 
 				ELSE
-					nState := nState+1; 
+					IF NOT Deleted THEN
+						nState := nState+1;
+					ELSE
+						nState := 5;	
+					END_IF
 				END_IF
 			END_IF
 			
-		1:	
-			(* build query *)	
-			sCmd	:= 'DELETE FROM imu WHERE datetime < datetime($'now$', $'-1 month$');';
+		1:
+			(* select oldest data from buffer_imu *)
+			sCmd	:= 'SELECT * FROM `imu` ORDER BY datetime ASC LIMIT 1';
 			
-			IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+			IF fbSQLCommand.ExecuteDataReturn(ADR(sCmd), SIZEOF(sCmd), ADR(fbSqlResult)) THEN
 				IF fbSQLCommand.bError THEN
 					nState := 255; 
 				ELSE
 					nState := nState+1; 
 				END_IF
-				
 			END_IF
 			
-		2:	
+		2:
+			IF fbSqlResult.Read(0, 1, ADR(aReadStruct), SIZEOF(aReadStruct), TRUE, TRUE) THEN
+				IF fbSqlResult.bError THEN
+					nState := 255; 
+				ELSE
+					nState := nState+1; 
+				END_IF
+			END_IF
+			
+		3:
+			IF fbSqlResult.Release() THEN
+				IF fbSqlResult.bError THEN
+					nState := 255;
+				ELSE
+					nState := nState+1;
+				END_IF
+			END_IF
+			
+		4:	
+			//oldest data < today - 3 months?
+			aReadStruct.datetime 	:= REPLACE(aReadStruct.datetime, '-', 1, 11);
+			Oldest_data				:= DT_TO_DWORD(SYSTEMTIME_TO_DT(STRING_TO_SYSTEMTIME(aReadStruct.datetime)));
+			Today					:= DT_TO_DWORD(SYSTEMTIME_TO_DT(Background_Time.fbTime.systemTime));
+			
+			IF Oldest_data < (Today - 7776000) THEN
+				sCmd	:= 'DELETE FROM imu WHERE datetime < datetime($'now$', $'-3 month$');';
+		
+				IF fbSQLCommand.Execute(ADR(sCmd), SIZEOF(sCmd)) THEN
+					IF fbSQLCommand.bError THEN
+						nState := 255; 
+					ELSE
+						nState 	:= nState+1;
+						Deleted	:= TRUE;
+					END_IF
+					
+				END_IF
+			ELSE
+				nState 	:= nState+1;
+				Deleted	:= TRUE;
+			END_IF
+			
+		5:	
 			(* build query *)	
 			sCmd	:= 'INSERT INTO imu (datetime,trailer_id_lead,trailer_id_rear,pitch_lead,roll_lead,ax_lead,ay_lead,az_lead,pitch_rear,roll_rear,ax_rear,ay_rear,az_rear) VALUES ';
 			
@@ -95,7 +145,7 @@ ELSE
 				
 			END_IF
 		
-		3: 
+		6: 
 			Done	:= TRUE;
 			nState	:= 0;
 				
@@ -107,10 +157,25 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Save_IMU">
-      <LineId Id="73" Count="15" />
+      <LineId Id="73" Count="12" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="276" Count="1" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="243" Count="27" />
+      <LineId Id="241" Count="0" />
       <LineId Id="210" Count="0" />
-      <LineId Id="90" Count="1" />
-      <LineId Id="96" Count="9" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="281" Count="1" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="290" Count="9" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="300" Count="2" />
+      <LineId Id="289" Count="0" />
       <LineId Id="127" Count="0" />
       <LineId Id="129" Count="3" />
       <LineId Id="163" Count="33" />

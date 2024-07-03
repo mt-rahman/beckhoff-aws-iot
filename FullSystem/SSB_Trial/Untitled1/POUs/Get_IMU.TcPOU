@@ -154,7 +154,7 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 			IF count = 0 THEN
 				Data_Length := 0;
 				nState := 12;
-				
+			(*
 			ELSIF count < 50 THEN
 				Data_Length := count;
 				nState := nState+1;
@@ -170,11 +170,26 @@ ELSIF Buffer_IMU.Initialized AND Buffer_IMU.fbSqlDatabase.bConnected THEN
 			ELSIF count < 750 THEN
 				Data_Length := 500;
 				nState := nState+1;
-				
+			*)
+			
+			(*
+			ELSIF count < 750 THEN
+				Data_Length := count;
+				nState := nState+1;
+			
 			ELSE
 				Data_Length := 750;
 				nState := nState+1;
-
+			*)
+			
+			ELSIF count < 1000 THEN
+				Data_Length := count;
+				nState := nState+1;
+			
+			ELSE
+				Data_Length := 1000;
+				nState := nState+1;
+			
 			END_IF
 			
 		7:	
@@ -292,7 +307,16 @@ END_IF
       <LineId Id="989" Count="3" />
       <LineId Id="1219" Count="0" />
       <LineId Id="1221" Count="4" />
-      <LineId Id="1235" Count="20" />
+      <LineId Id="1235" Count="16" />
+      <LineId Id="1586" Count="1" />
+      <LineId Id="1532" Count="0" />
+      <LineId Id="1534" Count="1" />
+      <LineId Id="1533" Count="0" />
+      <LineId Id="1252" Count="3" />
+      <LineId Id="1589" Count="0" />
+      <LineId Id="1591" Count="5" />
+      <LineId Id="1590" Count="0" />
+      <LineId Id="1588" Count="0" />
       <LineId Id="1220" Count="0" />
       <LineId Id="993" Count="1" />
       <LineId Id="1480" Count="0" />
